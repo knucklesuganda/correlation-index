@@ -1,74 +1,49 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.0;
 import './Token.sol';
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 
-contract Index is Token {
-    uint256 constant private MAX_UINT256 = 2 ** 256 - 1;
-    mapping (address => uint256) public balances;
-    mapping (address => mapping (address => uint256)) public allowed;
-
+contract Index is Ownable {
     uint256 public totalFunds;
     mapping(address => uint256) public investors;
     uint256 private minimalFundAddition = 1000000000000000;
-    address private owner;
     string[] public tokens = ["WBTC", "ETH", "BNB", "MANA", "HBAR"];
+    string[] private baseTokens = ["USD", "USD", "USD", "USD", "USD"];
 
-    uint256 public totalSupply;
     string public name = "Correlation Index";
     string public symbol = "CI";
-    uint8 public decimals = 18;
 
-    constructor(uint256 _initialAmount) {
-        balances[msg.sender] = _initialAmount;
-        owner = msg.sender;
-    }
-
-    function transfer(address _to, uint256 _value) public override returns (bool success) {
-        require(balances[msg.sender] >= _value, "token balance is lower than the value requested");
-        balances[msg.sender] -= _value;
-        balances[_to] += _value;
-        emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
-        return true;
-    }
-
-    function transferFrom(address _from, address _to, uint256 _value) public override returns (bool success) {
-        uint256 allowedTransfer = allowed[_from][msg.sender];
-        require(
-            balances[_from] >= _value && allowedTransfer >= _value,
-            "token balance or allowance is lower than amount requested"
-        );
-        balances[_to] += _value;
-        balances[_from] -= _value;
-        if (allowedTransfer < MAX_UINT256) {
-            allowed[_from][msg.sender] -= _value;
-        }
-        emit Transfer(_from, _to, _value); //solhint-disable-line indent, no-unused-vars
-        return true;
-    }
-
-    function balanceOf(address _owner) public override view returns (uint256 balance) {
-        return balances[_owner];
-    }
-
-    function approve(address _spender, uint256 _value) public override returns (bool success) {
-        allowed[msg.sender][_spender] = _value;
-        emit Approval(msg.sender, _spender, _value); //solhint-disable-line indent, no-unused-vars
-        return true;
-    }
-
-    function allowance(address _owner, address _spender) public override view returns (uint256 remaining) {
-        return allowed[_owner][_spender];
-    }
+    string private testnetPriceProtocol = 0xDA7a001b254CD22e46d3eAB04d937489c93174C3;
+    PriceProtocol private priceProtocol = PriceProtocol(testnetPriceProtocol);
 
     function getPrice() public pure returns (uint256) {
-        return 100;
+        IStdReference.ReferenceData[] memory data = ref.getReferenceDataBulk(tokens, baseTokens,);
+
+        uint256[] memory prices = new uint256[](2);
+        prices[0] = data[0].rate;
+        prices[1] = data[1].rate;
+
+        uint256 totalPrice = 0;
+        for (uint256 price in prices) {
+            totalPrice += price;
+        }
+
+        return totalPrice / prices.length;
     }
 
     function addFunds() public payable {
-        require(msg.value > minimalFundAddition, "You must send funds");
+        require(msg.value > minimalFundAddition, "You must send at least 1000000000000000 funds");
         totalFunds += msg.value;
         investors[msg.sender] += msg.value;
+
+        // require(amount > 0, "You need to sell at least some tokens");
+        // uint256 allowance = token.allowance(msg.sender, address(this));
+        // require(allowance >= amount, "Check the token allowance");
+        // token.transferFrom(msg.sender, address(this), amount);
+        // msg.sender.transfer(amount);
+        // emit Sold(amount);
     }
 
     function getTotalPrice() public payable returns(uint256){

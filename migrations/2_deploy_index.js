@@ -1,5 +1,5 @@
-var HelloWorld = artifacts.require("Index");
+const Index = artifacts.require("./Index.sol");
 
 module.exports = function(deployer) {
-    deployer.deploy(HelloWorld, "Index");
+    deployer.deploy(Index);
 };
