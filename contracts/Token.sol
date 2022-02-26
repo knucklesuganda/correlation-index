@@ -3,7 +3,7 @@
 pragma solidity 0.8.0;
 
 
-interface Token {
+interface IERC20 {
 
     /// @param _owner The address from which the balance will be retrieved
     /// @return balance the balance
