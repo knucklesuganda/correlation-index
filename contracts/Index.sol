@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
+import '@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol';
 
 
 contract BaseIndex is Ownable {
@@ -15,7 +16,6 @@ contract BaseIndex is Ownable {
     mapping(address => uint256) private investors;
     uint256 public minimalFundAddition;
 
-    string[] public tokens;
     string public name;
     string public symbol;
 
@@ -24,7 +24,7 @@ contract BaseIndex is Ownable {
 
     uint24 public constant poolFee = 3000;
     address private WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    ISwapRouter private uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    ISwapRouter public uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     function getPrice() public view returns (uint) {
         uint totalPrice = 0;
@@ -39,26 +39,25 @@ contract BaseIndex is Ownable {
     }
 
     function addFunds() public payable {
-        // require(msg.value > minimalFundAddition, "Not enough funds to add to the index");
+        // require(msg.value < minimalFundAddition, "Not enough funds to add to the index");
         totalFunds += msg.value;
-        investors[msg.sender] += 1;//msg.value / getPrice();
+        investors[msg.sender] += 1; //msg.value / getPrice();
 
-        address indexAddress = address(this);
-        TransferHelper.safeTransferETH(indexAddress, msg.value);
+        // TransferHelper.safeTransferETH(indexAddress, msg.value);
 
-        ISwapRouter.ExactInputSingleParams memory params =
-            ISwapRouter.ExactInputSingleParams({
-                tokenIn: WETH,
-                tokenOut: tokenContracts[1],
-                fee: poolFee,
-                recipient: indexAddress,
-                deadline: block.timestamp,
-                amountIn: msg.value,
-                amountOutMinimum: 0,        // TODO: Change that for exact price
-                sqrtPriceLimitX96: 0
-            });
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+            tokenIn: WETH,
+            tokenOut: tokenContracts[0],
+            fee: poolFee,
+            recipient: address(this),
+            deadline: block.timestamp + 3600,
+            amountIn: msg.value,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
 
         uniswapRouter.exactInputSingle(params);
+        // IPeripheryPayments().refundETH();
     }
 
     function getTVL() public view returns(uint256){
@@ -80,18 +79,17 @@ contract CorrelationIndex is BaseIndex {
 
     constructor(){
         minimalFundAddition = 100;
-        tokens = ["BTC", "ETH", "BNB", "LINK", "DOT"];
         name = "Correlation Index";
         symbol = "CI";
 
         priceConsumers = [
             // BSC mainnet
-            // PriceConsumerV3(0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE),    // BNB
-            // PriceConsumerV3(0x7CA57b0cA6367191c94C8914d7Df09A57655905f),    // MATIC
-            // PriceConsumerV3(0x264990fbd0A4796A3E3d8E37C4d5F87a3aCa5Ebf),    // WBTC
-            // PriceConsumerV3(0xca236E327F629f9Fc2c30A4E95775EbF0B89fac8),    // LINK
-            // PriceConsumerV3(0xF4C5e535756D11994fCBB12Ba8adD0192D9b88be),    // TRX
-            // PriceConsumerV3(0xb57f259E7C24e56a1dA00F66b55A5640d9f9E7e4)    // UNI
+            // 0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE,    // BNB
+            // 0x7CA57b0cA6367191c94C8914d7Df09A57655905f,    // MATIC
+            // 0x264990fbd0A4796A3E3d8E37C4d5F87a3aCa5Ebf,    // WBTC
+            // 0xca236E327F629f9Fc2c30A4E95775EbF0B89fac8,    // LINK
+            // 0xF4C5e535756D11994fCBB12Ba8adD0192D9b88be,    // TRX
+            // 0xb57f259E7C24e56a1dA00F66b55A5640d9f9E7e4,    // UNI
 
             // ETH mainnet
             0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,    // ETH
@@ -101,10 +99,10 @@ contract CorrelationIndex is BaseIndex {
 
         tokenContracts = [
             // ETH mainnet
-            // IERC20(0xB8c77482e45F1F44dE1745F52C74426C631bDD52),     // BNB
-            // IERC20(0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0),     // MATIC
-            // IERC20(0xE1Be5D3f34e89dE342Ee97E6e90D405884dA6c67),     // TRX
-            // IERC20(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984)     // UNI
+            // 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,     // BNB
+            // 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0,     // MATIC
+            // 0xE1Be5D3f34e89dE342Ee97E6e90D405884dA6c67,     // TRX
+            // 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,     // UNI
 
             0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,    // WETH
             0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599,     // WBTC
