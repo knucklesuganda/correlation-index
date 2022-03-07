@@ -24,11 +24,13 @@ contract('CorrelationIndex', (accounts) => {
 
     it("must add funds", async () => {
         await testCorrelationIndex.addFunds({ from: ETH_WHALE, value: FUNDS_VALUE });
+        const indexBalance = await web3.eth.getBalance(testCorrelationIndex.address);
+        expect(indexBalance).equal(FUNDS_VALUE);
 
-        const indexPrice = (await testCorrelationIndex.getPrice()).toNumber();
-        const totalValuePrice = (await testCorrelationIndex.getTVL()).toNumber();
+        // const indexPrice = (await testCorrelationIndex.getPrice()).toNumber();
+        // const totalValuePrice = (await testCorrelationIndex.getTVL()).toNumber();
 
-        console.log(indexPrice, totalValuePrice);
+        // console.log(indexPrice, totalValuePrice);
         // expect(indexPrice).to.be.equal(totalValuePrice);
     });
 

@@ -23,8 +23,8 @@ contract BaseIndex is Ownable {
     address[] public tokenContracts;
 
     uint24 public constant poolFee = 3000;
-    address private WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    ISwapRouter public uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    address private constant WETH = 0xd0A1E359811322d97991E03f863a0C30C2cF029C;
+    ISwapRouter public constant uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     function getPrice() public view returns (uint) {
         uint totalPrice = 0;
@@ -39,15 +39,16 @@ contract BaseIndex is Ownable {
     }
 
     function addFunds() public payable {
-        // require(msg.value < minimalFundAddition, "Not enough funds to add to the index");
+        require(msg.value > minimalFundAddition, "Not enough funds to add to the index");
         totalFunds += msg.value;
         investors[msg.sender] += 1; //msg.value / getPrice();
 
-        // TransferHelper.safeTransferETH(indexAddress, msg.value);
+        TransferHelper.safeTransfer(WETH, address(this), msg.value);
+        TransferHelper.safeApprove(WETH, address(uniswapRouter), msg.value);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: WETH,
-            tokenOut: tokenContracts[0],
+            tokenOut: tokenContracts[1],
             fee: poolFee,
             recipient: address(this),
             deadline: block.timestamp + 3600,
@@ -57,8 +58,10 @@ contract BaseIndex is Ownable {
         });
 
         uniswapRouter.exactInputSingle(params);
-        // IPeripheryPayments().refundETH();
+        // uniswapRouter.refundEth();
     }
+
+    receive() payable external {}
 
     function getTVL() public view returns(uint256){
         return totalFunds * getPrice();
