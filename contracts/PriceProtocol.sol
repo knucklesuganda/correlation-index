@@ -1,99 +1,99 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+// SPDX-License-Identifier: GPL-2.0-or-later
+pragma solidity ^0.8.7;
 pragma abicoder v2;
 
-import "https://github.com/Uniswap/uniswap-v3-periphery/blob/main/contracts/interfaces/ISwapRouter.sol";
-import "https://github.com/Uniswap/uniswap-v3-periphery/blob/main/contracts/interfaces/IQuoter.sol";
+import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
+import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 
-interface IUniswapRouter is ISwapRouter {
-    function refundETH() external payable;
-}
+contract SwapExamples {
+    // For the scope of these swap examples,
+    // we will detail the design considerations when using
+    // `exactInput`, `exactInputSingle`, `exactOutput`, and  `exactOutputSingle`.
 
-contract Uniswap3 {
-  IUniswapRouter public constant uniswapRouter = IUniswapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-  IQuoter public constant quoter = IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
-  address private constant multiDaiKovan = 0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa;
-  address private constant WETH9 = 0xd0A1E359811322d97991E03f863a0C30C2cF029C;
+    // It should be noted that for the sake of these examples, we purposefully pass in the swap router instead of inherit the swap router for simplicity.
+    // More advanced example contracts will detail how to inherit the swap router safely.
 
-  function convertExactEthToDai() external payable {
-    require(msg.value > 0, "Must pass non 0 ETH amount");
+    ISwapRouter public immutable swapRouter;
 
-    uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-    address tokenIn = WETH9;
-    address tokenOut = multiDaiKovan;
-    uint24 fee = 3000;
-    address recipient = msg.sender;
-    uint256 amountIn = msg.value;
-    uint256 amountOutMinimum = 1;
-    uint160 sqrtPriceLimitX96 = 0;
-    
-    ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams(
-        tokenIn,
-        tokenOut,
-        fee,
-        recipient,
-        deadline,
-        amountIn,
-        amountOutMinimum,
-        sqrtPriceLimitX96
-    );
-    
-    uniswapRouter.exactInputSingle{ value: msg.value }(params);
-    uniswapRouter.refundETH();
-    
-    // refund leftover ETH to user
-    (bool success,) = msg.sender.call{ value: address(this).balance }("");
-    require(success, "refund failed");
-  }
-  
-  function convertEthToExactDai(uint256 daiAmount) external payable {
-    require(daiAmount > 0, "Must pass non 0 DAI amount");
-    require(msg.value > 0, "Must pass non 0 ETH amount");
-      
-    uint256 deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-    address tokenIn = WETH9;
-    address tokenOut = multiDaiKovan;
-    uint24 fee = 3000;
-    address recipient = msg.sender;
-    uint256 amountOut = daiAmount;
-    uint256 amountInMaximum = msg.value;
-    uint160 sqrtPriceLimitX96 = 0;
+    // This example swaps DAI/WETH9 for single path swaps and DAI/USDC/WETH9 for multi path swaps.
 
-    ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter.ExactOutputSingleParams(
-        tokenIn,
-        tokenOut,
-        fee,
-        recipient,
-        deadline,
-        amountOut,
-        amountInMaximum,
-        sqrtPriceLimitX96
-    );
+    address public constant DAI = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address public constant WETH9 = 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599;
+    address public constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 
-    uniswapRouter.exactOutputSingle{ value: msg.value }(params);
-    uniswapRouter.refundETH();
+    // For this example, we will set the pool fee to 0.3%.
+    uint24 public constant poolFee = 3000;
 
-    // refund leftover ETH to user
-    (bool success,) = msg.sender.call{ value: address(this).balance }("");
-    require(success, "refund failed");
-  }
-  
-  // do not used on-chain, gas inefficient!
-  function getEstimatedETHforDAI(uint daiAmount) external payable returns (uint256) {
-    address tokenIn = WETH9;
-    address tokenOut = multiDaiKovan;
-    uint24 fee = 3000;
-    uint160 sqrtPriceLimitX96 = 0;
+    constructor(address _swapRouter) {
+        swapRouter = ISwapRouter(_swapRouter);
+    }
 
-    return quoter.quoteExactOutputSingle(
-        tokenIn,
-        tokenOut,
-        fee,
-        daiAmount,
-        sqrtPriceLimitX96
-    );
-  }
-  
-  // important to receive ETH
-  receive() payable external {}
+    /// @notice swapExactInputSingle swaps a fixed amount of DAI for a maximum possible amount of WETH9
+    /// using the DAI/WETH9 0.3% pool by calling `exactInputSingle` in the swap router.
+    /// @dev The calling address must approve this contract to spend at least `amountIn`
+    /// worth of its DAI for this function to succeed.
+    /// @return amountOut The amount of WETH9 received.
+    function swapExactInputSingle() public payable returns (uint256 amountOut) {
+        // msg.sender must approve this contract
+
+        // Transfer the specified amount of DAI to this contract.
+        // TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountIn);
+
+        // Approve the router to spend DAI.
+        // TransferHelper.safeApprove(DAI, address(swapRouter), amountIn);
+
+        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: DAI,
+                tokenOut: WETH9,
+                fee: poolFee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountIn: msg.value,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
+
+        // The call to `exactInputSingle` executes the swap.
+        amountOut = swapRouter.exactInputSingle{ value: msg.value }(params);
+    }
+
+    /// @notice swapExactOutputSingle swaps a minimum possible amount of DAI for a fixed amount of WETH.
+    /// @dev The calling address must approve this contract to spend its DAI for this function to succeed. As the amount of input DAI is variable,
+    /// the calling address will need to approve for a slightly higher amount, anticipating some variance.
+    /// @param amountOut The exact amount of WETH9 to receive from the swap.
+    /// @param amountInMaximum The amount of DAI we are willing to spend to receive the specified amount of WETH9.
+    /// @return amountIn The amount of DAI actually spent in the swap.
+    function swapExactOutputSingle(uint256 amountOut, uint256 amountInMaximum) public returns (uint256 amountIn) {
+        // Transfer the specified amount of DAI to this contract.
+        TransferHelper.safeTransferFrom(DAI, msg.sender, address(this), amountInMaximum);
+
+        // Approve the router to spend the specifed `amountInMaximum` of DAI.
+        // In production, you should choose the maximum amount to spend based on oracles or other data sources to acheive a better swap.
+        TransferHelper.safeApprove(DAI, address(swapRouter), amountInMaximum);
+
+        ISwapRouter.ExactOutputSingleParams memory params =
+            ISwapRouter.ExactOutputSingleParams({
+                tokenIn: DAI,
+                tokenOut: WETH9,
+                fee: poolFee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountOut: amountOut,
+                amountInMaximum: amountInMaximum,
+                sqrtPriceLimitX96: 0
+            });
+
+        // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
+        amountIn = swapRouter.exactOutputSingle(params);
+
+        // For exact output swaps, the amountInMaximum may not have all been spent.
+        // If the actual amount spent (amountIn) is less than the specified maximum amount, we must refund the msg.sender and approve the swapRouter to spend 0.
+        if (amountIn < amountInMaximum) {
+            TransferHelper.safeApprove(DAI, address(swapRouter), 0);
+            TransferHelper.safeTransfer(DAI, msg.sender, amountInMaximum - amountIn);
+        }
+    }
 }
