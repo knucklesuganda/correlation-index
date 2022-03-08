@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity >=0.7.5;
+pragma abicoder v2;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol';
 
 
-contract BaseIndex is Ownable {
+contract BaseIndex {
 
     uint256 private totalFunds;
     mapping(address => uint256) private investors;
@@ -29,9 +27,7 @@ contract BaseIndex is Ownable {
         uint totalPrice = 0;
 
         for (uint index = 0; index < priceConsumers.length; index++) {
-            AggregatorV3Interface consumer = AggregatorV3Interface(priceConsumers[index]);
-            (, int answer, , ,) = consumer.latestRoundData();
-            totalPrice += uint(answer);
+            totalPrice += index;
         }
 
         return totalPrice / priceConsumers.length;
