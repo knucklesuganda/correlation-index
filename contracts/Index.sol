@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import './PriceProtocol.sol';
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
@@ -23,8 +22,8 @@ contract BaseIndex is Ownable {
     address[] public tokenContracts;
 
     uint24 public constant poolFee = 3000;
-    address private constant WETH = 0xd0A1E359811322d97991E03f863a0C30C2cF029C;
-    ISwapRouter public constant uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    address private constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    ISwapRouter private constant uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     function getPrice() public view returns (uint) {
         uint totalPrice = 0;
@@ -43,22 +42,24 @@ contract BaseIndex is Ownable {
         totalFunds += msg.value;
         investors[msg.sender] += 1; //msg.value / getPrice();
 
-        TransferHelper.safeTransfer(WETH, address(this), msg.value);
-        TransferHelper.safeApprove(WETH, address(uniswapRouter), msg.value);
+        uint _amountIn = msg.value;
+        address token = tokenContracts[1];
+
+        // TransferHelper.safeTransferFrom(WETH, msg.sender, address(this), _amountIn);
+        // TransferHelper.safeApprove(WETH, address(uniswapRouter), _amountIn);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
             tokenIn: WETH,
-            tokenOut: tokenContracts[1],
+            tokenOut: token,
             fee: poolFee,
             recipient: address(this),
-            deadline: block.timestamp + 3600,
-            amountIn: msg.value,
-            amountOutMinimum: 0,
+            deadline: block.timestamp,
+            amountIn: _amountIn,
+            amountOutMinimum: 0,    // TODO: that should be a real amount from the oracles
             sqrtPriceLimitX96: 0
         });
 
-        uniswapRouter.exactInputSingle(params);
-        // uniswapRouter.refundEth();
+        uniswapRouter.exactInputSingle{ value: msg.value }(params);
     }
 
     receive() payable external {}
