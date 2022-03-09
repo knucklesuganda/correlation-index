@@ -14,7 +14,7 @@ contract('CorrelationIndex', (accounts) => {
     beforeEach(async () => {
         testCorrelationIndex = await CorrelationIndex.new();
         tokenIn = await IERC20.at(process.env.WETH);
-        await tokenIn.approve(testCorrelationIndex.address, FUNDS_VALUE + 1000, { from: ETH_WHALE });
+        await tokenIn.approve(testCorrelationIndex.address, FUNDS_VALUE, { from: ETH_WHALE });
     });
 
     it("returns index price bigger than 0", async () => {
@@ -22,16 +22,17 @@ contract('CorrelationIndex', (accounts) => {
         expect(price.toNumber()).to.be.above(0);
     });
 
-    it("must add funds", async () => {
+    it("must add funds to the tokens and leave zero in itself", async () => {
         await testCorrelationIndex.addFunds({ from: ETH_WHALE, value: FUNDS_VALUE });
         const indexBalance = await web3.eth.getBalance(testCorrelationIndex.address);
-        expect(indexBalance).equal(FUNDS_VALUE);
+        expect(indexBalance).equal(0);
+    });
 
-        // const indexPrice = (await testCorrelationIndex.getPrice()).toNumber();
-        // const totalValuePrice = (await testCorrelationIndex.getTVL()).toNumber();
-
-        // console.log(indexPrice, totalValuePrice);
-        // expect(indexPrice).to.be.equal(totalValuePrice);
+    it("must get funds from the user account", async () => {
+        const userInitialBalance = await web3.eth.getBalance(ETH_WHALE);
+        await testCorrelationIndex.addFunds({ from: ETH_WHALE, value: FUNDS_VALUE });
+        const userFundsBalance = await web3.eth.getBalance(ETH_WHALE);
+        userFundsBalance.should.be.bignumber.equal(userInitialBalance - FUNDS_VALUE);
     });
 
 });
