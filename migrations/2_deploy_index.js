@@ -1,4 +1,4 @@
-const Index = artifacts.require("./Index.sol");
+const Index = artifacts.require("./indices/CorrelationIndex.sol");
 
 module.exports = function(deployer) {
     deployer.deploy(Index);
