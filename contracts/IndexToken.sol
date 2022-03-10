@@ -38,7 +38,7 @@ interface Token {
 }
 
 contract IndexToken is Token {
-    uint256 constant private MAX_UINT256 = 2**256 - 1;
+    uint256 constant private MAX_UINT256 = 2 ** 256 - 1;
     mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
     uint256 public totalSupply;
@@ -46,8 +46,11 @@ contract IndexToken is Token {
     uint8 public decimals;
     string public symbol;
 
-    constructor(uint256 _initialAmount, string memory _tokenName, uint8 _decimalUnits, string  memory _tokenSymbol) {
-        balances[msg.sender] = _initialAmount;
+    constructor(
+        uint _initialAmount, address indexAddress, string memory _tokenName, 
+        uint8 _decimalUnits, string  memory _tokenSymbol
+    ) {
+        balances[indexAddress] = _initialAmount;
         totalSupply = 0;
         name = _tokenName;
         decimals = _decimalUnits;
