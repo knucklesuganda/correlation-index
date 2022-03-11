@@ -34,21 +34,21 @@ contract BaseIndex {
     uint private totalLockedTokens;
     IndexToken public immutable indexToken;
     uint256 public immutable minimalFundAddition;
-    address private immutable WETH;  // 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+    address private immutable buyTokenAddress;  // 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
     ISwapRouter private immutable uniswapRouter;    // 0xE592427A0AEce92De3Edee1F18E0157C05861564
     PriceOracle private priceOracle; // 0x1F98431c8aD98523631AE4a59f267346ea31F984
     BaseIndex.TokenSwapPool[] public tokenContracts;
 
     constructor(
         BaseIndex.IndexInitialParameters memory params,
-        address uniswapAddress, address wethAddress, address priceOracleAddress
+        address uniswapAddress, address priceOracleAddress, address _buyTokenAddress
     ){
         indexToken = new IndexToken(
             params.initialAmount, address(this), params.tokenName, params.decimalUnits, params.tokenSymbol
         );
         minimalFundAddition = params.minimalFundAddition;
         uniswapRouter = ISwapRouter(uniswapAddress);
-        WETH = wethAddress;
+        buyTokenAddress = _buyTokenAddress;
         priceOracle = new PriceOracle(priceOracleAddress);
     }
 
@@ -56,19 +56,22 @@ contract BaseIndex {
         return totalTokensPrice / tokenContracts.length;
     }
 
-    function addFunds() public payable returns(uint){
-        require(msg.value >= minimalFundAddition, "Not enough funds to add to the index");
-        uint buyAmount = msg.value / tokenContracts.length;
+    function addFunds(uint amountIn) public{
+        require(amountIn >= minimalFundAddition, "Not enough funds to add to the index");
+        uint buyAmount = amountIn / tokenContracts.length;
         uint totalPrice;
+
+        IERC20(buyTokenAddress).transferFrom(msg.sender, address(this), amountIn);
+        IERC20(buyTokenAddress).approve(address(uniswapRouter), amountIn);
 
         for (uint256 index = 0; index < tokenContracts.length; index++) {
             TokenSwapPool memory token = tokenContracts[index];
 
-            uint tokenPrice = priceOracle.getPrice(WETH, token.tokenAddress, token.poolFee);
+            uint tokenPrice = priceOracle.getPrice(buyTokenAddress, token.tokenAddress, token.poolFee);
             uint tokenAmountOut = buyAmount * tokenPrice;
 
             ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-                tokenIn: WETH,
+                tokenIn: buyTokenAddress,
                 tokenOut: token.tokenAddress,
                 fee: token.poolFee,
                 recipient: address(this),
@@ -78,11 +81,11 @@ contract BaseIndex {
                 sqrtPriceLimitX96: 0
             });
 
-            uniswapRouter.exactInputSingle{ value: buyAmount }(params);
+            uniswapRouter.exactInputSingle(params);
             totalPrice += tokenPrice;
         }
 
-        uint tokensAmount = msg.value / calculatePrice(totalPrice);
+        uint tokensAmount = amountIn / calculatePrice(totalPrice);
         require(
             indexToken.balanceOf(address(this)) >= tokensAmount,
             "Not enough tokens in the index, you can only buy it on secondary markets"
