@@ -13,7 +13,7 @@ contract('CorrelationIndex', (accounts) => {
 
     beforeEach(async () => {
         testCorrelationIndex = await CorrelationIndex.new();
-        tokenIn = await IERC20.at(process.env.USDT);
+        tokenIn = await IERC20.at(process.env.DAI);
         await tokenIn.approve(testCorrelationIndex.address, FUNDS_VALUE, { from: ETH_WHALE });
     });
 
