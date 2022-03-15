@@ -2,13 +2,11 @@
 pragma solidity >=0.7.5;
 pragma abicoder v2;
 
-import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
-import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
-import '@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
 import './PriceOracle.sol';
 import './IndexToken.sol';
+import './DexConnector.sol';
 
 
 contract BaseIndex {
@@ -42,10 +40,10 @@ contract BaseIndex {
     uint private totalUsedTokens;     // how many tokens were sent to the users
     IndexToken public immutable indexToken;     // IERC20 token that is used in the index
     uint256 public immutable minimalFundAddition;   // minimal amount of money you need to add to the index
-    ISwapRouter private immutable uniswapRouter;    // Uniswap router that we use to swap tokens
     PriceOracle private immutable priceOracle = new PriceOracle();  // price oracle to get the price of the tokens
     BaseIndex.TokenSwapPool[] public tokenContracts;    // array of tokens that are used in the index
     address public immutable buyToken;
+    DexConnector private immutable dexConnector;
 
     constructor(BaseIndex.IndexInitialParameters memory params, address uniswapAddress, address _buyToken){
         indexToken = new IndexToken(
@@ -53,17 +51,8 @@ contract BaseIndex {
             params.decimalUnits, params.tokenSymbol
         );
         minimalFundAddition = params.minimalFundAddition;
-        uniswapRouter = ISwapRouter(uniswapAddress);
+        dexConnector = new DexConnector(uniswapAddress, address(this));
         buyToken = _buyToken;
-    }
-
-    function test() public {
-        IERC20(buyToken).transferFrom(msg.sender, address(this), 100);
-        IERC20(buyToken).approve(address(uniswapRouter), 100);
-    }
-
-    function a() public view returns(uint){
-        return IERC20(buyToken).allowance(msg.sender, address(this));
     }
 
     /// @notice That function is used to buy the index tokens
@@ -80,29 +69,14 @@ contract BaseIndex {
             indexToken.balanceOf(address(this)) >= tokensAmount,
             "Not enough tokens in the index, you can only buy it on secondary markets"
         );
-        totalUsedTokens += tokensAmount;
 
-        // TransferHelper.safeTransferFrom(buyToken, msg.sender, address(this), amountIn);
-        // TransferHelper.safeApprove(buyToken, address(uniswapRouter), amountIn);
-        IERC20(buyToken).transferFrom(msg.sender, address(this), amountIn);
-        IERC20(buyToken).approve(address(uniswapRouter), amountIn);
+        totalUsedTokens += tokensAmount;
+        dexConnector.transferUserTokens(buyToken, msg.sender, amountIn);
 
         for (uint256 index = 0; index < tokenContracts.length; index++) {
             TokenSwapPool memory token = tokenContracts[index];
             uint tokenAmountOut = buyAmount / priceOracle.getPrice(token.priceOracleAddress);
-
-            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-                tokenIn: buyToken,
-                tokenOut: token.tokenAddress,
-                fee: token.poolFee,
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: buyAmount,
-                amountOutMinimum: tokenAmountOut,
-                sqrtPriceLimitX96: 0
-            });
-
-            uniswapRouter.exactInputSingle(params);
+            dexConnector.swap(buyToken, token.tokenAddress, token.poolFee, buyAmount, tokenAmountOut);
         }
 
         indexToken.transferFrom(address(this), msg.sender, tokensAmount);

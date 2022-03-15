@@ -12,7 +12,7 @@ contract CorrelationIndex is BaseIndex{
             decimalUnits: 18,
             initialAmount: 1000000000000000,
             tokenSymbol: "CORRIN",
-            minimalFundAddition: 1000
+            minimalFundAddition: 0
         }),
         0xE592427A0AEce92De3Edee1F18E0157C05861564,     // Uniswap V3 Router
         0x6B175474E89094C44Da98b954EedeAC495271d0F      // DAI
