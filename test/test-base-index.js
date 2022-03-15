@@ -14,7 +14,9 @@ contract('CorrelationIndex', (accounts) => {
     beforeEach(async () => {
         testCorrelationIndex = await CorrelationIndex.new();
         tokenIn = await IERC20.at(process.env.DAI);
-        await tokenIn.approve(testCorrelationIndex.address, FUNDS_VALUE, { from: ETH_WHALE });
+        await tokenIn.approve(await testCorrelationIndex.address, 10000, { from: ETH_WHALE });
+        console.log((await tokenIn.allowance(ETH_WHALE, testCorrelationIndex.address, { from: ETH_WHALE })).toString());
+        console.log((await tokenIn.allowance(testCorrelationIndex.address, ETH_WHALE, { from: ETH_WHALE })).toString());
     });
 
     // it("returns index price bigger than 0", async () => {
@@ -23,7 +25,7 @@ contract('CorrelationIndex', (accounts) => {
     // });
 
     it("must add funds to the tokens and leave zero in itself", async () => {
-        await testCorrelationIndex.addFunds(FUNDS_VALUE, { from: ETH_WHALE });
+        await testCorrelationIndex.addFunds(1000, { from: ETH_WHALE });
         const indexBalance = await web3.eth.getBalance(testCorrelationIndex.address);
         expect(indexBalance).equal(0);
     });

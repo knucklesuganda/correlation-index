@@ -57,6 +57,15 @@ contract BaseIndex {
         buyToken = _buyToken;
     }
 
+    function test() public {
+        IERC20(buyToken).transferFrom(msg.sender, address(this), 100);
+        IERC20(buyToken).approve(address(uniswapRouter), 100);
+    }
+
+    function a() public view returns(uint){
+        return IERC20(buyToken).allowance(msg.sender, address(this));
+    }
+
     /// @notice That function is used to buy the index tokens
     /// @dev I use Chainlink oracles in order to get the amount of the tokens, maybe need to use UniswapV3 Oracle
     /// @param amountIn uint - amount of money that we want to send to the index
@@ -73,12 +82,14 @@ contract BaseIndex {
         );
         totalUsedTokens += tokensAmount;
 
+        // TransferHelper.safeTransferFrom(buyToken, msg.sender, address(this), amountIn);
+        // TransferHelper.safeApprove(buyToken, address(uniswapRouter), amountIn);
         IERC20(buyToken).transferFrom(msg.sender, address(this), amountIn);
         IERC20(buyToken).approve(address(uniswapRouter), amountIn);
 
         for (uint256 index = 0; index < tokenContracts.length; index++) {
             TokenSwapPool memory token = tokenContracts[index];
-            uint tokenAmountOut = buyAmount * priceOracle.getPrice(token.priceOracleAddress);
+            uint tokenAmountOut = buyAmount / priceOracle.getPrice(token.priceOracleAddress);
 
             ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
                 tokenIn: buyToken,
