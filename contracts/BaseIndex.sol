@@ -2,104 +2,83 @@
 pragma solidity >=0.7.5;
 pragma abicoder v2;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol";
 
-import './PriceOracle.sol';
-import './IndexToken.sol';
-import './DexConnector.sol';
+import "./PriceOracle.sol";
 
 
-contract BaseIndex {
 
-    /// @notice TokenPrice shows you the returned price of any token in the index
-    struct TokenPrice{
-        address token;
-        string name;
-        uint256 price;
-    }
+contract BaseIndex{
+    address public immutable dexRouterAddress;
+    address public immutable buyTokenAddress;
 
-    /// @notice TokenSwapPool is used in order to add tokens to the index
-    /// @param tokenAddress - address of the token that we want to add
-    /// @param poolFee - fee that will be paid to the pool of buyToken/tokenAddress
-    /// @param priceOracleAddress - address of the priceOracle that will be used to get the price of the token
-    struct TokenSwapPool{
+    struct TokenInfo{
         address tokenAddress;
-        uint24 poolFee;
         address priceOracleAddress;
+        uint24 poolFee;
     }
 
-    /// @notice IndexInitiailParameters is used to give the parameters to the index when it is created
-    struct IndexInitialParameters{
-        string tokenName;
-        uint8 decimalUnits;
-        uint initialAmount;
-        string tokenSymbol;
-        uint minimalFundAddition;
+    TokenInfo[] public tokens;
+    PriceOracle private priceOracle;
+    ERC20 public indexToken;
+
+    constructor(){
+        dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
+        buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;     // DAI
+        indexToken = new ERC20("Index", "IDX");
+        priceOracle = new PriceOracle();
+
+        tokens.push(TokenInfo({     // WETH
+            tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+            priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
+            poolFee: 3000
+        }));
+        tokens.push(TokenInfo({       // WBTC
+            tokenAddress: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599,
+            priceOracleAddress: 0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c,
+            poolFee: 3000
+        }));
+        // tokens.push(TokenInfo({       // MATIC
+        //     tokenAddress: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0,
+        //     priceOracleAddress: 0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676,
+        //     poolFee: 3000
+        // }));
     }
 
-    uint private totalUsedTokens;     // how many tokens were sent to the users
-    IndexToken public immutable indexToken;     // IERC20 token that is used in the index
-    uint256 public immutable minimalFundAddition;   // minimal amount of money you need to add to the index
-    PriceOracle private immutable priceOracle = new PriceOracle();  // price oracle to get the price of the tokens
-    BaseIndex.TokenSwapPool[] public tokenContracts;    // array of tokens that are used in the index
-    address public immutable buyToken;
-    DexConnector private immutable dexConnector;
+    function addFunds(uint amount) external returns(uint){
+        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
+        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, amount);
 
-    constructor(BaseIndex.IndexInitialParameters memory params, address uniswapAddress, address _buyToken){
-        indexToken = new IndexToken(
-            params.initialAmount, address(this), params.tokenName,
-            params.decimalUnits, params.tokenSymbol
-        );
-        minimalFundAddition = params.minimalFundAddition;
-        dexConnector = new DexConnector(uniswapAddress, address(this));
-        buyToken = _buyToken;
-    }
+        uint singleTokenAmount = amount / tokens.length;
+        uint indexTotalPrice;
 
-    /// @notice That function is used to buy the index tokens
-    /// @dev I use Chainlink oracles in order to get the amount of the tokens, maybe need to use UniswapV3 Oracle
-    /// @param amountIn uint - amount of money that we want to send to the index
-    /// @return uint - amount of tokens that were bought
-    function addFunds(uint amountIn) public returns(uint){
-        require(amountIn >= minimalFundAddition, "Not enough funds to add to the index");
+        for(uint i = 0; i < tokens.length; i++){
+            TokenInfo memory token = tokens[i];
+            uint price = priceOracle.getPrice(token.priceOracleAddress);
+            indexTotalPrice += price;
 
-        uint buyAmount = amountIn / tokenContracts.length;
-        uint tokensAmount = amountIn / getIndexPrice();
+            uint amountOut = singleTokenAmount / price;
 
-        require(
-            indexToken.balanceOf(address(this)) >= tokensAmount,
-            "Not enough tokens in the index, you can only buy it on secondary markets"
-        );
+            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+                tokenIn: buyTokenAddress,
+                tokenOut: token.tokenAddress,
+                fee: token.poolFee,
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: singleTokenAmount,
+                amountOutMinimum: amountOut,
+                sqrtPriceLimitX96: 0
+            });
 
-        totalUsedTokens += tokensAmount;
-        dexConnector.transferUserTokens(buyToken, msg.sender, amountIn);
-
-        for (uint256 index = 0; index < tokenContracts.length; index++) {
-            TokenSwapPool memory token = tokenContracts[index];
-            uint tokenAmountOut = buyAmount / priceOracle.getPrice(token.priceOracleAddress);
-            dexConnector.swap(buyToken, token.tokenAddress, token.poolFee, buyAmount, tokenAmountOut);
+            ISwapRouter(dexRouterAddress).exactInputSingle(params);
         }
 
-        indexToken.transferFrom(address(this), msg.sender, tokensAmount);
-        return tokensAmount;
-    }
-
-    function getIndexPrice() public view returns(uint){
-        uint totalTokensPrice;
-
-        for (uint256 i = 0; i < tokenContracts.length; i++) {
-            TokenSwapPool memory token = tokenContracts[i];
-            totalTokensPrice += priceOracle.getPrice(token.priceOracleAddress);
-        }
-
-        return totalTokensPrice / tokenContracts.length;
-    }
-
-    function getTotalLockedValue() public view returns(uint){
-        return totalUsedTokens * getIndexPrice();
-    }
-
-    function getMyTokensPrice() public view returns(uint){
-        return indexToken.balanceOf(msg.sender) * getIndexPrice();
+        uint indexAmount = amount / indexTotalPrice;
+        indexToken.transfer(msg.sender, indexAmount);
+        return indexAmount;
     }
 
 }

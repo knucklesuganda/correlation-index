@@ -1,40 +1,33 @@
 require("chai").use(require("chai-bignumber")(web3.BigNumber)).should();
-const { expect } = require("chai");
+const BN = require("bn.js");
 const CorrelationIndex = artifacts.require("CorrelationIndex");
 const IERC20 = artifacts.require("IERC20");
 
 
 contract('CorrelationIndex', (accounts) => {
 
-    const ETH_WHALE = process.env.ETH_WHALE;
-    const FUNDS_VALUE = 10000;
-    let tokenIn;
+    let buyToken;
+    let indexToken;
     let testCorrelationIndex;
+    const account = process.env.ETH_WHALE;
+    const FUNDS_VALUE = 10000;
 
     beforeEach(async () => {
         testCorrelationIndex = await CorrelationIndex.new();
-        tokenIn = await IERC20.at(process.env.DAI);
-        await tokenIn.approve(await testCorrelationIndex.address, 10000, { from: ETH_WHALE });
-        console.log((await tokenIn.allowance(ETH_WHALE, testCorrelationIndex.address, { from: ETH_WHALE })).toString());
-        console.log((await tokenIn.allowance(testCorrelationIndex.address, ETH_WHALE, { from: ETH_WHALE })).toString());
+        buyToken = await IERC20.at(await testCorrelationIndex.buyTokenAddress());
+
+        const indexTokenAddress = await testCorrelationIndex.indexToken();
+        indexToken = await IERC20.at(indexTokenAddress);
+
+        await buyToken.approve(await testCorrelationIndex.address, FUNDS_VALUE, { from: account });
     });
 
-    // it("returns index price bigger than 0", async () => {
-    //     const price = (await testCorrelationIndex.getPrice());
-    //     expect(price.toNumber()).to.be.above(0);
-    // });
+    it("should be able to add funds to the index", async () => {
+        let initialBalance = parseFloat((await buyToken.balanceOf(account)).toString());
+        console.log(await testCorrelationIndex.addFunds(FUNDS_VALUE, { from: account }));
+        const finalBalance = parseFloat((await buyToken.balanceOf(account)).toString());
 
-    it("must add funds to the tokens and leave zero in itself", async () => {
-        await testCorrelationIndex.addFunds(1000, { from: ETH_WHALE });
-        const indexBalance = await web3.eth.getBalance(testCorrelationIndex.address);
-        expect(indexBalance).equal(0);
+        console.log(await indexToken.balanceOf(account));
     });
-
-    // it("must get funds from the user account", async () => {
-   //     const userInitialBalance = await web3.eth.getBalance(ETH_WHALE);
-    //     await testCorrelationIndex.addFunds(FUNDS_VALUE, { from: ETH_WHALE });
-    //     const userFundsBalance = await web3.eth.getBalance(ETH_WHALE);
-    //     userFundsBalance.should.be.bignumber.equal(userInitialBalance - FUNDS_VALUE);
-    // });
 
 });
