@@ -25,14 +25,12 @@ contract('CorrelationIndex', (accounts) => {
     it("should be able to add funds to the index", async () => {
         let initialBalance = parseFloat((await buyToken.balanceOf(account)).toString());
         console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
-        const finalBalance = parseFloat((await buyToken.balanceOf(account)).toString());
-
-        console.log(await indexToken.balanceOf(account));
+        console.log("Account index token balance:", (await indexToken.balanceOf(account)).toString());
     });
 
     it("should return the price of the index", async () => {
         const price = await testIndex.getIndexPrice();
-        console.log(price, price.toString());
+        console.log("Index price:", price.toString());
     });
 
 });

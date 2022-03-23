@@ -20,6 +20,7 @@ contract BaseIndex{
         address tokenAddress;
         address priceOracleAddress;
         uint24 poolFee;
+        uint priceAdjustment;
     }
 
     TokenInfo[] public tokens;
@@ -35,12 +36,14 @@ contract BaseIndex{
         tokens.push(TokenInfo({     // WETH
             tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
-            poolFee: 3000
+            poolFee: 3000,
+            priceAdjustment: 100000000
         }));
         tokens.push(TokenInfo({     // WBTC
             tokenAddress: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599,
             priceOracleAddress: 0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c,
-            poolFee: 3000
+            poolFee: 3000,
+            priceAdjustment: 100000000
         }));
         // tokens.push(TokenInfo({       // MATIC
         //     tokenAddress: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0,
@@ -54,14 +57,9 @@ contract BaseIndex{
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, amount);
 
         uint singleTokenAmount = amount / tokens.length;
-        uint indexTotalPrice;
 
-        for(uint i = 0; i < tokens.length; i++){
-            TokenInfo memory token = tokens[i];
-            uint price = priceOracle.getPrice(token.priceOracleAddress);
-            indexTotalPrice += price;
-
-            uint amountOut = singleTokenAmount / price;
+        for (uint256 index = 0; index < tokens.length; index++) {            
+            TokenInfo memory token = tokens[index];
 
             ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
                 tokenIn: buyTokenAddress,
@@ -69,19 +67,17 @@ contract BaseIndex{
                 fee: token.poolFee,
                 recipient: address(this),
                 deadline: block.timestamp,
-                amountIn: singleTokenAmount,
-                amountOutMinimum: amountOut,
+                amountIn: amount,
+                amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
 
             ISwapRouter(dexRouterAddress).exactInputSingle(params);
         }
 
-        uint indexAmount = amount / indexTotalPrice;
-        indexToken.transfer(msg.sender, indexAmount);
     }
 
-    function getIndexPrice() external view returns(uint){
+    function getIndexPrice() public view returns(uint){
         uint indexTotalPrice;
 
         for(uint i = 0; i < tokens.length; i++){
@@ -91,6 +87,14 @@ contract BaseIndex{
         }
 
         return indexTotalPrice / tokens.length;
+    }
+
+    function removeFunds(uint amount) public view returns(uint) {
+
+        
+
+        return amount / getIndexPrice();
+
     }
 
 }
