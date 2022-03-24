@@ -53,10 +53,14 @@ contract BaseIndex{
     }
 
     function addFunds(uint amount) external{
+        uint indexPrice = getIndexPrice();
+        require(amount / indexPrice > 0, "You must add more funds to the index");
+
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, amount);
 
         uint singleTokenAmount = amount / tokens.length;
+        uint totalTokensAmount;
 
         for (uint256 index = 0; index < tokens.length; index++) {            
             TokenInfo memory token = tokens[index];
@@ -67,14 +71,17 @@ contract BaseIndex{
                 fee: token.poolFee,
                 recipient: address(this),
                 deadline: block.timestamp,
-                amountIn: amount,
+                amountIn: singleTokenAmount,
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
 
             ISwapRouter(dexRouterAddress).exactInputSingle(params);
+            totalTokensAmount += singleTokenAmount;
         }
 
+        uint indexTokens = totalTokensAmount / indexPrice;
+        indexToken.transfer(msg.sender, indexTokens);
     }
 
     function getIndexPrice() public view returns(uint){
@@ -82,7 +89,7 @@ contract BaseIndex{
 
         for(uint i = 0; i < tokens.length; i++){
             TokenInfo memory token = tokens[i];
-            uint price = priceOracle.getPrice(token.priceOracleAddress);
+            uint price = priceOracle.getPrice(token.priceOracleAddress, token.priceAdjustment);
             indexTotalPrice += price;
         }
 

@@ -10,7 +10,7 @@ contract('CorrelationIndex', (accounts) => {
     let indexToken;
     let testIndex;
     const account = process.env.ETH_WHALE;
-    const FUNDS_VALUE = 10000;
+    const FUNDS_VALUE = 1000000;
 
     beforeEach(async () => {
         testIndex = await CorrelationIndex.new();
@@ -24,7 +24,7 @@ contract('CorrelationIndex', (accounts) => {
 
     it("should be able to add funds to the index", async () => {
         let initialBalance = parseFloat((await buyToken.balanceOf(account)).toString());
-        console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
+        console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account, gas: 10000000 }));
         console.log("Account index token balance:", (await indexToken.balanceOf(account)).toString());
     });
 
