@@ -50,4 +50,14 @@ contract('CorrelationIndex', (accounts) => {
         console.log("Index price:", price.toString());
     });
 
+    it("should withdraw funds from the index", async () => {
+        await testIndex.addFunds(FUNDS_VALUE, { from: account, gas: 10000000 });
+        const tokenFunds = (await indexToken.balanceOf(account)).toNumber();
+        
+        await indexToken.approve(await testIndex.address, tokenFunds, { from: account });
+
+        await testIndex.withdrawFunds(tokenFunds, { from: account, gas: 10000000 });
+        console.log("Account DAI balance:", (await buyToken.balanceOf(account)).toString());
+    });
+
 });

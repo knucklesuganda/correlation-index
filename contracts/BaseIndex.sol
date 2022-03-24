@@ -77,6 +77,7 @@ contract BaseIndex is Ownable{
 
         uint singleTokenAmount = realAmount / tokens.length;
         uint totalTokensAmount;
+        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
         for (uint256 index = 0; index < tokens.length; index++) {            
             TokenInfo memory token = tokens[index];
@@ -92,7 +93,7 @@ contract BaseIndex is Ownable{
                 sqrtPriceLimitX96: 0
             });
 
-            ISwapRouter(dexRouterAddress).exactInputSingle(params);
+            dexRouter.exactInputSingle(params);
             totalTokensAmount += singleTokenAmount;
         }
 
@@ -112,11 +113,31 @@ contract BaseIndex is Ownable{
         return indexTotalPrice / tokens.length;
     }
 
-    function removeFunds(uint amount) public view returns(uint) {
+    function withdrawFunds(uint indexAmount) external {
+        require(indexAmount > 1, "You must withdraw more funds from the index");
+        (uint fee, uint realAmount) = calculateFee(indexAmount);
 
-        
+        uint singleTokenAmount = realAmount / tokens.length;
+        TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), indexAmount);
+        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        return amount / getIndexPrice();
+        for (uint256 index = 0; index < tokens.length; index++) {            
+            TokenInfo memory token = tokens[index];
+            TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, singleTokenAmount);
+
+            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+                tokenIn: token.tokenAddress,
+                tokenOut: buyTokenAddress,
+                fee: token.poolFee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountIn: singleTokenAmount,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
+
+            dexRouter.exactInputSingle(params);
+        }
 
     }
 
