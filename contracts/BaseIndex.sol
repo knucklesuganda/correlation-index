@@ -3,6 +3,7 @@ pragma solidity >=0.7.5;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol";
@@ -12,7 +13,7 @@ import "./IndexToken.sol";
 
 
 
-contract BaseIndex{
+contract BaseIndex is Ownable{
     address public immutable dexRouterAddress;
     address public immutable buyTokenAddress;
 
@@ -26,10 +27,12 @@ contract BaseIndex{
     TokenInfo[] public tokens;
     PriceOracle private priceOracle;
     IndexToken public indexToken;
+    uint private _indexFee;
 
     constructor(){
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;     // DAI
+        _indexFee = 1;
         indexToken = new IndexToken(address(this), 10000000, "Index token", 18, "INDEX");
         priceOracle = new PriceOracle();
 
@@ -52,14 +55,27 @@ contract BaseIndex{
         // }));
     }
 
+    function indexFee() external view returns(uint){
+        return _indexFee;
+    }
+
+    function calculateFee(uint amount) private view returns(uint, uint){
+        uint indexFeeAmount = (amount / 100) * _indexFee;
+        uint realAmount = amount - indexFeeAmount;
+        return (indexFeeAmount, realAmount);
+    }
+
     function addFunds(uint amount) external{
         uint indexPrice = getIndexPrice();
-        require(amount / indexPrice > 0, "You must add more funds to the index");
+
+        (uint fee, uint realAmount) = calculateFee(amount);
+        require(realAmount / indexPrice > 0, "You must add more funds to the index");
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, amount);
+        IERC20(buyTokenAddress).transfer(owner(), fee);
 
-        uint singleTokenAmount = amount / tokens.length;
+        uint singleTokenAmount = realAmount / tokens.length;
         uint totalTokensAmount;
 
         for (uint256 index = 0; index < tokens.length; index++) {            
