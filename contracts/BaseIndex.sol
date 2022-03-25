@@ -40,13 +40,13 @@ contract BaseIndex is Ownable{
             tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
             poolFee: 3000,
-            priceAdjustment: 100000000
+            priceAdjustment: 1000000000
         }));
         tokens.push(TokenInfo({     // WBTC
             tokenAddress: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599,
             priceOracleAddress: 0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c,
             poolFee: 3000,
-            priceAdjustment: 100000000
+            priceAdjustment: 1000000000
         }));
         // tokens.push(TokenInfo({       // MATIC
         //     tokenAddress: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0,
@@ -93,11 +93,13 @@ contract BaseIndex is Ownable{
                 sqrtPriceLimitX96: 0
             });
 
-            dexRouter.exactInputSingle(params);
-            totalTokensAmount += singleTokenAmount;
+            // 4000
+
+            uint amountOut = dexRouter.exactInputSingle(params);
+            totalTokensAmount += amountOut;
         }
 
-        uint indexTokens = totalTokensAmount / indexPrice;
+        uint indexTokens = totalTokensAmount;
         indexToken.transfer(msg.sender, indexTokens);
     }
 
@@ -117,13 +119,18 @@ contract BaseIndex is Ownable{
         require(indexAmount > 1, "You must withdraw more funds from the index");
         (uint fee, uint realAmount) = calculateFee(indexAmount);
 
-        uint singleTokenAmount = realAmount / tokens.length;
+        uint singleTokenAmount = indexAmount / tokens.length;
+
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), indexAmount);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        for (uint256 index = 0; index < tokens.length; index++) {            
+        for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
-            TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, singleTokenAmount);
+            
+            uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress, token.priceAdjustment);
+            uint tokenAmount = singleTokenAmount / tokenPrice; 
+
+            TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokenAmount);
 
             ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
                 tokenIn: token.tokenAddress,
@@ -131,7 +138,7 @@ contract BaseIndex is Ownable{
                 fee: token.poolFee,
                 recipient: msg.sender,
                 deadline: block.timestamp,
-                amountIn: singleTokenAmount,
+                amountIn: tokenAmount,
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
