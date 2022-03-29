@@ -11,7 +11,7 @@ contract('CorrelationIndex', (accounts) => {
     let testIndex;
     const account = process.env.ETH_WHALE;
     const indexOwner = accounts[0];
-    const FUNDS_VALUE = 1000000;
+    let FUNDS_VALUE;
 
     beforeEach(async () => {
         testIndex = await CorrelationIndex.new({ from: indexOwner });
@@ -20,25 +20,26 @@ contract('CorrelationIndex', (accounts) => {
         const indexTokenAddress = await testIndex.indexToken();
         indexToken = await IERC20.at(indexTokenAddress);
 
+        FUNDS_VALUE = new BN('1000000000000000000000', 10);  // 1000 DAI. 18 decimals
         await buyToken.approve(await testIndex.address, FUNDS_VALUE, { from: account });
     });
+
     /*
         it("should return index owner", async () => {
             const owner = await testIndex.owner();
             assert.equal(owner, indexOwner);
         });
-    
+
         it("should increase the balance of the index owner by fee", async () => {
             const balanceBefore = await buyToken.balanceOf(indexOwner);
             await testIndex.addFunds(FUNDS_VALUE, { from: account });
             const balanceAfter = await buyToken.balanceOf(indexOwner);
-    
+
             console.log("Balance before: ", balanceBefore.toNumber(), " Balance after:", balanceAfter.toNumber());
-    
             const fee = (FUNDS_VALUE / 100) * (await testIndex.indexFee()).toNumber();
             assert.equal(balanceAfter.sub(balanceBefore).toNumber(), fee);
         });
-    
+
         it("should return the price of the index", async () => {
             const price = await testIndex.getIndexPrice();
             console.log("Index price:", price.toString());
@@ -61,12 +62,12 @@ contract('CorrelationIndex', (accounts) => {
         console.log(
             'ETH:', (await (
                 await IERC20.at('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2')
-            ).balanceOf(await testIndex.address)).toNumber()
+            ).balanceOf(await testIndex.address)).toString()
         );
         console.log(
             'BTC:', (await (
                 await IERC20.at('0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599')
-            ).balanceOf(await testIndex.address)).toNumber()
+            ).balanceOf(await testIndex.address)).toString()
         );
         /////////////////////////////////////////////////////////////////////////
 

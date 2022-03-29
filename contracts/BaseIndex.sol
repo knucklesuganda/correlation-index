@@ -22,6 +22,7 @@ contract BaseIndex is Ownable{
         address priceOracleAddress;
         uint24 poolFee;
         uint priceAdjustment;
+        uint withdrawAdjustment;
     }
 
     TokenInfo[] public tokens;
@@ -40,19 +41,16 @@ contract BaseIndex is Ownable{
             tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
             poolFee: 3000,
-            priceAdjustment: 100000000
+            priceAdjustment: 1,
+            withdrawAdjustment: 100000000
         }));
-        tokens.push(TokenInfo({     // LINK
-            tokenAddress: 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,
-            priceOracleAddress: 0x547a514d5e3769680Ce22B2361c10Ea13619e8a9,
+        tokens.push(TokenInfo({     // WBTC
+            tokenAddress: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599,
+            priceOracleAddress: 0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c,
             poolFee: 3000,
-            priceAdjustment: 100000000
+            priceAdjustment: 10000000000,
+            withdrawAdjustment: 1
         }));
-        // tokens.push(TokenInfo({       // MATIC
-        //     tokenAddress: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0,
-        //     priceOracleAddress: 0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676,
-        //     poolFee: 3000
-        // }));
     }
 
     function indexFee() external view returns(uint){
@@ -89,7 +87,8 @@ contract BaseIndex is Ownable{
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: singleTokenAmount,
-                amountOutMinimum: 0,
+                amountOutMinimum: (singleTokenAmount / token.priceAdjustment) /
+                    priceOracle.getPrice(token.priceOracleAddress),
                 sqrtPriceLimitX96: 0
             });
 
@@ -97,7 +96,7 @@ contract BaseIndex is Ownable{
             totalTokens += tokenOut;
         }
 
-        indexToken.transfer(msg.sender, (totalTokens * 100000000) / indexPrice);
+        indexToken.transfer(msg.sender, totalTokens / indexPrice);
     }
 
     function getIndexPrice() public view returns(uint){
@@ -105,7 +104,7 @@ contract BaseIndex is Ownable{
 
         for(uint i = 0; i < tokens.length; i++){
             TokenInfo memory token = tokens[i];
-            uint price = priceOracle.getPrice(token.priceOracleAddress, token.priceAdjustment);
+            uint price = priceOracle.getPrice(token.priceOracleAddress);
             indexTotalPrice += price;
         }
 
@@ -123,8 +122,8 @@ contract BaseIndex is Ownable{
         for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
 
-            uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress, token.priceAdjustment);
-            uint tokenAmount = singleTokenAmount / tokenPrice;
+            uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress) / token.withdrawAdjustment;
+            uint tokenAmount = (singleTokenAmount * token.priceAdjustment) / tokenPrice;
 
             TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokenAmount);
             uint tokenBalance = IERC20(token.tokenAddress).balanceOf(address(this));
@@ -136,9 +135,14 @@ contract BaseIndex is Ownable{
                 recipient: msg.sender,
                 deadline: block.timestamp,
                 amountIn: tokenAmount,
-                amountOutMinimum: 0,
+                amountOutMinimum: (singleTokenAmount * token.priceAdjustment) / 
+                    (priceOracle.getPrice(token.priceOracleAddress) / token.withdrawAdjustment),
                 sqrtPriceLimitX96: 0
             });
+
+            // quantity = amount / price;
+            // amount = quantity * price;
+            // price = amount / quantity;
 
             dexRouter.exactInputSingle(params);
         }
