@@ -32,12 +32,12 @@ contract BaseIndex is Ownable{
     uint private immutable _indexFeeTotal;
     bool public immutable isLocked;
 
-constructor(){
+    constructor(){
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
         buyTokenAddress = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;     // DAI
         _indexFee = 5;
         _indexFeeTotal = 1000;
-        indexToken = new IndexToken(address(this), 1000000000000, "Crypto index token", 18, "CRYPTIX");
+        indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
         isLocked = false;
 
@@ -164,7 +164,7 @@ constructor(){
 
         for(uint i = 0; i < tokens.length; i++){
             TokenInfo memory token = tokens[i];
-            uint price = priceOracle.getPrice(token.priceOracleAddress);
+            uint price = priceOracle.getPrice(token.priceOracleAddress) / token.withdrawAdjustment;
             indexTotalPrice += price;
         }
 

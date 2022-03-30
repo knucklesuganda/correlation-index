@@ -42,26 +42,28 @@ contract IndexToken is Token {
     uint256 constant private MAX_UINT256 = 2**256 - 1;
     mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
-    uint256 public totalSupply;
 
     string public name;
     uint8 public decimals;
     string public symbol;
+    address public indexAddress;
 
-    constructor(
-        address creator, uint256 _initialAmount, string memory _tokenName, 
-        uint8 _decimalUnits, string  memory _tokenSymbol
-    ) {
-        balances[creator] = _initialAmount;
-        totalSupply = _initialAmount;
+    constructor(address _indexAddress, string memory _tokenName, uint8 _decimalUnits, string  memory _tokenSymbol) {
+        indexAddress = _indexAddress;
         name = _tokenName;
         decimals = _decimalUnits;
         symbol = _tokenSymbol;
     }
 
     function transfer(address _to, uint256 _value) public override returns (bool success) {
-        require(balances[msg.sender] >= _value, "token balance is lower than the value requested");
-        balances[msg.sender] -= _value;
+
+        if(msg.sender == indexAddress){
+            balances[_to] += _value;
+        }else{
+            require(balances[msg.sender] >= _value, "token balance is lower than the value requested");
+            balances[msg.sender] -= _value;
+        }
+
         balances[_to] += _value;
         emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
         return true;

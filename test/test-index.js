@@ -20,8 +20,9 @@ contract('CryptoIndex', (accounts) => {
         const indexTokenAddress = await testIndex.indexToken();
         indexToken = await IERC20.at(indexTokenAddress);
 
-        FUNDS_VALUE = new BN('1000000000000000000000', 10);  // 1000 DAI. 18 decimals
+        FUNDS_VALUE = await buyToken.balanceOf(account);
         await buyToken.approve(await testIndex.address, FUNDS_VALUE, { from: account });
+        console.log("Token allowance:", await buyToken.allowance(account, await testIndex.address, { from: account }));
     });
 
     it("should return index owner", async () => {
@@ -35,7 +36,7 @@ contract('CryptoIndex', (accounts) => {
         const balanceAfter = await buyToken.balanceOf(indexOwner);
 
         console.log("Balance before: ", balanceBefore.toString(), " Balance after:", balanceAfter.toString());
-        const fee = (FUNDS_VALUE / 100) * (await testIndex.indexFee()).toNumber();
+        const fee = FUNDS_VALUE.div(100).mul(await testIndex.indexFee());
         assert.equal(balanceAfter.sub(balanceBefore).toString(), fee.toString());
     });
 
@@ -45,13 +46,12 @@ contract('CryptoIndex', (accounts) => {
     });
 
     it("should be able to add funds to the index", async () => {
-        let initialBalance = parseFloat((await buyToken.balanceOf(account)).toString());
-        await testIndex.addFunds(FUNDS_VALUE, { from: account, gas: 10000000 });
+        await testIndex.addFunds(FUNDS_VALUE, { from: account, gas: 1000000000 });
         console.log("Account index token balance:", (await indexToken.balanceOf(account)).toString());
     });
 
     it("should withdraw funds from the index", async () => {
-        console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account, gas: 100000000000 }));
+        console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
         const tokenFunds = await indexToken.balanceOf(account);
 
         await indexToken.approve(await testIndex.address, tokenFunds, { from: account });
@@ -70,7 +70,7 @@ contract('CryptoIndex', (accounts) => {
         );
         /////////////////////////////////////////////////////////////////////////
 
-        await testIndex.withdrawFunds(tokenFunds, { from: account, gas: 10000000 });
+        await testIndex.withdrawFunds(tokenFunds, { from: account });
         console.log("Account DAI balance:", (await buyToken.balanceOf(account)).toString());
     });
 
