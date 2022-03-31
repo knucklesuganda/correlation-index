@@ -69,48 +69,48 @@ contract BaseIndex is Ownable{
             priceAdjustment: 1,
             withdrawAdjustment: 100000000
         }));
-        tokens.push(TokenInfo({    // BNB
-            tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
-            priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
-            poolFee: 3000,
-            priceAdjustment: 1,
-            withdrawAdjustment: 100000000
-        }));
-        tokens.push(TokenInfo({    //   SNX
-            tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
-            priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
-            poolFee: 3000,
-            priceAdjustment: 1,
-            withdrawAdjustment: 100000000
-        }));
-        tokens.push(TokenInfo({    //   YFI
-            tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
-            priceOracleAddress: 0xA027702dbb89fbd58938e4324ac03B58d812b0E1,
-            poolFee: 3000,
-            priceAdjustment: 1,
-            withdrawAdjustment: 100000000
-        }));
-        tokens.push(TokenInfo({    //   COMP
-            tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
-            priceOracleAddress: 0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5,
-            poolFee: 3000,
-            priceAdjustment: 1,
-            withdrawAdjustment: 100000000
-        }));
-        tokens.push(TokenInfo({    //   1INCH
-            tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
-            priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
-            poolFee: 3000,
-            priceAdjustment: 1,
-            withdrawAdjustment: 100000000
-        }));
-        tokens.push(TokenInfo({    //   MKR
-            tokenAddress: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
-            priceOracleAddress: 0xec1D1B3b0443256cc3860e24a46F108e699484Aa,
-            poolFee: 3000,
-            priceAdjustment: 1,
-            withdrawAdjustment: 100000000
-        }));
+        // tokens.push(TokenInfo({    // BNB
+        //     tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
+        //     priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
+        //     poolFee: 3000,
+        //     priceAdjustment: 1,
+        //     withdrawAdjustment: 100000000
+        // }));
+        // tokens.push(TokenInfo({    //   SNX
+        //     tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
+        //     priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
+        //     poolFee: 3000,
+        //     priceAdjustment: 1,
+        //     withdrawAdjustment: 100000000
+        // }));
+        // tokens.push(TokenInfo({    //   YFI
+        //     tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
+        //     priceOracleAddress: 0xA027702dbb89fbd58938e4324ac03B58d812b0E1,
+        //     poolFee: 3000,
+        //     priceAdjustment: 1,
+        //     withdrawAdjustment: 100000000
+        // }));
+        // tokens.push(TokenInfo({    //   COMP
+        //     tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
+        //     priceOracleAddress: 0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5,
+        //     poolFee: 3000,
+        //     priceAdjustment: 1,
+        //     withdrawAdjustment: 100000000
+        // }));
+        // tokens.push(TokenInfo({    //   1INCH
+        //     tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
+        //     priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
+        //     poolFee: 3000,
+        //     priceAdjustment: 1,
+        //     withdrawAdjustment: 100000000
+        // }));
+        // tokens.push(TokenInfo({    //   MKR
+        //     tokenAddress: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
+        //     priceOracleAddress: 0xec1D1B3b0443256cc3860e24a46F108e699484Aa,
+        //     poolFee: 3000,
+        //     priceAdjustment: 1,
+        //     withdrawAdjustment: 100000000
+        // }));
     }
 
     function indexFee() external view returns(uint){
@@ -123,16 +123,17 @@ contract BaseIndex is Ownable{
         return (indexFeeAmount, realAmount);
     }
 
+    function retrieveFees() external onlyOwner{
+        IERC20 buyToken = IERC20(buyTokenAddress);
+        buyToken.transfer(owner(), buyToken.balanceOf(address(this)));
+    }
+
     function addFunds(uint amount) external{
         uint indexPrice = getIndexPrice();
-
-        (uint fee, uint realAmount) = calculateFee(amount);
-        require(realAmount / indexPrice > 0, "You must add more funds to the index");
+        (, uint realAmount) = calculateFee(amount);
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, realAmount);
-        IERC20(buyTokenAddress).transfer(owner(), fee);
-        uint totalTokens;
 
         uint singleTokenAmount = realAmount / tokens.length;
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
@@ -152,11 +153,10 @@ contract BaseIndex is Ownable{
                 sqrtPriceLimitX96: 0
             });
 
-            uint tokenOut = dexRouter.exactInputSingle(params);
-            totalTokens += tokenOut;
+            dexRouter.exactInputSingle(params);
         }
 
-        indexToken.transfer(msg.sender, totalTokens / indexPrice);
+        indexToken.transfer(msg.sender, (realAmount * tokens.length) / indexPrice);
     }
 
     function getIndexPrice() public view returns(uint){
@@ -177,10 +177,9 @@ contract BaseIndex is Ownable{
         }
 
         require(amount > 1, "You must withdraw more funds from the index");
-        (uint fee, uint realAmount) = calculateFee(amount);
+        (, uint realAmount) = calculateFee(amount);
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
-        IERC20(buyTokenAddress).transfer(owner(), fee);
 
         uint singleTokenAmount = realAmount / tokens.length;
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);

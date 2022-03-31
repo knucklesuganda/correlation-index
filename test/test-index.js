@@ -1,10 +1,10 @@
 require("chai").use(require("chai-bignumber")(web3.BigNumber)).should();
 const BN = require("bn.js");
-const CryptoIndex = artifacts.require("BaseIndex.sol");
+const BaseIndex = artifacts.require("BaseIndex.sol");
 const IERC20 = artifacts.require("IERC20");
 
 
-contract('CryptoIndex', (accounts) => {
+contract('BaseIndex', (accounts) => {
 
     let buyToken;
     let indexToken;
@@ -14,7 +14,7 @@ contract('CryptoIndex', (accounts) => {
     let FUNDS_VALUE;
 
     beforeEach(async () => {
-        testIndex = await CryptoIndex.new({ from: indexOwner });
+        testIndex = await BaseIndex.new({ from: indexOwner });
         buyToken = await IERC20.at(await testIndex.buyTokenAddress());
 
         const indexTokenAddress = await testIndex.indexToken();
@@ -22,9 +22,8 @@ contract('CryptoIndex', (accounts) => {
 
         FUNDS_VALUE = await buyToken.balanceOf(account);
         await buyToken.approve(await testIndex.address, FUNDS_VALUE, { from: account });
-        console.log("Token allowance:", await buyToken.allowance(account, await testIndex.address, { from: account }));
     });
-
+/*
     it("should return index owner", async () => {
         const owner = await testIndex.owner();
         assert.equal(owner, indexOwner);
@@ -44,12 +43,12 @@ contract('CryptoIndex', (accounts) => {
         const price = await testIndex.getIndexPrice();
         console.log("Index price:", price.toString());
     });
-
+*/
     it("should be able to add funds to the index", async () => {
-        await testIndex.addFunds(FUNDS_VALUE, { from: account, gas: 1000000000 });
+        console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
         console.log("Account index token balance:", (await indexToken.balanceOf(account)).toString());
     });
-
+/*
     it("should withdraw funds from the index", async () => {
         console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
         const tokenFunds = await indexToken.balanceOf(account);
@@ -73,5 +72,5 @@ contract('CryptoIndex', (accounts) => {
         await testIndex.withdrawFunds(tokenFunds, { from: account });
         console.log("Account DAI balance:", (await buyToken.balanceOf(account)).toString());
     });
-
+*/
 });
