@@ -23,7 +23,7 @@ contract('BaseIndex', (accounts) => {
         FUNDS_VALUE = await buyToken.balanceOf(account);
         await buyToken.approve(await testIndex.address, FUNDS_VALUE, { from: account });
     });
-/*
+
     it("should return index owner", async () => {
         const owner = await testIndex.owner();
         assert.equal(owner, indexOwner);
@@ -43,12 +43,12 @@ contract('BaseIndex', (accounts) => {
         const price = await testIndex.getIndexPrice();
         console.log("Index price:", price.toString());
     });
-*/
+
     it("should be able to add funds to the index", async () => {
         console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
         console.log("Account index token balance:", (await indexToken.balanceOf(account)).toString());
     });
-/*
+
     it("should withdraw funds from the index", async () => {
         console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
         const tokenFunds = await indexToken.balanceOf(account);
@@ -72,5 +72,5 @@ contract('BaseIndex', (accounts) => {
         await testIndex.withdrawFunds(tokenFunds, { from: account });
         console.log("Account DAI balance:", (await buyToken.balanceOf(account)).toString());
     });
-*/
+
 });
