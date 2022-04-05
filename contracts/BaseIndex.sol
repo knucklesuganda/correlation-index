@@ -29,12 +29,18 @@ contract BaseIndex is Ownable{
     TokenInfo[] public tokens;
     PriceOracle private priceOracle;
     IndexToken public indexToken;
+
+    uint public immutable name;
+
     uint private immutable _indexFee;
     uint private immutable _indexFeeTotal;
     bool public immutable isLocked;
     uint private immutable indexPriceAdjustment;
 
     constructor(){
+        name = "BIG-Index";
+        
+
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;     // USDC
         _indexFee = 5;
@@ -68,6 +74,10 @@ contract BaseIndex is Ownable{
             withdrawAdjustment: 100000000,
             indexPercentage: 40
         }));
+
+
+        //  1 000 000
+        //  1 000
 
         // tokens.push(TokenInfo({    // UNI
         //     tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
@@ -153,8 +163,7 @@ contract BaseIndex is Ownable{
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: singleTokenAmount,
-                amountOutMinimum: (singleTokenAmount / token.priceAdjustment) /
-                    priceOracle.getPrice(token.priceOracleAddress),
+                amountOutMinimum: singleTokenAmount, // / token.priceAdjustment) / priceOracle.getPrice(token.priceOracleAddress),
                 sqrtPriceLimitX96: 0
             });
 
@@ -169,11 +178,11 @@ contract BaseIndex is Ownable{
 
         for(uint i = 0; i < tokens.length; i++){
             TokenInfo memory token = tokens[i];
-            uint price = priceOracle.getPrice(token.priceOracleAddress) / token.withdrawAdjustment;
-            indexTotalPrice += price;
+            uint price = priceOracle.getPrice(token.priceOracleAddress) * token.priceAdjustment;
+            indexTotalPrice += (price * token.indexPercentage) / 100;
         }
 
-        return indexTotalPrice / indexPriceAdjustment / tokens.length;
+        return indexTotalPrice * indexPriceAdjustment;
     }
 
     function withdrawFunds(uint amount) external {
