@@ -22,6 +22,8 @@ abstract contract Product is Ownable{
 
     function name() virtual external pure returns(string memory);
     function symbol() virtual external pure returns(string memory);
+    function shortDescription() virtual external pure returns(string memory);
+    function longDescription() virtual external pure returns(string memory);
 
     function buy(uint amount) virtual external;
     function sell(uint amount) virtual external;

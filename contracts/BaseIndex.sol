@@ -36,6 +36,15 @@ contract BaseIndex is Product{
         return 'CRYPTIX';
     }
 
+    function shortDescription() external override pure returns(string memory){
+        return 'Correlation index is a tool that allows you to diversify your investments';
+    }
+
+    function longDescription() external override pure returns(string memory){
+        return '';
+    }
+
+
     constructor(){
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;     // USDC
