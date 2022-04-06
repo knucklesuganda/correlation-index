@@ -16,9 +16,7 @@ contract('BaseIndex', (accounts) => {
     beforeEach(async () => {
         testIndex = await BaseIndex.new({ from: indexOwner });
         buyToken = await IERC20.at(await testIndex.buyTokenAddress());
-
-        const indexTokenAddress = await testIndex.indexToken();
-        indexToken = await IERC20.at(indexTokenAddress);
+        indexToken = await IERC20.at(await testIndex.indexToken());
 
         FUNDS_VALUE = await buyToken.balanceOf(account);
         await buyToken.approve(await testIndex.address, FUNDS_VALUE, { from: account });
@@ -31,7 +29,7 @@ contract('BaseIndex', (accounts) => {
 
     it("should increase the balance of the index owner by fee", async () => {
         const balanceBefore = await buyToken.balanceOf(indexOwner);
-        await testIndex.addFunds(FUNDS_VALUE, { from: account });
+        await testIndex.buy(FUNDS_VALUE, { from: account });
         const balanceAfter = await buyToken.balanceOf(indexOwner);
 
         console.log("Balance before: ", balanceBefore.toString(), " Balance after:", balanceAfter.toString());
@@ -40,17 +38,17 @@ contract('BaseIndex', (accounts) => {
     });
 
     it("should return the price of the index", async () => {
-        const price = await testIndex.getIndexPrice();
+        const price = await testIndex.getPrice();
         console.log("Index price:", price.toString());
     });
 
     it("should be able to add funds to the index", async () => {
-        console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
+        console.log(await testIndex.buy(FUNDS_VALUE, { from: account }));
         console.log("Account index token balance:", (await indexToken.balanceOf(account)).toString());
     });
 
     it("should withdraw funds from the index", async () => {
-        console.log(await testIndex.addFunds(FUNDS_VALUE, { from: account }));
+        console.log(await testIndex.buy(FUNDS_VALUE, { from: account }));
         const tokenFunds = await indexToken.balanceOf(account);
 
         await indexToken.approve(await testIndex.address, tokenFunds, { from: account });
@@ -69,7 +67,7 @@ contract('BaseIndex', (accounts) => {
         );
         /////////////////////////////////////////////////////////////////////////
 
-        await testIndex.withdrawFunds(tokenFunds, { from: account });
+        await testIndex.sell(tokenFunds, { from: account });
         console.log("Account DAI balance:", (await buyToken.balanceOf(account)).toString());
     });
 

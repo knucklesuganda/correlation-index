@@ -3,19 +3,17 @@ pragma solidity >=0.7.5;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol";
 
 import "./PriceOracle.sol";
 import "./IndexToken.sol";
+import "./BaseProduct.sol";
 
 
-
-contract BaseIndex is Ownable{
-    address public immutable dexRouterAddress;
-    address public immutable buyTokenAddress;
+contract BaseIndex is Product{
+    address private immutable dexRouterAddress;
 
     struct TokenInfo{
         address tokenAddress;
@@ -30,21 +28,19 @@ contract BaseIndex is Ownable{
     PriceOracle private priceOracle;
     IndexToken public indexToken;
 
-    uint public immutable name;
+    function name() external override pure returns(string memory){
+        return 'CryptoIndex';
+    }
 
-    uint private immutable _indexFee;
-    uint private immutable _indexFeeTotal;
-    bool public immutable isLocked;
-    uint private immutable indexPriceAdjustment;
+    function symbol() external override pure returns(string memory){
+        return 'CRYPTIX';
+    }
 
     constructor(){
-        name = "BIG-Index";
-        
-
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;     // USDC
-        _indexFee = 5;
-        _indexFeeTotal = 1000;
+        indexFee = 5;
+        indexFeeTotal = 1000;
         indexPriceAdjustment = 100;
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
@@ -74,10 +70,6 @@ contract BaseIndex is Ownable{
             withdrawAdjustment: 100000000,
             indexPercentage: 40
         }));
-
-
-        //  1 000 000
-        //  1 000
 
         // tokens.push(TokenInfo({    // UNI
         //     tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
@@ -130,28 +122,15 @@ contract BaseIndex is Ownable{
         // }));
     }
 
-    function indexFee() external view returns(uint){ return _indexFee; }
-
-    function calculateFee(uint amount) private view returns(uint, uint){
-        uint indexFeeAmount = (amount / _indexFeeTotal) * _indexFee;
-        uint realAmount = amount - indexFeeAmount;
-        return (indexFeeAmount, realAmount);
-    }
-
-    function retrieveFees() external onlyOwner{
-        IERC20 buyToken = IERC20(buyTokenAddress);
-        buyToken.transfer(owner(), buyToken.balanceOf(address(this)));
-    }
-
-    function addFunds(uint amount) external{
-        uint indexPrice = getIndexPrice();
+    function buy(uint amount) external override{
+        uint indexPrice = getPrice();
         (, uint realAmount) = calculateFee(amount);
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, realAmount);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        for (uint256 index = 0; index < tokens.length; index++) {            
+        for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
 
             uint singleTokenAmount = realAmount / 100 * token.indexPercentage;
@@ -163,7 +142,8 @@ contract BaseIndex is Ownable{
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: singleTokenAmount,
-                amountOutMinimum: singleTokenAmount, // / token.priceAdjustment) / priceOracle.getPrice(token.priceOracleAddress),
+                amountOutMinimum: (singleTokenAmount / token.priceAdjustment)
+                    / priceOracle.getPrice(token.priceOracleAddress),
                 sqrtPriceLimitX96: 0
             });
 
@@ -173,7 +153,7 @@ contract BaseIndex is Ownable{
         indexToken.transfer(msg.sender, realAmount / indexPrice);
     }
 
-    function getIndexPrice() public view returns(uint){
+    function getPrice() public override view returns(uint){
         uint indexTotalPrice;
 
         for(uint i = 0; i < tokens.length; i++){
@@ -185,14 +165,9 @@ contract BaseIndex is Ownable{
         return indexTotalPrice * indexPriceAdjustment;
     }
 
-    function withdrawFunds(uint amount) external {
-        if(isLocked){
-            revert("Index is locked. You can only trade the index tokens");
-        }
+    function sell(uint amount) external override checkUnlocked{
 
-        require(amount > 1, "You must withdraw more funds from the index");
-        (, uint realAmount) = calculateFee(amount);
-
+        require(amount > 1 ether, "You must withdraw more funds from the index");
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
@@ -200,7 +175,7 @@ contract BaseIndex is Ownable{
             TokenInfo memory token = tokens[index];
 
             uint priceAdjustment = priceOracle.getPrice(token.priceOracleAddress) / token.withdrawAdjustment;
-            uint tokenAmount = realAmount * 100 / token.indexPercentage * token.priceAdjustment / priceAdjustment;
+            uint tokenAmount = amount * 100 / token.indexPercentage * token.priceAdjustment / priceAdjustment;
 
             TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokenAmount);
             ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
