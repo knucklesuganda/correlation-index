@@ -15,6 +15,9 @@ abstract contract Product is Ownable{
     uint internal indexPriceAdjustment;
     address public buyTokenAddress;
 
+    event ProductBuy(address account, uint buyTokenAmount, uint indexTokenAmount);
+    event ProductSell(address account, uint buyTokenAmount, uint indexTokenAmount);
+
     modifier checkUnlocked{
         require(!isLocked, "Product is locked");
         _;

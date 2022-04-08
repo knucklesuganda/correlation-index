@@ -41,7 +41,7 @@ contract BaseIndex is Product{
     }
 
     function longDescription() external override pure returns(string memory){
-        return '';
+        return 'Correlation index is a tool that allows you to diversify your investments';
     }
 
 
@@ -151,15 +151,16 @@ contract BaseIndex is Product{
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: singleTokenAmount,
-                amountOutMinimum: (singleTokenAmount / token.priceAdjustment)
-                    / priceOracle.getPrice(token.priceOracleAddress),
+                amountOutMinimum: singleTokenAmount / (priceOracle.getPrice(token.priceOracleAddress)),
                 sqrtPriceLimitX96: 0
             });
 
             dexRouter.exactInputSingle(params);
         }
 
-        indexToken.transfer(msg.sender, realAmount / indexPrice);
+        uint indexTokens = realAmount / indexPrice;
+        indexToken.transfer(msg.sender, indexTokens);
+        emit ProductBuy(msg.sender, realAmount, indexTokens);
     }
 
     function getPrice() public override view returns(uint){
@@ -180,6 +181,8 @@ contract BaseIndex is Product{
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
+        uint buyTokenAmount;
+
         for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
 
@@ -198,9 +201,10 @@ contract BaseIndex is Product{
                 sqrtPriceLimitX96: 0
             });
 
-            dexRouter.exactInputSingle(params);
+            buyTokenAmount += dexRouter.exactInputSingle(params);
         }
 
+        emit ProductSell(msg.sender, buyTokenAmount, amount);
     }
 
 }
