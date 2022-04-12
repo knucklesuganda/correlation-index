@@ -50,12 +50,16 @@ contract BaseIndex is Product{
         return priceOracle.getPrice(tokenOracleAddress);
     }
 
+    function getTotalLockedValue() external override view returns(uint){
+        return 10 + 20;
+    }
+
     constructor(){
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;     // USDC
         indexFee = 5;
         indexFeeTotal = 1000;
-        indexPriceAdjustment = 100000000;
+        indexPriceAdjustment = 100;
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
         isLocked = false;
@@ -151,7 +155,7 @@ contract BaseIndex is Product{
             indexTotalPrice += (price / 100) * token.indexPercentage;
         }
 
-        return indexTotalPrice * indexPriceAdjustment;
+        return indexTotalPrice / indexPriceAdjustment;
     }
 
     function sell(uint amount) external override checkUnlocked{
@@ -159,15 +163,13 @@ contract BaseIndex is Product{
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-
         uint buyTokenAmount;
+
+        // 1 token = 0.5 ether(50%) + 0.002btc(50%)
 
         for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
             uint tokenAmount = amount / ((priceOracle.getPrice(token.priceOracleAddress) / 100) * token.indexPercentage);
-
-            // 100 tokens
-            // 500 usd
 
             TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokenAmount);
             ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({

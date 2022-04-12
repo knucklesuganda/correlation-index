@@ -9,7 +9,7 @@ contract PriceOracle {
     function getPrice(address priceAggregatorAddress) external view returns (uint) {
         AggregatorV3Interface aggregator = AggregatorV3Interface(priceAggregatorAddress);
         (, int price,,,) = aggregator.latestRoundData();
-        return uint(price);
+        return uint(price) * 10000000000;
     }
 
 }
