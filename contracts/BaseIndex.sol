@@ -42,6 +42,9 @@ contract BaseIndex is Product{
         return 'Correlation index is a tool that allows you to diversify your investments';
     }
 
+    function getComponents() external view returns(TokenInfo[] memory){
+        return tokens;
+    }
 
     constructor(){
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
@@ -127,10 +130,10 @@ contract BaseIndex is Product{
                 sqrtPriceLimitX96: 0
             });
 
-            uint out = dexRouter.exactInputSingle(params);
+            dexRouter.exactInputSingle(params);
         }
 
-        uint indexTokens = realAmount / indexPrice;
+        uint indexTokens = (realAmount / indexPrice) * 1 ether;
         indexToken.transfer(msg.sender, indexTokens);
         emit ProductBuy(msg.sender, realAmount, indexTokens);
     }
@@ -148,8 +151,8 @@ contract BaseIndex is Product{
     }
 
     function sell(uint amount) external override checkUnlocked{
-
         require(amount > 1 ether, "You must withdraw more funds from the index");
+
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
@@ -157,7 +160,10 @@ contract BaseIndex is Product{
 
         for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
-            uint tokenAmount = amount * 100 / token.indexPercentage / priceOracle.getPrice(token.priceOracleAddress);
+            uint tokenAmount = amount / ((priceOracle.getPrice(token.priceOracleAddress) / 100) * token.indexPercentage);
+
+            // 100 tokens
+            // 500 usd
 
             TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokenAmount);
             ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
