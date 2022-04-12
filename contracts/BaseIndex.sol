@@ -46,6 +46,10 @@ contract BaseIndex is Product{
         return tokens;
     }
 
+    function getTokenPrice(address tokenOracleAddress) external view returns(uint){
+        return priceOracle.getPrice(tokenOracleAddress);
+    }
+
     constructor(){
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;     // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;     // USDC
