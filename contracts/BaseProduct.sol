@@ -28,6 +28,7 @@ abstract contract Product is Ownable{
     function shortDescription() virtual external pure returns(string memory);
     function longDescription() virtual external pure returns(string memory);
     function getTotalLockedValue() virtual external view returns(uint);
+    function image() virtual external pure returns(string memory);
 
     function buy(uint amount) virtual external;
     function sell(uint amount) virtual external;

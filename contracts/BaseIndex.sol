@@ -50,6 +50,10 @@ contract BaseIndex is Product{
         return priceOracle.getPrice(tokenOracleAddress);
     }
 
+    function image() external override pure returns(string memory){
+        return 'https://cryptologos.cc/logos/polymath-network-poly-logo.png?v=022';
+    }
+
     function getTotalLockedValue() external override view returns(uint){
         return 10 + 20;
     }
@@ -68,49 +72,56 @@ contract BaseIndex is Product{
             tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
             poolFee: 3000,
-            indexPercentage: 70
+            indexPercentage: 20
         }));
         tokens.push(TokenInfo({    // LINK
             tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
             priceOracleAddress: 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c,
             poolFee: 3000,
-            indexPercentage: 30
+            indexPercentage: 10
         }));
 
-        // tokens.push(TokenInfo({    // UNI
-        //     tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
-        //     priceOracleAddress: 0x553303d460EE0afB37EdFf9bE42922D8FF63220e,
-        //     poolFee: 3000,
-        // }));
-        // tokens.push(TokenInfo({    // BNB
-        //     tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
-        //     priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
-        //     poolFee: 3000,
-        // }));
-        // tokens.push(TokenInfo({    //   SNX
-        //     tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
-        //     priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
-        //     poolFee: 3000,
-        // }));
-        // tokens.push(TokenInfo({    //   YFI
-        //     tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
-        //     priceOracleAddress: 0xA027702dbb89fbd58938e4324ac03B58d812b0E1,
-        //     poolFee: 3000,
-        // }));
-        // tokens.push(TokenInfo({    //   COMP
-        //     tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
-        //     priceOracleAddress: 0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5,
-        //     poolFee: 3000,
-        // }));
-        // tokens.push(TokenInfo({    //   1INCH
-        //     tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
-        //     priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
-        //     poolFee: 3000,
-        // }));
+        tokens.push(TokenInfo({    // UNI
+            tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
+            priceOracleAddress: 0x553303d460EE0afB37EdFf9bE42922D8FF63220e,
+            poolFee: 3000,
+            indexPercentage: 10
+        }));
+        tokens.push(TokenInfo({    // BNB
+            tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
+            priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
+            poolFee: 3000,
+            indexPercentage: 20
+        }));
+        tokens.push(TokenInfo({    //   SNX
+            tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
+            priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
+            poolFee: 3000,
+            indexPercentage: 10
+        }));
+        tokens.push(TokenInfo({    //   YFI
+            tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
+            priceOracleAddress: 0xA027702dbb89fbd58938e4324ac03B58d812b0E1,
+            poolFee: 3000,
+            indexPercentage: 10
+        }));
+        tokens.push(TokenInfo({    //   COMP
+            tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
+            priceOracleAddress: 0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5,
+            poolFee: 3000,
+            indexPercentage: 10
+        }));
+        tokens.push(TokenInfo({    //   1INCH
+            tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
+            priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
+            poolFee: 3000,
+            indexPercentage: 10
+        }));
         // tokens.push(TokenInfo({    //   MKR
         //     tokenAddress: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
         //     priceOracleAddress: 0xec1D1B3b0443256cc3860e24a46F108e699484Aa,
         //     poolFee: 3000,
+        //     indexPercentage: 10
         // }));
     }
 
@@ -164,8 +175,6 @@ contract BaseIndex is Product{
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint buyTokenAmount;
-
-        // 1 token = 0.5 ether(50%) + 0.002btc(50%)
 
         for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
