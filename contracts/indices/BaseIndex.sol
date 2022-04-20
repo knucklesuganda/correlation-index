@@ -15,10 +15,10 @@ contract BaseIndex is Product {
     address private immutable dexRouterAddress;
 
     struct TokenInfo {
+        uint8 indexPercentage;
+        uint24 poolFee;
         address tokenAddress;
         address priceOracleAddress;
-        uint24 poolFee;
-        uint8 indexPercentage;
     }
 
     TokenInfo[] public tokens;
@@ -34,30 +34,23 @@ contract BaseIndex is Product {
     }
 
     function shortDescription() external pure override returns (string memory) {
-        return
-            "Correlation index is a tool that allows you to diversify your investments";
+        return "Correlation index is a tool that allows you to diversify your investments";
     }
 
     function longDescription() external pure override returns (string memory) {
-        return
-            "Correlation index is a tool that allows you to diversify your investments";
+        return "Correlation index is a tool that allows you to diversify your investments";
     }
 
     function getComponents() external view returns (TokenInfo[] memory) {
         return tokens;
     }
 
-    function getTokenPrice(address tokenOracleAddress)
-        external
-        view
-        returns (uint256)
-    {
+    function getTokenPrice(address tokenOracleAddress) external view returns (uint256) {
         return priceOracle.getPrice(tokenOracleAddress);
     }
 
     function image() external pure override returns (string memory) {
-        return
-            "https://cryptologos.cc/logos/polymath-network-poly-logo.png?v=022";
+        return "https://cryptologos.cc/logos/polymath-network-poly-logo.png?v=022";
     }
 
     function getTotalLockedValue() external view override returns (uint256) {
@@ -87,14 +80,22 @@ contract BaseIndex is Product {
                 indexPercentage: 20
             })
         );
-        // tokens.push(
-        //     TokenInfo({ // LINK
-        //         tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
-        //         priceOracleAddress: 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c,
-        //         poolFee: 3000,
-        //         indexPercentage: 10
-        //     })
-        // );
+        tokens.push(
+            TokenInfo({ // LINK
+                tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
+                priceOracleAddress: 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c,
+                poolFee: 3000,
+                indexPercentage: 10
+            })
+        );
+        tokens.push(
+            TokenInfo({    // BNB
+                tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
+                priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
+                poolFee: 3000,
+                indexPercentage: 20
+            })
+        );
         // tokens.push(
         //     TokenInfo({ // UNI
         //         tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
@@ -111,12 +112,6 @@ contract BaseIndex is Product {
         //         indexPercentage: 10
         //     })
         // );
-        tokens.push(TokenInfo({    // BNB
-            tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
-            priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
-            poolFee: 3000,
-            indexPercentage: 20
-        }));
         // tokens.push(TokenInfo({    //   SNX
         //     tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
         //     priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
@@ -152,26 +147,6 @@ contract BaseIndex is Product {
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, realAmount);
-        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-        TokenInfo memory token;
-
-        for (uint256 index = 0; index < tokens.length; index++) {
-            token = tokens[index];
-            uint256 tokenAmount = (realAmount / 100) * token.indexPercentage;
-
-            dexRouter.exactInputSingle(
-                ISwapRouter.ExactInputSingleParams({
-                    tokenIn: buyTokenAddress,
-                    tokenOut: token.tokenAddress,
-                    fee: token.poolFee,
-                    recipient: address(this),
-                    deadline: block.timestamp,
-                    amountIn: tokenAmount,
-                    amountOutMinimum: tokenAmount / priceOracle.getPrice(token.priceOracleAddress),
-                    sqrtPriceLimitX96: 0
-                })
-            );
-        }
 
         indexToken.transfer(msg.sender, indexTokens);
         emit ProductBuy(msg.sender, realAmount, indexTokens);

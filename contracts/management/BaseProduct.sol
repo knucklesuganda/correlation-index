@@ -8,12 +8,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 abstract contract Product is Ownable{
 
+    bool internal isLocked;
+    address public buyTokenAddress;
     uint8 internal indexFee;
     uint internal indexFeeTotal;
-
-    bool internal isLocked;
     uint internal indexPriceAdjustment;
-    address public buyTokenAddress;
 
     event ProductBuy(address account, uint buyTokenAmount, uint indexTokenAmount);
     event ProductSell(address account, uint buyTokenAmount, uint indexTokenAmount);
