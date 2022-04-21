@@ -172,9 +172,10 @@ contract BaseIndex is Product {
 
         uint indexPrice = getPrice();
         tokensToSell += amount;
-        usersDebt[msg.sender] += (amount * indexPrice) / 1 ether;
-        emit ProductSell(msg.sender, amount * indexPrice, amount);
 
+        uint newUserDebt = (amount * indexPrice) / 1 ether;
+        usersDebt[msg.sender] += newUserDebt;
+        emit ProductSell(msg.sender, newUserDebt, amount);
     }
 
     function findToken(address tokenAddress) private view returns(TokenInfo memory){
@@ -228,7 +229,7 @@ contract BaseIndex is Product {
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: tokenAmount,
-                amountOutMinimum: tokenAmount / priceOracle.getPrice(token.priceOracleAddress),
+                amountOutMinimum: tokenAmount * priceOracle.getPrice(token.priceOracleAddress),
                 sqrtPriceLimitX96: 0
             })
         );

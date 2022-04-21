@@ -11,6 +11,5 @@ module.exports = async function(deployer) {
     const observer = await Observer.deployed();
 
     await observer.addProduct(index.address, "index");
-    console.log("Observer:", observer.address);
 
 };
