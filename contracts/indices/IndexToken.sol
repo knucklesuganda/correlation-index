@@ -62,9 +62,9 @@ contract IndexToken is Token {
         }else{
             require(balances[msg.sender] >= _value, "token balance is lower than the value requested");
             balances[msg.sender] -= _value;
+            balances[_to] += _value;
         }
 
-        balances[_to] += _value;
         emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
         return true;
     }

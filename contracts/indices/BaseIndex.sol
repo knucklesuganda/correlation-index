@@ -196,6 +196,7 @@ contract BaseIndex is Product {
         uint256 tokenAmount = (tokensToBuy / 100) * token.indexPercentage;
         tokensToBuy -= tokenAmount;
 
+        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokenAmount);
         dexRouter.exactInputSingle(
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: buyTokenAddress,
