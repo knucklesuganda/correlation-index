@@ -28,7 +28,11 @@ contract('BaseIndex', (accounts) => {
     // });
 
     it("must add funds", async () => {
+
         await testIndex.buy(FUNDS_VALUE, { from: account });
+        buyToken.balanceOf(account).should.be.bignumber.equal(new BN('0', 10));
+        console.log(`Tokens: ${await indexToken.balanceOf(account)}`);
+
     });
 
     // it("should increase the balance of the index owner by fee", async () => {

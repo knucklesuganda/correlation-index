@@ -12,8 +12,6 @@ import "./IndexToken.sol";
 import "../management/BaseProduct.sol";
 
 contract BaseIndex is Product {
-    address private immutable dexRouterAddress;
-
     struct TokenInfo {
         uint8 indexPercentage;
         uint24 poolFee;
@@ -24,7 +22,12 @@ contract BaseIndex is Product {
     TokenInfo[] public tokens;
     PriceOracle private priceOracle;
     IndexToken public indexToken;
+    address private immutable dexRouterAddress;
     uint public tokensToSell;
+    uint public tokensToBuy;
+    mapping(address => uint) public usersDebt;
+
+    event DebtRetrieval(address account, uint debtAmount);
 
     function name() external pure override returns (string memory) {
         return "CryptoIndex";
@@ -55,7 +58,15 @@ contract BaseIndex is Product {
     }
 
     function getTotalLockedValue() external view override returns (uint256) {
-        return 10 + 20;
+        uint totalValue;
+
+        for (uint i = 0; i < tokens.length; i++) {
+            TokenInfo memory tokenInfo = tokens[i];
+            IERC20 token = IERC20(tokenInfo.tokenAddress);
+            totalValue += token.balanceOf(address(this)) * priceOracle.getPrice(tokenInfo.priceOracleAddress);
+        }
+
+        return totalValue;
     }
 
     constructor() {
@@ -64,12 +75,7 @@ contract BaseIndex is Product {
         indexFee = 5;
         indexFeeTotal = 1000;
         indexPriceAdjustment = 100;
-        indexToken = new IndexToken(
-            address(this),
-            "Crypto index token",
-            18,
-            "CRYPTIX"
-        );
+        indexToken = new IndexToken( address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
         isLocked = false;
 
@@ -142,6 +148,7 @@ contract BaseIndex is Product {
     function buy(uint256 amount) external override {
         uint256 indexPrice = getPrice();
         (, uint256 realAmount) = calculateFee(amount);
+        tokensToBuy += realAmount;
 
         uint256 indexTokens = (realAmount / indexPrice) * 1 ether;
         require(indexTokens > 0, "Not enough tokens sent");
@@ -151,16 +158,26 @@ contract BaseIndex is Product {
         emit ProductBuy(msg.sender, realAmount, indexTokens);
     }
 
-    function sell(uint256 amount) external override checkUnlocked {
-        require(amount > 1 ether, "You must sell tokens");
-        TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
-
-        // TODO: if enough tokens, then send them to the user
-
-        emit ProductSell(msg.sender, amount * getPrice(), amount);
+    function retrieveDebt(uint amount) external checkUnlocked{
+        require(usersDebt[msg.sender] - amount > 0, "Not enough debt, try selling your tokens first");
+        
+        usersDebt[msg.sender] -= amount;
+        IERC20(buyTokenAddress).transfer(msg.sender, amount);
+        emit DebtRetrieval(msg.sender, amount);
     }
 
-    function findToken(address tokenAddress) private view returns(Token memory){
+    function sell(uint amount) external override checkUnlocked {
+        require(amount >= 1 ether, "You must sell more tokens");
+        TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
+
+        uint indexPrice = getPrice();
+        tokensToSell += amount;
+        usersDebt[msg.sender] += (amount * indexPrice) / 1 ether;
+        emit ProductSell(msg.sender, amount * indexPrice, amount);
+
+    }
+
+    function findToken(address tokenAddress) private view returns(TokenInfo memory){
         for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
 
@@ -176,8 +193,8 @@ contract BaseIndex is Product {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
         TokenInfo memory token = findToken(tokenAddress);
-        uint balance = IERC20(token.tokenAddress).balanceOf(token.tokenAddress);
-        uint256 tokenAmount = (balance / 100) * token.indexPercentage;
+        uint256 tokenAmount = (tokensToBuy / 100) * token.indexPercentage;
+        tokensToBuy -= tokenAmount;
 
         dexRouter.exactInputSingle(
             ISwapRouter.ExactInputSingleParams({
@@ -194,11 +211,12 @@ contract BaseIndex is Product {
 
     }
 
-    function sellToken() external onlyOwner {
+    function sellToken(address tokenAddress) external onlyOwner {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
         TokenInfo memory token = findToken(tokenAddress);
         uint256 tokenAmount = (tokensToSell / 100) * token.indexPercentage;
+        tokensToSell -= tokenAmount;
 
         TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokenAmount);
         dexRouter.exactInputSingle(
@@ -213,7 +231,6 @@ contract BaseIndex is Product {
                 sqrtPriceLimitX96: 0
             })
         );
-
     }
 
     function getPrice() public view override returns (uint256) {
