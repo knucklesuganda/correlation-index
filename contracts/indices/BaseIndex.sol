@@ -84,7 +84,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
                 priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
                 poolFee: 3000,
-                indexPercentage: 20
+                indexPercentage: 5
             })
         );
         tokens.push(
@@ -92,7 +92,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
                 priceOracleAddress: 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c,
                 poolFee: 3000,
-                indexPercentage: 10
+                indexPercentage: 5
             })
         );
         tokens.push(
@@ -100,7 +100,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
                 priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
                 poolFee: 3000,
-                indexPercentage: 20
+                indexPercentage: 5
             })
         );
         tokens.push(
@@ -108,7 +108,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
                 priceOracleAddress: 0x553303d460EE0afB37EdFf9bE42922D8FF63220e,
                 poolFee: 3000,
-                indexPercentage: 10
+                indexPercentage: 5
             })
         );
         tokens.push(
@@ -116,20 +116,20 @@ contract BaseIndex is Product {
                 tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
                 priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
                 poolFee: 3000,
-                indexPercentage: 10
+                indexPercentage: 5
             })
         );
         tokens.push(TokenInfo({    //   SNX
             tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
             priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
             poolFee: 3000,
-            indexPercentage: 10
+            indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   YFI
             tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
             priceOracleAddress: 0xA027702dbb89fbd58938e4324ac03B58d812b0E1,
             poolFee: 3000,
-            indexPercentage: 10
+            indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   COMP
             tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
@@ -143,17 +143,56 @@ contract BaseIndex is Product {
             poolFee: 3000,
             indexPercentage: 5
         }));
+        tokens.push(TokenInfo({    //   SUSHI
+            tokenAddress: 0x6B3595068778DD592e39A122f4f5a5cF09C90fE2,
+            priceOracleAddress: 0xCc70F09A6CC17553b2E31954cD36E4A2d89501f7,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({    //   XRP
+            tokenAddress: 0xAE9e8333a1Bc59751E566bc43C91B48477EB41df,
+            priceOracleAddress: 0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({    //   CRV
+            tokenAddress: 0xD533a949740bb3306d119CC777fa900bA034cd52,
+            priceOracleAddress: 0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({    //   Huobi Token
+            tokenAddress: 0x6f259637dcD74C767781E37Bc6133cd6A68aa161,
+            priceOracleAddress: 0xE1329B3f6513912CAf589659777b66011AEE5880,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({    //   BNT
+            tokenAddress: 0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C,
+            priceOracleAddress: 0x1E6cF0D433de4FE882A437ABC654F58E1e78548c,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({    //   INJ
+            tokenAddress: 0xe28b3B32B6c345A34Ff64674606124Dd5Aceca30,
+            priceOracleAddress: 0xaE2EbE3c4D20cE13cE47cbb49b6d7ee631Cd816e,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
     }
 
     function buy(uint256 amount) external override {
         uint256 indexPrice = getPrice();
-        (, uint256 realAmount) = calculateFee(amount);
+        (uint productFee, uint256 realAmount) = calculateFee(amount);
         tokensToBuy += realAmount;
 
         uint256 indexTokens = (realAmount / indexPrice) * 1 ether;
         require(indexTokens > 0, "Not enough tokens sent");
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
+        IERC20 buyToken = IERC20(buyTokenAddress);
+        buyToken.transfer(owner(), productFee);
+
         indexToken.transfer(msg.sender, indexTokens);
         emit ProductBuy(msg.sender, realAmount, indexTokens);
     }
@@ -168,14 +207,17 @@ contract BaseIndex is Product {
 
     function sell(uint amount) external override checkUnlocked {
         require(amount >= 1 ether, "You must sell more tokens");
+        (uint productFee, uint256 realAmount) = calculateFee(amount);
+
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
+        indexToken.transfer(owner(), productFee);
 
         uint indexPrice = getPrice();
-        tokensToSell += amount;
+        tokensToSell += realAmount;
 
-        uint newUserDebt = (amount * indexPrice) / 1 ether;
+        uint newUserDebt = (realAmount * indexPrice) / 1 ether;
         usersDebt[msg.sender] += newUserDebt;
-        emit ProductSell(msg.sender, newUserDebt, amount);
+        emit ProductSell(msg.sender, newUserDebt, realAmount);
     }
 
     function findToken(address tokenAddress) private view returns(TokenInfo memory){

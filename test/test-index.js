@@ -1,5 +1,6 @@
 require("chai").use(require("chai-bignumber")(web3.BigNumber)).should();
 const BN = require("bn.js");
+const { assert } = require("chai");
 const BaseIndex = artifacts.require("BaseIndex.sol");
 const IERC20 = artifacts.require("IERC20");
 
@@ -14,11 +15,11 @@ contract('BaseIndex', (accounts) => {
     let FUNDS_VALUE;
 
     beforeEach(async () => {
-        testIndex = await BaseIndex.new({ from: indexOwner });
+        testIndex = await BaseIndex.new();
         buyToken = await IERC20.at(await testIndex.buyTokenAddress());
         indexToken = await IERC20.at(await testIndex.indexToken());
 
-        FUNDS_VALUE = await buyToken.balanceOf(account);
+        FUNDS_VALUE = new BN("100000000000000000000", 10);
         await buyToken.approve(await testIndex.address, FUNDS_VALUE, { from: account });
     });
 
@@ -27,11 +28,32 @@ contract('BaseIndex', (accounts) => {
     //     assert.equal(owner, indexOwner);
     // });
 
-    it("must add funds", async () => {
+    it("must add funds according to the price", async () => {
 
         await testIndex.buy(FUNDS_VALUE, { from: account });
-        buyToken.balanceOf(account).should.be.bignumber.equal(new BN('0', 10));
-        console.log(`Tokens: ${await indexToken.balanceOf(account)}`);
+        const price = await testIndex.getPrice();
+
+        console.log(FUNDS_VALUE.div(price).toString());
+
+        assert.equal(
+            await indexToken.balanceOf(account),
+            FUNDS_VALUE.div(price)
+        );
+
+    });
+
+    it("must add debt to the user", async () => {
+
+        await testIndex.buy(FUNDS_VALUE, { from: account });
+        const balance = await indexToken.balanceOf(account);
+
+        indexToken.approve(testIndex.address, balance, { from: account });
+        await testIndex.sell(balance, { from: account });
+
+        assert.isAbove(
+            await testIndex.usersDebt(account),
+            0
+        );
 
     });
 

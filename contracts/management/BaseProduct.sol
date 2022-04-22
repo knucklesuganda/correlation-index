@@ -39,9 +39,4 @@ abstract contract Product is Ownable{
         return (indexFeeAmount, realAmount);
     }
 
-    function retrieveFees() external onlyOwner{
-        IERC20 buyToken = IERC20(buyTokenAddress);
-        buyToken.transfer(owner(), buyToken.balanceOf(address(this)));
-    }
-
 }
