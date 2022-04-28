@@ -23,9 +23,11 @@ contract BaseIndex is Product {
     PriceOracle private priceOracle;
     IndexToken public indexToken;
     address private immutable dexRouterAddress;
-    uint public tokensToSell;
-    uint public tokensToBuy;
-    mapping(address => uint) public usersDebt;
+
+    uint public tokensToSell;   // index tokens that will be sold
+    uint public tokensToBuy;    // usd tokens that will be bought
+    mapping(address => uint) public usersDebt;  // debt to each user
+    uint public totalAvailableDebt;     // total debt for the index
 
     event DebtRetrieval(address account, uint debtAmount);
 
@@ -72,7 +74,7 @@ contract BaseIndex is Product {
     constructor() {
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564; // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // USDC
-        productFee = 5;
+        productFee = 50;
         productFeeTotal = 1000;
         indexPriceAdjustment = 100;
         indexToken = new IndexToken( address(this), "Crypto index token", 18, "CRYPTIX");
@@ -201,6 +203,8 @@ contract BaseIndex is Product {
         require(usersDebt[msg.sender] - amount > 0, "Not enough debt, try selling your tokens first");
         
         usersDebt[msg.sender] -= amount;
+        totalAvailableDebt -= amount;
+
         IERC20(buyTokenAddress).transfer(msg.sender, amount);
         emit DebtRetrieval(msg.sender, amount);
     }
@@ -261,7 +265,7 @@ contract BaseIndex is Product {
 
         if(tokensToSellAmount > 0){
             TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokensToSellAmount);
-            dexRouter.exactInputSingle(
+            totalAvailableDebt += dexRouter.exactInputSingle(
                 ISwapRouter.ExactInputSingleParams({
                     tokenIn: token.tokenAddress,
                     tokenOut: buyTokenAddress,
