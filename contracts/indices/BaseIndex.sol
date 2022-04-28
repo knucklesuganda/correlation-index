@@ -186,17 +186,17 @@ contract BaseIndex is Product {
     function buy(uint256 amount) external override {
         uint256 indexPrice = getPrice();
         (uint productFee, uint256 realAmount) = calculateFee(amount);
-        tokensToBuy += realAmount;
+        require(realAmount >= 1, "Not enough tokens sent");
 
-        uint256 indexTokens = (realAmount / indexPrice) * 1 ether;
-        require(indexTokens > 0, "Not enough tokens sent");
+        uint buyTokenAmount = (realAmount * indexPrice) / 1 ether;
+        tokensToBuy += buyTokenAmount;
 
-        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
+        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), (amount * indexPrice) / 1 ether);
         IERC20 _buyToken = IERC20(buyTokenAddress);
-        _buyToken.transfer(owner(), productFee);
+        _buyToken.transfer(owner(), (productFee * indexPrice) / 1 ether);
 
-        indexToken.transfer(msg.sender, indexTokens);
-        emit ProductBuy(msg.sender, realAmount, indexTokens);
+        indexToken.transfer(msg.sender, realAmount);
+        emit ProductBuy(msg.sender, buyTokenAmount, realAmount);
     }
 
     function retrieveDebt(uint amount) external checkUnlocked{
@@ -210,8 +210,8 @@ contract BaseIndex is Product {
     }
 
     function sell(uint amount) external override checkUnlocked {
-        require(amount >= 1 ether, "You must sell more tokens");
         (uint productFee, uint256 realAmount) = calculateFee(amount);
+        require(realAmount >= 1, "You must sell more tokens");
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         indexToken.transfer(owner(), productFee);

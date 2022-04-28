@@ -33,10 +33,14 @@ abstract contract Product is Ownable{
     function sell(uint amount) virtual external;
     function getPrice() virtual public view returns(uint);
 
-    function calculateFee(uint amount) internal view returns(uint, uint){
+    function calculateFee(uint amount) public view returns(uint, uint){
         uint productFeeAmount = (amount / productFeeTotal) * productFee;
         uint realAmount = amount - productFeeAmount;
         return (productFeeAmount, realAmount);
+    }
+
+    function getFee() external view returns(uint, uint){
+        return (productFee, productFeeTotal);
     }
 
 }
