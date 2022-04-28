@@ -10,8 +10,8 @@ abstract contract Product is Ownable{
 
     bool internal isLocked;
     address public buyTokenAddress;
-    uint8 internal indexFee;
-    uint internal indexFeeTotal;
+    uint8 internal productFee;
+    uint internal productFeeTotal;
     uint internal indexPriceAdjustment;
 
     event ProductBuy(address account, uint buyTokenAmount, uint indexTokenAmount);
@@ -34,9 +34,9 @@ abstract contract Product is Ownable{
     function getPrice() virtual public view returns(uint);
 
     function calculateFee(uint amount) internal view returns(uint, uint){
-        uint indexFeeAmount = (amount / indexFeeTotal) * indexFee;
-        uint realAmount = amount - indexFeeAmount;
-        return (indexFeeAmount, realAmount);
+        uint productFeeAmount = (amount / productFeeTotal) * productFee;
+        uint realAmount = amount - productFeeAmount;
+        return (productFeeAmount, realAmount);
     }
 
 }

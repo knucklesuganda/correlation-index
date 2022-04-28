@@ -72,8 +72,8 @@ contract BaseIndex is Product {
     constructor() {
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564; // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // USDC
-        indexFee = 5;
-        indexFeeTotal = 1000;
+        productFee = 5;
+        productFeeTotal = 1000;
         indexPriceAdjustment = 100;
         indexToken = new IndexToken( address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
@@ -84,7 +84,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
                 priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
                 poolFee: 3000,
-                indexPercentage: 5
+                indexPercentage: 15
             })
         );
         tokens.push(
@@ -100,7 +100,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
                 priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
                 poolFee: 3000,
-                indexPercentage: 5
+                indexPercentage: 21
             })
         );
         tokens.push(
@@ -135,7 +135,7 @@ contract BaseIndex is Product {
             tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
             priceOracleAddress: 0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5,
             poolFee: 3000,
-            indexPercentage: 5  
+            indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   MKR
             tokenAddress: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
@@ -190,8 +190,8 @@ contract BaseIndex is Product {
         require(indexTokens > 0, "Not enough tokens sent");
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount);
-        IERC20 buyToken = IERC20(buyTokenAddress);
-        buyToken.transfer(owner(), productFee);
+        IERC20 _buyToken = IERC20(buyTokenAddress);
+        _buyToken.transfer(owner(), productFee);
 
         indexToken.transfer(msg.sender, indexTokens);
         emit ProductBuy(msg.sender, realAmount, indexTokens);
@@ -232,49 +232,49 @@ contract BaseIndex is Product {
         revert("No such token");
     }
 
-    function buyToken(address tokenAddress) external onlyOwner {
+    function manageTokens(address tokenAddress) external onlyOwner {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
         TokenInfo memory token = findToken(tokenAddress);
-        uint256 tokenAmount = (tokensToBuy / 100) * token.indexPercentage;
-        tokensToBuy -= tokenAmount;
+        uint tokensToBuyAmount = (tokensToBuy / 100) * token.indexPercentage;
+        uint tokensToSellAmount = (tokensToSell / 100) * token.indexPercentage;
+        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
-        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokenAmount);
-        dexRouter.exactInputSingle(
-            ISwapRouter.ExactInputSingleParams({
-                tokenIn: buyTokenAddress,
-                tokenOut: token.tokenAddress,
-                fee: token.poolFee,
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: tokenAmount,
-                amountOutMinimum: tokenAmount / priceOracle.getPrice(token.priceOracleAddress),
-                sqrtPriceLimitX96: 0
-            })
-        );
+        tokensToBuy -= tokensToBuyAmount;
+        tokensToSell -= tokensToSellAmount;
 
-    }
+        if(tokensToBuyAmount > 0) {
+            TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuyAmount);
+            dexRouter.exactInputSingle(
+                ISwapRouter.ExactInputSingleParams({
+                    tokenIn: buyTokenAddress,
+                    tokenOut: token.tokenAddress,
+                    fee: token.poolFee,
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: tokensToBuyAmount,
+                    amountOutMinimum: tokensToBuyAmount / priceOracle.getPrice(token.priceOracleAddress),
+                    sqrtPriceLimitX96: 0
+                })
+            );
+        }
 
-    function sellToken(address tokenAddress) external onlyOwner {
-        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
+        if(tokensToSellAmount > 0){
+            TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokensToSellAmount);
+            dexRouter.exactInputSingle(
+                ISwapRouter.ExactInputSingleParams({
+                    tokenIn: token.tokenAddress,
+                    tokenOut: buyTokenAddress,
+                    fee: token.poolFee,
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: tokensToSellAmount,
+                    amountOutMinimum: tokensToSellAmount * tokenPrice,
+                    sqrtPriceLimitX96: 0
+                })
+            );
+        }
 
-        TokenInfo memory token = findToken(tokenAddress);
-        uint256 tokenAmount = (tokensToSell / 100) * token.indexPercentage;
-        tokensToSell -= tokenAmount;
-
-        TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokenAmount);
-        dexRouter.exactInputSingle(
-            ISwapRouter.ExactInputSingleParams({
-                tokenIn: token.tokenAddress,
-                tokenOut: buyTokenAddress,
-                fee: token.poolFee,
-                recipient: address(this),
-                deadline: block.timestamp,
-                amountIn: tokenAmount,
-                amountOutMinimum: tokenAmount * priceOracle.getPrice(token.priceOracleAddress),
-                sqrtPriceLimitX96: 0
-            })
-        );
     }
 
     function getPrice() public view override returns (uint256) {

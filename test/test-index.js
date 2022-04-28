@@ -63,7 +63,7 @@ contract('BaseIndex', (accounts) => {
     //     const balanceAfter = await buyToken.balanceOf(indexOwner);
     // 
     //     console.log("Balance before: ", balanceBefore.toString(), " Balance after:", balanceAfter.toString());
-    //     const fee = FUNDS_VALUE.div(100).mul(await testIndex.indexFee());
+    //     const fee = FUNDS_VALUE.div(100).mul(await testIndex.productFee());
     //     assert.equal(balanceAfter.sub(balanceBefore).toString(), fee.toString());
     // });
     // 
