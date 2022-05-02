@@ -68,8 +68,8 @@ contract BaseIndex is Product {
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory tokenInfo = tokens[i];
             IERC20 token = IERC20(tokenInfo.tokenAddress);
-            totalValue = totalValue.add(token.balanceOf(address(this)).mul(1 ether).div(
-                priceOracle.getPrice(tokenInfo.priceOracleAddress)));
+            totalValue = totalValue.add(token.balanceOf(address(this)).mul(
+                priceOracle.getPrice(tokenInfo.priceOracleAddress))).div(1 ether);
         }
 
         return totalValue;
@@ -192,13 +192,16 @@ contract BaseIndex is Product {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "Not enough tokens sent");
 
-        uint buyTokenAmount = realAmount.mul(1 ether).div(indexPrice);
+        uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
         tokensToBuy += buyTokenAmount;
 
         indexToken.transfer(msg.sender, realAmount);
-        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(1 ether).div(indexPrice));
+        TransferHelper.safeTransferFrom(
+            buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether)
+        );
+
         IERC20 _buyToken = IERC20(buyTokenAddress);
-        _buyToken.transfer(owner(), productFee.mul(1 ether).div(indexPrice));
+        _buyToken.transfer(owner(), productFee.mul(indexPrice).div(1 ether));
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
@@ -217,7 +220,7 @@ contract BaseIndex is Product {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "You must sell more tokens");
 
-        uint newUserDebt = realAmount.mul(1 ether).div(getPrice());
+        uint newUserDebt = realAmount.mul(getPrice()).div(1 ether);
         usersDebt[msg.sender] = usersDebt[msg.sender].add(newUserDebt);
         tokensToSell = realAmount.add(tokensToSell);
 
@@ -227,24 +230,9 @@ contract BaseIndex is Product {
         emit ProductSold(msg.sender, newUserDebt, realAmount);
     }
 
-    function findToken(address tokenAddress) private view returns(TokenInfo memory){
-        for (uint256 index = 0; index < tokens.length; index++) {
-            TokenInfo memory token = tokens[index];
-            if (token.tokenAddress == tokenAddress) {
-                return token;
-            }
-        }
-
-        revert("No such token");
-    }
-
-    function manageTokens(address tokenAddress) external onlyOwner {
+    function manageTokens(TokenInfo memory token) external onlyOwner {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        // buy - usd
-        // sell - tokens
-
-        TokenInfo memory token = findToken(tokenAddress);
         uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
         uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
@@ -278,7 +266,7 @@ contract BaseIndex is Product {
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: tokensToSellAmount,
-                    amountOutMinimum: tokensToSellAmount.mul(tokenPrice),
+                    amountOutMinimum: tokensToSellAmount.mul(tokenPrice).div(1 ether),
                     sqrtPriceLimitX96: 0
                 })
             );
@@ -291,8 +279,9 @@ contract BaseIndex is Product {
 
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
-            uint256 price = priceOracle.getPrice(token.priceOracleAddress);
-            indexTotalPrice = indexTotalPrice.add(price.div(100).mul(token.indexPercentage));
+            indexTotalPrice = indexTotalPrice.add(
+                priceOracle.getPrice(token.priceOracleAddress).div(100).mul(token.indexPercentage)
+            );
         }
 
         return indexTotalPrice.div(indexPriceAdjustment);

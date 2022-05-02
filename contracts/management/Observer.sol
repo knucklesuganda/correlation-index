@@ -16,7 +16,7 @@ contract Observer is Ownable{
         string productType;
     }
 
-    ProductInfo[] public products;
+    ProductInfo[] private products;
 
     function addProduct(address productAddress, string memory productType) external onlyOwner {
         products.push(ProductInfo(productAddress, productType));
