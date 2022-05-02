@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.5;
+pragma solidity 0.7.5;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -29,10 +29,10 @@ contract BaseIndex is Product {
 
     uint public tokensToSell;    // index tokens that will be sold
     uint public tokensToBuy;    // usd tokens that will be bought
-    mapping(address => uint) public usersDebt;    // debt to each user
     uint public totalAvailableDebt;    // total debt for the index
+    mapping(address => uint) public usersDebt;    // debt to each user
 
-    event DebtRetrieval(address account, uint debtAmount);
+    event DebtRetrieved(address account, uint debtAmount);
 
     function name() external pure override returns (string memory) {
         return "CryptoIndex";
@@ -83,7 +83,7 @@ contract BaseIndex is Product {
         indexPriceAdjustment = 100;
         indexToken = new IndexToken( address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
-        isLocked = true;
+        isLocked = false;
 
         tokens.push(
             TokenInfo({ // WETH
@@ -187,7 +187,7 @@ contract BaseIndex is Product {
         }));
     }
 
-    function buy(uint256 amount) external override {
+    function buy(uint256 amount) external nonReentrant override {
         uint256 indexPrice = getPrice();
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "Not enough tokens sent");
@@ -195,42 +195,41 @@ contract BaseIndex is Product {
         uint buyTokenAmount = realAmount.mul(1 ether).div(indexPrice);
         tokensToBuy += buyTokenAmount;
 
+        indexToken.transfer(msg.sender, realAmount);
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(1 ether).div(indexPrice));
         IERC20 _buyToken = IERC20(buyTokenAddress);
         _buyToken.transfer(owner(), productFee.mul(1 ether).div(indexPrice));
 
-        indexToken.transfer(msg.sender, realAmount);
-        emit ProductBuy(msg.sender, buyTokenAmount, realAmount);
+        emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
 
-    function retrieveDebt(uint amount) external checkUnlocked{
+    function retrieveDebt(uint amount) external nonReentrant checkUnlocked{
         require(usersDebt[msg.sender].sub(amount) > 0, "Not enough debt, try selling your tokens first");
         
         usersDebt[msg.sender] = usersDebt[msg.sender].sub(amount);
         totalAvailableDebt = totalAvailableDebt.sub(amount);
 
         IERC20(buyTokenAddress).transfer(msg.sender, amount);
-        emit DebtRetrieval(msg.sender, amount);
+        emit DebtRetrieved(msg.sender, amount);
     }
 
-    function sell(uint amount) external override checkUnlocked {
+    function sell(uint amount) external override nonReentrant checkUnlocked {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "You must sell more tokens");
+
+        uint newUserDebt = realAmount.mul(1 ether).div(getPrice());
+        usersDebt[msg.sender] = usersDebt[msg.sender].add(newUserDebt);
+        tokensToSell = realAmount.add(tokensToSell);
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         indexToken.transfer(owner(), productFee);
 
-        tokensToSell = realAmount.add(tokensToSell);
-
-        uint newUserDebt = realAmount.mul(1 ether).div(getPrice());
-        usersDebt[msg.sender] = usersDebt[msg.sender].add(newUserDebt);
-        emit ProductSell(msg.sender, newUserDebt, realAmount);
+        emit ProductSold(msg.sender, newUserDebt, realAmount);
     }
 
     function findToken(address tokenAddress) private view returns(TokenInfo memory){
         for (uint256 index = 0; index < tokens.length; index++) {
             TokenInfo memory token = tokens[index];
-
             if (token.tokenAddress == tokenAddress) {
                 return token;
             }

@@ -1,6 +1,6 @@
 // https://eips.ethereum.org/EIPS/eip-20
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.5;
+pragma solidity 0.7.5;
 pragma abicoder v2; 
 
 

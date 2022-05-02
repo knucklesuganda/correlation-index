@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.7.5;
+pragma solidity 0.7.5;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 
-abstract contract Product is Ownable{
+abstract contract Product is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     bool public isLocked;
@@ -16,8 +17,8 @@ abstract contract Product is Ownable{
     uint internal productFeeTotal;
     uint internal indexPriceAdjustment;
 
-    event ProductBuy(address account, uint buyTokenAmount, uint indexTokenAmount);
-    event ProductSell(address account, uint buyTokenAmount, uint indexTokenAmount);
+    event ProductBought(address account, uint buyTokenAmount, uint indexTokenAmount);
+    event ProductSold(address account, uint buyTokenAmount, uint indexTokenAmount);
 
     modifier checkUnlocked{
         require(!isLocked, "Product is locked");
