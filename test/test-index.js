@@ -9,18 +9,18 @@ contract('BaseIndex', (accounts) => {
 
     let buyToken;
     let indexToken;
-    let testIndex;
+    let index;
     const account = process.env.ETH_WHALE;
     const indexOwner = accounts[0];
     let FUNDS_VALUE;
 
     beforeEach(async () => {
-        testIndex = await BaseIndex.new();
-        buyToken = await IERC20.at(await testIndex.buyTokenAddress());
-        indexToken = await IERC20.at(await testIndex.indexToken());
+        index = await BaseIndex.new();
+        buyToken = await IERC20.at(await index.buyTokenAddress());
+        indexToken = await IERC20.at(await index.indexToken());
 
         FUNDS_VALUE = new BN("100000000000000000000", 10);
-        await buyToken.approve(await testIndex.address, FUNDS_VALUE, { from: account });
+        await buyToken.approve(await index.address, FUNDS_VALUE, { from: account });
     });
 
     // it("should return index owner", async () => {
@@ -28,32 +28,49 @@ contract('BaseIndex', (accounts) => {
     //     assert.equal(owner, indexOwner);
     // });
 
-    it("must add funds according to the price", async () => {
+    // it("must add funds according to the price", async () => {
+    // 
+    //     await testIndex.buy(FUNDS_VALUE, { from: account });
+    //     const price = await testIndex.getPrice();
+    // 
+    //     console.log(FUNDS_VALUE.div(price).toString());
+    // 
+    //     assert.equal(
+    //         await indexToken.balanceOf(account),
+    //         FUNDS_VALUE.div(price)
+    //     );
+    // 
+    // });
+    // 
+    // it("must add debt to the user", async () => {
+    // 
+    //     await testIndex.buy(FUNDS_VALUE, { from: account });
+    //     const balance = await indexToken.balanceOf(account);
+    // 
+    //     indexToken.approve(testIndex.address, balance, { from: account });
+    //     await testIndex.sell(balance, { from: account });
+    // 
+    //     assert.isAbove(
+    //         await testIndex.usersDebt(account),
+    //         0
+    //     );
+    // 
+    // });
 
-        await testIndex.buy(FUNDS_VALUE, { from: account });
-        const price = await testIndex.getPrice();
+    it("must sell and buy tokens in manageTokens()", async () => {
 
-        console.log(FUNDS_VALUE.div(price).toString());
+        const tokens = FUNDS_VALUE.div(await index.getPrice());
 
-        assert.equal(
-            await indexToken.balanceOf(account),
-            FUNDS_VALUE.div(price)
-        );
+        let transaction = await index.buy(tokens, { from: account });
 
-    });
+        indexToken.approve(index.address, tokens, { from: account });
+        transaction = await index.sell(tokens, { from: account });
 
-    it("must add debt to the user", async () => {
+        const components = await index.getComponents();
 
-        await testIndex.buy(FUNDS_VALUE, { from: account });
-        const balance = await indexToken.balanceOf(account);
-
-        indexToken.approve(testIndex.address, balance, { from: account });
-        await testIndex.sell(balance, { from: account });
-
-        assert.isAbove(
-            await testIndex.usersDebt(account),
-            0
-        );
+        for (const component of components) {
+            await index.manageTokens(component.tokenAddress, { from: indexOwner });
+        }
 
     });
 

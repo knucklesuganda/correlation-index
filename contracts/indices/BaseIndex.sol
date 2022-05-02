@@ -3,6 +3,7 @@ pragma solidity >=0.7.5;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol";
@@ -12,6 +13,8 @@ import "./IndexToken.sol";
 import "../management/BaseProduct.sol";
 
 contract BaseIndex is Product {
+    using SafeMath for uint256;
+
     struct TokenInfo {
         uint8 indexPercentage;
         uint24 poolFee;
@@ -24,10 +27,10 @@ contract BaseIndex is Product {
     IndexToken public indexToken;
     address private immutable dexRouterAddress;
 
-    uint public tokensToSell;   // index tokens that will be sold
+    uint public tokensToSell;    // index tokens that will be sold
     uint public tokensToBuy;    // usd tokens that will be bought
-    mapping(address => uint) public usersDebt;  // debt to each user
-    uint public totalAvailableDebt;     // total debt for the index
+    mapping(address => uint) public usersDebt;    // debt to each user
+    uint public totalAvailableDebt;    // total debt for the index
 
     event DebtRetrieval(address account, uint debtAmount);
 
@@ -65,7 +68,8 @@ contract BaseIndex is Product {
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory tokenInfo = tokens[i];
             IERC20 token = IERC20(tokenInfo.tokenAddress);
-            totalValue += token.balanceOf(address(this)) * priceOracle.getPrice(tokenInfo.priceOracleAddress);
+            totalValue = totalValue.add(token.balanceOf(address(this)).mul(1 ether).div(
+                priceOracle.getPrice(tokenInfo.priceOracleAddress)));
         }
 
         return totalValue;
@@ -79,7 +83,7 @@ contract BaseIndex is Product {
         indexPriceAdjustment = 100;
         indexToken = new IndexToken( address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
-        isLocked = false;
+        isLocked = true;
 
         tokens.push(
             TokenInfo({ // WETH
@@ -102,7 +106,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
                 priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
                 poolFee: 3000,
-                indexPercentage: 21
+                indexPercentage: 20
             })
         );
         tokens.push(
@@ -188,22 +192,22 @@ contract BaseIndex is Product {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "Not enough tokens sent");
 
-        uint buyTokenAmount = (realAmount * indexPrice) / 1 ether;
+        uint buyTokenAmount = realAmount.mul(1 ether).div(indexPrice);
         tokensToBuy += buyTokenAmount;
 
-        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), (amount * indexPrice) / 1 ether);
+        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(1 ether).div(indexPrice));
         IERC20 _buyToken = IERC20(buyTokenAddress);
-        _buyToken.transfer(owner(), (productFee * indexPrice) / 1 ether);
+        _buyToken.transfer(owner(), productFee.mul(1 ether).div(indexPrice));
 
         indexToken.transfer(msg.sender, realAmount);
         emit ProductBuy(msg.sender, buyTokenAmount, realAmount);
     }
 
     function retrieveDebt(uint amount) external checkUnlocked{
-        require(usersDebt[msg.sender] - amount > 0, "Not enough debt, try selling your tokens first");
+        require(usersDebt[msg.sender].sub(amount) > 0, "Not enough debt, try selling your tokens first");
         
-        usersDebt[msg.sender] -= amount;
-        totalAvailableDebt -= amount;
+        usersDebt[msg.sender] = usersDebt[msg.sender].sub(amount);
+        totalAvailableDebt = totalAvailableDebt.sub(amount);
 
         IERC20(buyTokenAddress).transfer(msg.sender, amount);
         emit DebtRetrieval(msg.sender, amount);
@@ -216,11 +220,10 @@ contract BaseIndex is Product {
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         indexToken.transfer(owner(), productFee);
 
-        uint indexPrice = getPrice();
-        tokensToSell += realAmount;
+        tokensToSell = realAmount.add(tokensToSell);
 
-        uint newUserDebt = (realAmount * indexPrice) / 1 ether;
-        usersDebt[msg.sender] += newUserDebt;
+        uint newUserDebt = realAmount.mul(1 ether).div(getPrice());
+        usersDebt[msg.sender] = usersDebt[msg.sender].add(newUserDebt);
         emit ProductSell(msg.sender, newUserDebt, realAmount);
     }
 
@@ -239,16 +242,19 @@ contract BaseIndex is Product {
     function manageTokens(address tokenAddress) external onlyOwner {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
+        // buy - usd
+        // sell - tokens
+
         TokenInfo memory token = findToken(tokenAddress);
-        uint tokensToBuyAmount = (tokensToBuy / 100) * token.indexPercentage;
-        uint tokensToSellAmount = (tokensToSell / 100) * token.indexPercentage;
+        uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
+        uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
-        tokensToBuy -= tokensToBuyAmount;
-        tokensToSell -= tokensToSellAmount;
+        tokensToBuy = tokensToBuy.sub(tokensToBuyAmount);
+        tokensToSell = tokensToSell.sub(tokensToSellAmount);
 
         if(tokensToBuyAmount > 0) {
-            TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuyAmount);
+            ERC20(buyTokenAddress).approve(dexRouterAddress, tokensToBuyAmount);
             dexRouter.exactInputSingle(
                 ISwapRouter.ExactInputSingleParams({
                     tokenIn: buyTokenAddress,
@@ -257,14 +263,14 @@ contract BaseIndex is Product {
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: tokensToBuyAmount,
-                    amountOutMinimum: tokensToBuyAmount / priceOracle.getPrice(token.priceOracleAddress),
+                    amountOutMinimum: tokensToBuyAmount.div(priceOracle.getPrice(token.priceOracleAddress)),
                     sqrtPriceLimitX96: 0
                 })
             );
         }
 
         if(tokensToSellAmount > 0){
-            TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokensToSellAmount);
+            ERC20(token.tokenAddress).approve(dexRouterAddress, tokensToSellAmount);
             totalAvailableDebt += dexRouter.exactInputSingle(
                 ISwapRouter.ExactInputSingleParams({
                     tokenIn: token.tokenAddress,
@@ -273,7 +279,7 @@ contract BaseIndex is Product {
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: tokensToSellAmount,
-                    amountOutMinimum: tokensToSellAmount * tokenPrice,
+                    amountOutMinimum: tokensToSellAmount.mul(tokenPrice),
                     sqrtPriceLimitX96: 0
                 })
             );
@@ -287,10 +293,10 @@ contract BaseIndex is Product {
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
             uint256 price = priceOracle.getPrice(token.priceOracleAddress);
-            indexTotalPrice += (price / 100) * token.indexPercentage;
+            indexTotalPrice = indexTotalPrice.add(price.div(100).mul(token.indexPercentage));
         }
 
-        return indexTotalPrice / indexPriceAdjustment;
+        return indexTotalPrice.div(indexPriceAdjustment);
     }
 
 }

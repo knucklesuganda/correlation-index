@@ -4,11 +4,13 @@ pragma abicoder v2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 
 abstract contract Product is Ownable{
+    using SafeMath for uint256;
 
-    bool internal isLocked;
+    bool public isLocked;
     address public buyTokenAddress;
     uint8 internal productFee;
     uint internal productFeeTotal;
@@ -34,8 +36,8 @@ abstract contract Product is Ownable{
     function getPrice() virtual public view returns(uint);
 
     function calculateFee(uint amount) public view returns(uint, uint){
-        uint productFeeAmount = (amount / productFeeTotal) * productFee;
-        uint realAmount = amount - productFeeAmount;
+        uint productFeeAmount = amount.div(productFeeTotal).mul(productFee);
+        uint realAmount = amount.sub(productFeeAmount);
         return (productFeeAmount, realAmount);
     }
 
