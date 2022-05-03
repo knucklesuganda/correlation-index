@@ -27,6 +27,7 @@ contract BaseIndex is Product {
     IndexToken public indexToken;
     address private immutable dexRouterAddress;
 
+    uint private lastManagedToken = 0;
     uint public tokensToSell;    // index tokens that will be sold
     uint public tokensToBuy;    // usd tokens that will be bought
     uint public totalAvailableDebt;    // total debt for the index
@@ -78,10 +79,10 @@ contract BaseIndex is Product {
     constructor() {
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564; // Uniswap V3 Router
         buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // USDC
-        productFee = 50;
-        productFeeTotal = 1000;
+        productFee = 10;
+        productFeeTotal = 100;
         indexPriceAdjustment = 100;
-        indexToken = new IndexToken( address(this), "Crypto index token", 18, "CRYPTIX");
+        indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
         isLocked = false;
 
@@ -101,20 +102,20 @@ contract BaseIndex is Product {
                 indexPercentage: 5
             })
         );
-        tokens.push(
-            TokenInfo({ // BNB
-                tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
-                priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
-                poolFee: 3000,
-                indexPercentage: 20
-            })
-        );
+        // tokens.push(
+        //     TokenInfo({ // BNB
+        //         tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
+        //         priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
+        //         poolFee: 3000,
+        //         indexPercentage: 20
+        //     })
+        // );
         tokens.push(
             TokenInfo({ // UNI
                 tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
                 priceOracleAddress: 0x553303d460EE0afB37EdFf9bE42922D8FF63220e,
                 poolFee: 3000,
-                indexPercentage: 5
+                indexPercentage: 10
             })
         );
         tokens.push(
@@ -122,7 +123,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
                 priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
                 poolFee: 3000,
-                indexPercentage: 5
+                indexPercentage: 10
             })
         );
         tokens.push(TokenInfo({    //   SNX
@@ -153,13 +154,13 @@ contract BaseIndex is Product {
             tokenAddress: 0x6B3595068778DD592e39A122f4f5a5cF09C90fE2,
             priceOracleAddress: 0xCc70F09A6CC17553b2E31954cD36E4A2d89501f7,
             poolFee: 3000,
-            indexPercentage: 5
+            indexPercentage: 10
         }));
         tokens.push(TokenInfo({    //   XRP
             tokenAddress: 0xAE9e8333a1Bc59751E566bc43C91B48477EB41df,
             priceOracleAddress: 0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12,
             poolFee: 3000,
-            indexPercentage: 5
+            indexPercentage: 10
         }));
         tokens.push(TokenInfo({    //   CRV
             tokenAddress: 0xD533a949740bb3306d119CC777fa900bA034cd52,
@@ -230,7 +231,8 @@ contract BaseIndex is Product {
         emit ProductSold(msg.sender, newUserDebt, realAmount);
     }
 
-    function manageTokens(TokenInfo memory token) external onlyOwner {
+    function manageTokens() external onlyOwner {
+        TokenInfo memory token = tokens[lastManagedToken];
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
         uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
@@ -270,6 +272,11 @@ contract BaseIndex is Product {
                     sqrtPriceLimitX96: 0
                 })
             );
+        }
+
+        lastManagedToken += 1;
+        if(lastManagedToken >= tokens.length) {
+            lastManagedToken = 0;
         }
 
     }
