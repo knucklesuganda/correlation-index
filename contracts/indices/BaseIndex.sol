@@ -232,6 +232,12 @@ contract BaseIndex is Product {
         emit ProductSold(msg.sender, newUserDebt, realAmount);
     }
 
+    function endSettlement() override external onlyOwner {
+        tokensToBuy = 0;
+        tokensToSell = 0;
+        isSettlement = false;
+    }
+
     function manageTokens() external onlyOwner {
         TokenInfo memory token = tokens[lastManagedToken];
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
@@ -239,9 +245,6 @@ contract BaseIndex is Product {
         uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
         uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
-
-        tokensToBuy = tokensToBuy.sub(tokensToBuyAmount);
-        tokensToSell = tokensToSell.sub(tokensToSellAmount);
 
         lastManagedToken += 1;
         if(lastManagedToken >= tokens.length) {
