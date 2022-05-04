@@ -16,6 +16,7 @@ abstract contract Product is Ownable, ReentrancyGuard {
     uint8 internal productFee;
     uint internal productFeeTotal;
     uint internal indexPriceAdjustment;
+    bool internal isSettlement;
 
     event ProductBought(address account, uint buyTokenAmount, uint indexTokenAmount);
     event ProductSold(address account, uint buyTokenAmount, uint indexTokenAmount);
@@ -24,6 +25,15 @@ abstract contract Product is Ownable, ReentrancyGuard {
         require(!isLocked, "Product is locked");
         _;
     }
+
+    modifier checkSettlement{
+        require(!isSettlement, "Product is being settled, try again later");
+        _;
+    }
+
+    function beginSettlement() external onlyOwner { isSettlement = true; }
+    function endSettlement() external onlyOwner { isSettlement = false; }
+    function isSettlementActive() external view returns(bool) { return isSettlement; }
 
     function name() virtual external pure returns(string memory);
     function symbol() virtual external pure returns(string memory);

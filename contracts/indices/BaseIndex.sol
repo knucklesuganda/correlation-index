@@ -69,8 +69,9 @@ contract BaseIndex is Product {
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory tokenInfo = tokens[i];
             IERC20 token = IERC20(tokenInfo.tokenAddress);
-            totalValue = totalValue.add(token.balanceOf(address(this)).mul(
-                priceOracle.getPrice(tokenInfo.priceOracleAddress))).div(1 ether);
+
+            uint tokenBalance = token.balanceOf(address(this)).mul(priceOracle.getPrice(tokenInfo.priceOracleAddress));
+            totalValue = totalValue.add(tokenBalance.div(1 ether));
         }
 
         return totalValue;
@@ -78,7 +79,7 @@ contract BaseIndex is Product {
 
     constructor() {
         dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564; // Uniswap V3 Router
-        buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // USDC
+        buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // DAI
         productFee = 10;
         productFeeTotal = 100;
         indexPriceAdjustment = 100;
@@ -188,7 +189,7 @@ contract BaseIndex is Product {
         }));
     }
 
-    function buy(uint256 amount) external nonReentrant override {
+    function buy(uint256 amount) external nonReentrant checkSettlement override {
         uint256 indexPrice = getPrice();
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "Not enough tokens sent");
@@ -207,7 +208,7 @@ contract BaseIndex is Product {
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
 
-    function retrieveDebt(uint amount) external nonReentrant checkUnlocked{
+    function retrieveDebt(uint amount) external nonReentrant checkSettlement checkUnlocked{
         require(usersDebt[msg.sender].sub(amount) > 0, "Not enough debt, try selling your tokens first");
         
         usersDebt[msg.sender] = usersDebt[msg.sender].sub(amount);
@@ -217,7 +218,7 @@ contract BaseIndex is Product {
         emit DebtRetrieved(msg.sender, amount);
     }
 
-    function sell(uint amount) external override nonReentrant checkUnlocked {
+    function sell(uint amount) external override nonReentrant checkSettlement checkUnlocked {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "You must sell more tokens");
 
@@ -241,6 +242,11 @@ contract BaseIndex is Product {
 
         tokensToBuy = tokensToBuy.sub(tokensToBuyAmount);
         tokensToSell = tokensToSell.sub(tokensToSellAmount);
+
+        lastManagedToken += 1;
+        if(lastManagedToken >= tokens.length) {
+            lastManagedToken = 0;
+        }
 
         if(tokensToBuyAmount > 0) {
             ERC20(buyTokenAddress).approve(dexRouterAddress, tokensToBuyAmount);
@@ -272,11 +278,6 @@ contract BaseIndex is Product {
                     sqrtPriceLimitX96: 0
                 })
             );
-        }
-
-        lastManagedToken += 1;
-        if(lastManagedToken >= tokens.length) {
-            lastManagedToken = 0;
         }
 
     }
