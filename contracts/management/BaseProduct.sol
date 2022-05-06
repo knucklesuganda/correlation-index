@@ -52,6 +52,11 @@ abstract contract Product is Ownable, ReentrancyGuard {
         return (productFeeAmount, realAmount);
     }
 
+    function changeFee(uint8 _fee, uint _feeTotal) external onlyOwner {
+        productFee = _fee;
+        productFeeTotal = _feeTotal;
+    }
+
     function getFee() external view returns(uint, uint){
         return (productFee, productFeeTotal);
     }

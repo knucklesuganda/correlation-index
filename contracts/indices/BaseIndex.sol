@@ -103,14 +103,14 @@ contract BaseIndex is Product {
                 indexPercentage: 5
             })
         );
-        // tokens.push(
-        //     TokenInfo({ // BNB
-        //         tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
-        //         priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
-        //         poolFee: 3000,
-        //         indexPercentage: 20
-        //     })
-        // );
+        tokens.push(
+            TokenInfo({ // BNB
+                tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
+                priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
+                poolFee: 3000,
+                indexPercentage: 5
+            })
+        );
         tokens.push(
             TokenInfo({ // UNI
                 tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
@@ -124,7 +124,7 @@ contract BaseIndex is Product {
                 tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
                 priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
                 poolFee: 3000,
-                indexPercentage: 10
+                indexPercentage: 5
             })
         );
         tokens.push(TokenInfo({    //   SNX
@@ -239,6 +239,11 @@ contract BaseIndex is Product {
     }
 
     function manageTokens() external onlyOwner {
+        lastManagedToken += 1;
+        if(lastManagedToken > tokens.length - 1){
+            lastManagedToken = 0;
+        }
+
         TokenInfo memory token = tokens[lastManagedToken];
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
@@ -246,13 +251,8 @@ contract BaseIndex is Product {
         uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
-        lastManagedToken += 1;
-        if(lastManagedToken >= tokens.length) {
-            lastManagedToken = 0;
-        }
-
-        if(tokensToBuyAmount > 0) {
-            ERC20(buyTokenAddress).approve(dexRouterAddress, tokensToBuyAmount);
+        if(tokensToBuyAmount > 0){
+            TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuyAmount);
             dexRouter.exactInputSingle(
                 ISwapRouter.ExactInputSingleParams({
                     tokenIn: buyTokenAddress,
@@ -261,15 +261,15 @@ contract BaseIndex is Product {
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: tokensToBuyAmount,
-                    amountOutMinimum: tokensToBuyAmount.div(priceOracle.getPrice(token.priceOracleAddress)),
+                    amountOutMinimum: tokensToBuyAmount.div(tokenPrice),
                     sqrtPriceLimitX96: 0
                 })
             );
         }
 
         if(tokensToSellAmount > 0){
-            ERC20(token.tokenAddress).approve(dexRouterAddress, tokensToSellAmount);
-            totalAvailableDebt += dexRouter.exactInputSingle(
+            TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, tokensToSellAmount);
+            totalAvailableDebt.add(dexRouter.exactInputSingle(
                 ISwapRouter.ExactInputSingleParams({
                     tokenIn: token.tokenAddress,
                     tokenOut: buyTokenAddress,
@@ -280,9 +280,8 @@ contract BaseIndex is Product {
                     amountOutMinimum: tokensToSellAmount.mul(tokenPrice).div(1 ether),
                     sqrtPriceLimitX96: 0
                 })
-            );
+            ));
         }
-
     }
 
     function getPrice() public view override returns (uint256) {
