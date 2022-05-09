@@ -31,7 +31,7 @@ abstract contract Product is Ownable, ReentrancyGuard {
         _;
     }
 
-    function beginSettlement() external onlyOwner { isSettlement = true; }
+    function beginSettlement() virtual external onlyOwner { isSettlement = true; }
     function endSettlement() virtual external onlyOwner { isSettlement = false; }
     function isSettlementActive() external view returns(bool) { return isSettlement; }
 

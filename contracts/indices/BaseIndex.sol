@@ -15,6 +15,11 @@ import "../management/BaseProduct.sol";
 contract BaseIndex is Product {
     using SafeMath for uint256;
 
+    modifier onlyManager{
+        require(msg.sender == fundsManager, "Only funds manager can perform this action");
+        _;
+    }
+
     struct TokenInfo {
         uint8 indexPercentage;
         uint24 poolFee;
@@ -25,9 +30,10 @@ contract BaseIndex is Product {
     TokenInfo[] public tokens;
     PriceOracle private priceOracle;
     IndexToken public indexToken;
+    address public fundsManager;
     address private immutable dexRouterAddress;
 
-    uint private lastManagedToken = 0;
+    uint public lastManagedToken = 0;   // TODO: change the visibility
     uint public tokensToSell;    // index tokens that will be sold
     uint public tokensToBuy;    // usd tokens that will be bought
     uint public totalAvailableDebt;    // total debt for the index
@@ -77,12 +83,16 @@ contract BaseIndex is Product {
         return totalValue;
     }
 
-    constructor() {
-        dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564; // Uniswap V3 Router
-        buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // DAI
+    constructor(address _fundsManager) {
+        fundsManager = _fundsManager;
+
+        dexRouterAddress = 0x1111111254fb6c44bAC0beD2854e76F90643097d;  // Uniswap V3 Router
+        buyTokenAddress =  0x6B175474E89094C44Da98b954EedeAC495271d0F; // DAI
+
         productFee = 10;
         productFeeTotal = 100;
         indexPriceAdjustment = 100;
+        
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
         priceOracle = new PriceOracle();
         isLocked = false;
@@ -130,7 +140,7 @@ contract BaseIndex is Product {
         tokens.push(TokenInfo({    //   SNX
             tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
             priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
-            poolFee: 3000,
+            poolFee: 10000,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   YFI
@@ -195,7 +205,7 @@ contract BaseIndex is Product {
         require(realAmount >= 1, "Not enough tokens sent");
 
         uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
-        tokensToBuy += buyTokenAmount;
+        tokensToBuy = tokensToBuy.add(buyTokenAmount);
 
         indexToken.transfer(msg.sender, realAmount);
         TransferHelper.safeTransferFrom(
@@ -204,6 +214,7 @@ contract BaseIndex is Product {
 
         IERC20 _buyToken = IERC20(buyTokenAddress);
         _buyToken.transfer(owner(), productFee.mul(indexPrice).div(1 ether));
+        _buyToken.transfer(fundsManager, buyTokenAmount);
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
@@ -232,13 +243,19 @@ contract BaseIndex is Product {
         emit ProductSold(msg.sender, newUserDebt, realAmount);
     }
 
+    function beginSettlement() override external onlyOwner{
+        isSettlement = true;
+        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuy);
+        TransferHelper.safeApprove(address(indexToken), dexRouterAddress, tokensToSell);
+    }
+
     function endSettlement() override external onlyOwner {
         tokensToBuy = 0;
         tokensToSell = 0;
         isSettlement = false;
     }
 
-    function manageTokens() external onlyOwner {
+    function manageTokens() external payable onlyOwner {
         lastManagedToken += 1;
         if(lastManagedToken > tokens.length - 1){
             lastManagedToken = 0;
@@ -252,7 +269,8 @@ contract BaseIndex is Product {
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
         if(tokensToBuyAmount > 0){
-            TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuyAmount);
+            uint minAmount = tokensToBuyAmount.div(tokenPrice);
+
             dexRouter.exactInputSingle(
                 ISwapRouter.ExactInputSingleParams({
                     tokenIn: buyTokenAddress,
@@ -261,7 +279,7 @@ contract BaseIndex is Product {
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: tokensToBuyAmount,
-                    amountOutMinimum: tokensToBuyAmount.div(tokenPrice),
+                    amountOutMinimum: minAmount,
                     sqrtPriceLimitX96: 0
                 })
             );
