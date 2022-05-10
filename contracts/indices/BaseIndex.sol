@@ -19,7 +19,7 @@ contract BaseIndex is Product {
         uint8 indexPercentage;
         address tokenAddress;
         address priceOracleAddress;
-        uint16[2] poolFees;
+        uint24[2] poolFees;
         address intermediateToken;
     }
 
@@ -50,8 +50,8 @@ contract BaseIndex is Product {
         return "Correlation index is a tool that allows you to diversify your investments";
     }
 
-    function getTokenPrice(address tokenOracleAddress) external view returns (uint256) {
-        return priceOracle.getPrice(tokenOracleAddress);
+    function getTokenPrice(TokenInfo memory token) external view returns (uint256) {
+        return priceOracle.getPrice(token.priceOracleAddress);
     }
 
     function image() external pure override returns (string memory) {
@@ -88,104 +88,104 @@ contract BaseIndex is Product {
         tokens.push(TokenInfo({ // WETH
             tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
-            poolFees: [3000, 3000],
-            intermediateToken: WETH,
+            poolFees: [uint24(3000), uint24(3000)],
+            intermediateToken: address(0),
             indexPercentage: 15
         }));
         tokens.push(TokenInfo({ // LINK
             tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
             priceOracleAddress: 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({ // WBNB
             tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
             priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({ // UNI
             tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
             priceOracleAddress: 0x553303d460EE0afB37EdFf9bE42922D8FF63220e,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 10
         }));
         tokens.push(TokenInfo({ //   1INCH
             tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
             priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
-            poolFees: [3000, 10000],
+            poolFees: [uint24(3000), 10000],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   SNX
             tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
             priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
-            poolFees: [3000, 10000],
+            poolFees: [uint24(3000), 10000],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   YFI
             tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
             priceOracleAddress: 0xA027702dbb89fbd58938e4324ac03B58d812b0E1,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   COMP
             tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
             priceOracleAddress: 0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   MKR
             tokenAddress: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
             priceOracleAddress: 0xec1D1B3b0443256cc3860e24a46F108e699484Aa,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({    //   SUSHI
             tokenAddress: 0x6B3595068778DD592e39A122f4f5a5cF09C90fE2,
             priceOracleAddress: 0xCc70F09A6CC17553b2E31954cD36E4A2d89501f7,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 10
         }));
         tokens.push(TokenInfo({    //   APE
             tokenAddress: 0x4d224452801ACEd8B2F0aebE155379bb5D594381,
             priceOracleAddress: 0xD10aBbC76679a20055E167BB80A24ac851b37056,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 10
         }));
         tokens.push(TokenInfo({    //   CRV
             tokenAddress: 0xD533a949740bb3306d119CC777fa900bA034cd52,
             priceOracleAddress: 0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f,
-            poolFees: [3000, 10000],
+            poolFees: [uint24(3000), 10000],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
         // tokens.push(TokenInfo({    //   Huobi Token
         //     tokenAddress: 0x6f259637dcD74C767781E37Bc6133cd6A68aa161,
         //     priceOracleAddress: 0xE1329B3f6513912CAf589659777b66011AEE5880,
-        //     poolFees: [10000, 3000],
+        //     poolFees: [10000, uint24(3000)],
         //     intermediateToken: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
         //     indexPercentage: 5
         // }));
         // tokens.push(TokenInfo({    //   BNT
         //     tokenAddress: 0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C,
         //     priceOracleAddress: 0x1E6cF0D433de4FE882A437ABC654F58E1e78548c,
-        //     poolFee: 3000,
+        //     poolFee: uint24(3000),
         //     indexPercentage: 5
         // }));
         tokens.push(TokenInfo({    //   INJ
             tokenAddress: 0xe28b3B32B6c345A34Ff64674606124Dd5Aceca30,
             priceOracleAddress: 0xaE2EbE3c4D20cE13cE47cbb49b6d7ee631Cd816e,
-            poolFees: [3000, 3000],
+            poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
             indexPercentage: 5
         }));
@@ -260,21 +260,36 @@ contract BaseIndex is Product {
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
         if(tokensToBuyAmount > 0){
-            dexRouter.exactInput(
-                ISwapRouter.ExactInputParams({
-                    path: abi.encodePacked(
-                        buyTokenAddress,
-                        token.poolFees[0],
-                        token.intermediateToken,
-                        token.poolFees[1],
-                        token.tokenAddress
-                    ),
-                    recipient: address(this),
-                    deadline: block.timestamp,
-                    amountIn: tokensToBuyAmount,
-                    amountOutMinimum: tokensToBuyAmount.div(tokenPrice)
-                })
-            );
+            if(token.intermediateToken == address(0)){
+                dexRouter.exactInputSingle(
+                    ISwapRouter.ExactInputSingleParams({
+                        tokenIn: buyTokenAddress,
+                        tokenOut: token.tokenAddress,
+                        fee: token.poolFees[0],
+                        recipient: address(this),
+                        deadline: block.timestamp,
+                        amountIn: tokensToBuyAmount,
+                        amountOutMinimum: tokensToBuyAmount.div(tokenPrice),
+                        sqrtPriceLimitX96: 0
+                    })
+                );
+            }else{
+                dexRouter.exactInput(
+                    ISwapRouter.ExactInputParams({
+                        path: abi.encodePacked(
+                            buyTokenAddress,
+                            token.poolFees[0],
+                            token.intermediateToken,
+                            token.poolFees[1],
+                            token.tokenAddress
+                        ),
+                        recipient: address(this),
+                        deadline: block.timestamp,
+                        amountIn: tokensToBuyAmount,
+                        amountOutMinimum: tokensToBuyAmount.div(tokenPrice)
+                    })
+                );
+            }
         }
 
         if(tokensToSellAmount > 0){
