@@ -246,53 +246,24 @@ contract BaseIndex is Product {
         isSettlement = false;
     }
 
-    function manageTokens() external payable onlyOwner {
-        lastManagedToken += 1;
-        if(lastManagedToken > tokens.length - 1){
-            lastManagedToken = 0;
-        }
-
-        TokenInfo memory token = tokens[lastManagedToken];
+    function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
+        uint minOutAmount = amount.mul(tokenPrice).mul(1 ether);
 
-        uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
-        uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
-        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
-
-        if(tokensToBuyAmount > 0){
-            if(token.intermediateToken == address(0)){
-                dexRouter.exactInputSingle(
-                    ISwapRouter.ExactInputSingleParams({
-                        tokenIn: buyTokenAddress,
-                        tokenOut: token.tokenAddress,
-                        fee: token.poolFees[0],
-                        recipient: address(this),
-                        deadline: block.timestamp,
-                        amountIn: tokensToBuyAmount,
-                        amountOutMinimum: tokensToBuyAmount.div(tokenPrice),
-                        sqrtPriceLimitX96: 0
-                    })
-                );
-            }else{
-                dexRouter.exactInput(
-                    ISwapRouter.ExactInputParams({
-                        path: abi.encodePacked(
-                            buyTokenAddress,
-                            token.poolFees[0],
-                            token.intermediateToken,
-                            token.poolFees[1],
-                            token.tokenAddress
-                        ),
-                        recipient: address(this),
-                        deadline: block.timestamp,
-                        amountIn: tokensToBuyAmount,
-                        amountOutMinimum: tokensToBuyAmount.div(tokenPrice)
-                    })
-                );
-            }
-        }
-
-        if(tokensToSellAmount > 0){
+        if(token.intermediateToken == address(0)){
+            dexRouter.exactInputSingle(
+                ISwapRouter.ExactInputSingleParams({
+                    tokenIn: buyTokenAddress,
+                    tokenOut: token.tokenAddress,
+                    fee: token.poolFees[0],
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: amount,
+                    amountOutMinimum: minOutAmount,
+                    sqrtPriceLimitX96: 0
+                })
+            );
+        }else{
             totalAvailableDebt.add(dexRouter.exactInput(
                 ISwapRouter.ExactInputParams({
                     path: abi.encodePacked(
@@ -304,11 +275,63 @@ contract BaseIndex is Product {
                     ),
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountIn: tokensToSellAmount,
-                    amountOutMinimum: tokensToSellAmount.mul(tokenPrice).div(1 ether)
+                    amountIn: amount,
+                    amountOutMinimum: minOutAmount
                 })
             ));
         }
+    }
+
+    function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
+        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
+        uint minOutAmount = amount.div(tokenPrice).mul(1 ether);
+
+        if(token.intermediateToken == address(0)){
+            dexRouter.exactInputSingle(
+                ISwapRouter.ExactInputSingleParams({
+                    tokenIn: buyTokenAddress,
+                    tokenOut: token.tokenAddress,
+                    fee: token.poolFees[0],
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: amount,
+                    amountOutMinimum: minOutAmount,
+                    sqrtPriceLimitX96: 0
+                })
+            );
+        }else{
+            dexRouter.exactInput(
+                ISwapRouter.ExactInputParams({
+                    path: abi.encodePacked(
+                        buyTokenAddress,
+                        token.poolFees[0],
+                        token.intermediateToken,
+                        token.poolFees[1],
+                        token.tokenAddress
+                    ),
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: amount,
+                    amountOutMinimum: minOutAmount
+                })
+            );
+        }
+    }
+
+    function manageTokens() external onlyOwner {
+        lastManagedToken += 1;
+        if(lastManagedToken > tokens.length - 1){
+            lastManagedToken = 0;
+        }
+
+        TokenInfo memory token = tokens[lastManagedToken];
+        uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
+        uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
+        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
+
+        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
+        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
+
     }
 
     function getPrice() public view override returns (uint256) {
