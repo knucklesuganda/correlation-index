@@ -15,11 +15,6 @@ import "../management/BaseProduct.sol";
 contract BaseIndex is Product {
     using SafeMath for uint256;
 
-    modifier onlyManager{
-        require(msg.sender == fundsManager, "Only funds manager can perform this action");
-        _;
-    }
-
     struct TokenInfo {
         uint8 indexPercentage;
         uint24 poolFee;
@@ -30,7 +25,8 @@ contract BaseIndex is Product {
     TokenInfo[] public tokens;
     PriceOracle private priceOracle;
     IndexToken public indexToken;
-    address public fundsManager;
+
+    address public WETH;
     address private immutable dexRouterAddress;
 
     uint public lastManagedToken = 0;   // TODO: change the visibility
@@ -41,13 +37,8 @@ contract BaseIndex is Product {
 
     event DebtRetrieved(address account, uint debtAmount);
 
-    function name() external pure override returns (string memory) {
-        return "CryptoIndex";
-    }
-
-    function symbol() external pure override returns (string memory) {
-        return "CRYPTIX";
-    }
+    function name() external pure override returns (string memory) { return "CryptoIndex"; }
+    function symbol() external pure override returns (string memory) { return "CRYPTIX"; }
 
     function shortDescription() external pure override returns (string memory) {
         return "Correlation index is a tool that allows you to diversify your investments";
@@ -57,9 +48,7 @@ contract BaseIndex is Product {
         return "Correlation index is a tool that allows you to diversify your investments";
     }
 
-    function getComponents() external view returns (TokenInfo[] memory) {
-        return tokens;
-    }
+    function getComponents() external view returns (TokenInfo[] memory) { return tokens; }
 
     function getTokenPrice(address tokenOracleAddress) external view returns (uint256) {
         return priceOracle.getPrice(tokenOracleAddress);
@@ -83,11 +72,10 @@ contract BaseIndex is Product {
         return totalValue;
     }
 
-    constructor(address _fundsManager) {
-        fundsManager = _fundsManager;
-
-        dexRouterAddress = 0x1111111254fb6c44bAC0beD2854e76F90643097d;  // Uniswap V3 Router
+    constructor() {
+        dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;  // Uniswap V3 Router
         buyTokenAddress =  0x6B175474E89094C44Da98b954EedeAC495271d0F; // DAI
+        WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
         productFee = 10;
         productFeeTotal = 100;
@@ -97,46 +85,36 @@ contract BaseIndex is Product {
         priceOracle = new PriceOracle();
         isLocked = false;
 
-        tokens.push(
-            TokenInfo({ // WETH
-                tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-                priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
-                poolFee: 3000,
-                indexPercentage: 15
-            })
-        );
-        tokens.push(
-            TokenInfo({ // LINK
-                tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
-                priceOracleAddress: 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c,
-                poolFee: 3000,
-                indexPercentage: 5
-            })
-        );
-        tokens.push(
-            TokenInfo({ // BNB
-                tokenAddress: 0xB8c77482e45F1F44dE1745F52C74426C631bDD52,
-                priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
-                poolFee: 3000,
-                indexPercentage: 5
-            })
-        );
-        tokens.push(
-            TokenInfo({ // UNI
-                tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
-                priceOracleAddress: 0x553303d460EE0afB37EdFf9bE42922D8FF63220e,
-                poolFee: 3000,
-                indexPercentage: 10
-            })
-        );
-        tokens.push(
-            TokenInfo({ //   1INCH
-                tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
-                priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
-                poolFee: 3000,
-                indexPercentage: 5
-            })
-        );
+        tokens.push(TokenInfo({ // WETH
+            tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+            priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
+            poolFee: 3000,
+            indexPercentage: 15
+        }));
+        tokens.push(TokenInfo({ // LINK
+            tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
+            priceOracleAddress: 0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({ // WBNB
+            tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
+            priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({ // UNI
+            tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
+            priceOracleAddress: 0x553303d460EE0afB37EdFf9bE42922D8FF63220e,
+            poolFee: 3000,
+            indexPercentage: 10
+        }));
+        tokens.push(TokenInfo({ //   1INCH
+            tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
+            priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
+            poolFee: 3000,
+            indexPercentage: 5
+        }));
         tokens.push(TokenInfo({    //   SNX
             tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
             priceOracleAddress: 0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699,
@@ -167,9 +145,9 @@ contract BaseIndex is Product {
             poolFee: 3000,
             indexPercentage: 10
         }));
-        tokens.push(TokenInfo({    //   XRP
-            tokenAddress: 0xAE9e8333a1Bc59751E566bc43C91B48477EB41df,
-            priceOracleAddress: 0xCed2660c6Dd1Ffd856A5A82C67f3482d88C50b12,
+        tokens.push(TokenInfo({    //   APE
+            tokenAddress: 0x4d224452801ACEd8B2F0aebE155379bb5D594381,
+            priceOracleAddress: 0xD10aBbC76679a20055E167BB80A24ac851b37056,
             poolFee: 3000,
             indexPercentage: 10
         }));
@@ -214,7 +192,6 @@ contract BaseIndex is Product {
 
         IERC20 _buyToken = IERC20(buyTokenAddress);
         _buyToken.transfer(owner(), productFee.mul(indexPrice).div(1 ether));
-        _buyToken.transfer(fundsManager, buyTokenAmount);
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
@@ -269,18 +246,13 @@ contract BaseIndex is Product {
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
         if(tokensToBuyAmount > 0){
-            uint minAmount = tokensToBuyAmount.div(tokenPrice);
-
-            dexRouter.exactInputSingle(
-                ISwapRouter.ExactInputSingleParams({
-                    tokenIn: buyTokenAddress,
-                    tokenOut: token.tokenAddress,
-                    fee: token.poolFee,
+            dexRouter.exactInput(
+                ISwapRouter.ExactInputParams({
+                    path: abi.encodePacked(buyTokenAddress, token.poolFee, WETH, token.poolFee, token.tokenAddress),
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: tokensToBuyAmount,
-                    amountOutMinimum: minAmount,
-                    sqrtPriceLimitX96: 0
+                    amountOutMinimum: tokensToBuyAmount.div(tokenPrice)
                 })
             );
         }
