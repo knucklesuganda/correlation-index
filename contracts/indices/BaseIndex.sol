@@ -82,7 +82,7 @@ contract BaseIndex is Product {
         indexPriceAdjustment = 100;
         
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
-        priceOracle = new PriceOracle();
+        priceOracle = new PriceOracle(ISwapRouter(dexRouterAddress));
         isLocked = false;
 
         tokens.push(TokenInfo({ // 0) WETH
@@ -182,13 +182,13 @@ contract BaseIndex is Product {
         //     poolFee: uint24(3000),
         //     indexPercentage: 5
         // }));
-        tokens.push(TokenInfo({    //   INJ
-            tokenAddress: 0xe28b3B32B6c345A34Ff64674606124Dd5Aceca30,
-            priceOracleAddress: 0xaE2EbE3c4D20cE13cE47cbb49b6d7ee631Cd816e,
-            poolFees: [uint24(3000), uint24(3000)],
-            intermediateToken: WETH,
-            indexPercentage: 5
-        }));
+        // tokens.push(TokenInfo({    //   INJ
+        //     tokenAddress: 0xe28b3B32B6c345A34Ff64674606124Dd5Aceca30,
+        //     priceOracleAddress: 0xaE2EbE3c4D20cE13cE47cbb49b6d7ee631Cd816e,
+        //     poolFees: [uint24(3000), uint24(3000)],
+        //     intermediateToken: WETH,
+        //     indexPercentage: 5
+        // }));
     }
 
     function buy(uint256 amount) external nonReentrant checkSettlement override {
@@ -284,8 +284,8 @@ contract BaseIndex is Product {
 
     function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-        uint amountOut = amount.mul(1 ether).div(tokenPrice);   // 1000 / 10 = 10
-        uint amountInMaximum = amount.div(100).mul(125);    // (1000 / 100) * 110 = 1100
+        uint amountOut = amount.mul(1 ether).div(tokenPrice);
+        uint amountInMaximum = amount.add(amount.mul(1).div(100));
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
@@ -341,7 +341,7 @@ contract BaseIndex is Product {
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
             indexTotalPrice = indexTotalPrice.add(
-                priceOracle.getPrice(token.priceOracleAddress).div(100).mul(token.indexPercentage)
+                priceOracle.getPrice(token.priceOracleAddress).mul(token.indexPercentage).div(100)
             );
         }
 

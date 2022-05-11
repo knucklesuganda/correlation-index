@@ -23,6 +23,16 @@ contract Observer is Ownable{
         emit ProductAdded(productAddress, productType);
     }
 
+    function checkProductExists(address productAddress) public view returns (bool) {
+        for (uint256 index = 0; index < products.length; index++) {
+            if (products[index].productAddress == productAddress) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function removeProduct(address productAddress) external onlyOwner{
 
         for (uint256 index = 0; index < products.length; index++) {
