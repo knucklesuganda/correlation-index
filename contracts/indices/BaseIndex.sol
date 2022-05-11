@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.5;
+pragma solidity 0.7.6;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -51,7 +51,7 @@ contract BaseIndex is Product {
     }
 
     function getTokenPrice(TokenInfo memory token) external view returns (uint256) {
-        return priceOracle.getPrice(token.priceOracleAddress);
+        return priceOracle.getPrice(token.priceOracleAddress, token.poolFees[0]);
     }
 
     function image() external pure override returns (string memory) {
@@ -65,7 +65,9 @@ contract BaseIndex is Product {
             TokenInfo memory tokenInfo = tokens[i];
             IERC20 token = IERC20(tokenInfo.tokenAddress);
 
-            uint tokenBalance = token.balanceOf(address(this)).mul(priceOracle.getPrice(tokenInfo.priceOracleAddress));
+            uint tokenBalance = token.balanceOf(address(this)).mul(
+                priceOracle.getPrice(tokenInfo.priceOracleAddress, tokenInfo.poolFees[0])
+            );
             totalValue = totalValue.add(tokenBalance.div(1 ether));
         }
 
@@ -82,7 +84,7 @@ contract BaseIndex is Product {
         indexPriceAdjustment = 100;
         
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
-        priceOracle = new PriceOracle(ISwapRouter(dexRouterAddress));
+        priceOracle = new PriceOracle(0x1F98431c8aD98523631AE4a59f267346ea31F984, buyTokenAddress);
         isLocked = false;
 
         tokens.push(TokenInfo({ // 0) WETH
@@ -328,7 +330,7 @@ contract BaseIndex is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
         uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
-        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
+        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress, token.poolFees[0]);
 
         if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
         if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
@@ -341,7 +343,7 @@ contract BaseIndex is Product {
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
             indexTotalPrice = indexTotalPrice.add(
-                priceOracle.getPrice(token.priceOracleAddress).mul(token.indexPercentage).div(100)
+                priceOracle.getPrice(token.priceOracleAddress, token.poolFees[0]).mul(token.indexPercentage).div(100)
             );
         }
 
