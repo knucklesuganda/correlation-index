@@ -10,6 +10,7 @@ import "@uniswap/v3-periphery/contracts/interfaces/IPeripheryPayments.sol";
 
 import "./PriceOracle.sol";
 import "./IndexToken.sol";
+import "./DebtManager.sol";
 import "../management/BaseProduct.sol";
 
 contract BaseIndex is Product {
@@ -24,19 +25,18 @@ contract BaseIndex is Product {
     }
 
     TokenInfo[] public tokens;
-    PriceOracle private priceOracle;
     IndexToken public indexToken;
 
     address public WETH;
     address private immutable dexRouterAddress;
 
+    DebtManager private sellDebtManager = new DebtManager();
+    DebtManager private buyDebtManager = new DebtManager();
+    PriceOracle private priceOracle = new PriceOracle();
+
     uint public lastManagedToken = 0;   // TODO: change the visibility
     uint public tokensToSell;    // index tokens that will be sold
     uint public tokensToBuy;    // usd tokens that will be bought
-    uint public totalAvailableDebt;    // total debt for the index
-    mapping(address => uint) public usersDebt;    // debt to each user
-
-    event DebtRetrieved(address account, uint debtAmount);
 
     function name() external pure override returns (string memory) { return "CryptoIndex"; }
     function symbol() external pure override returns (string memory) { return "CRYPTIX"; }
@@ -51,7 +51,7 @@ contract BaseIndex is Product {
     }
 
     function getTokenPrice(TokenInfo memory token) external view returns (uint256) {
-        return priceOracle.getPrice(token.priceOracleAddress, token.poolFees[0]);
+        return priceOracle.getPrice(token.priceOracleAddress);
     }
 
     function image() external pure override returns (string memory) {
@@ -66,7 +66,7 @@ contract BaseIndex is Product {
             IERC20 token = IERC20(tokenInfo.tokenAddress);
 
             uint tokenBalance = token.balanceOf(address(this)).mul(
-                priceOracle.getPrice(tokenInfo.priceOracleAddress, tokenInfo.poolFees[0])
+                priceOracle.getPrice(tokenInfo.priceOracleAddress)
             );
             totalValue = totalValue.add(tokenBalance.div(1 ether));
         }
@@ -82,9 +82,8 @@ contract BaseIndex is Product {
         productFee = 10;
         productFeeTotal = 100;
         indexPriceAdjustment = 100;
-        
+
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
-        priceOracle = new PriceOracle(0x1F98431c8aD98523631AE4a59f267346ea31F984, buyTokenAddress);
         isLocked = false;
 
         tokens.push(TokenInfo({ // 0) WETH
@@ -171,26 +170,6 @@ contract BaseIndex is Product {
             intermediateToken: WETH,
             indexPercentage: 5
         }));
-        // tokens.push(TokenInfo({    //   Huobi Token
-        //     tokenAddress: 0x6f259637dcD74C767781E37Bc6133cd6A68aa161,
-        //     priceOracleAddress: 0xE1329B3f6513912CAf589659777b66011AEE5880,
-        //     poolFees: [10000, uint24(3000)],
-        //     intermediateToken: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48,
-        //     indexPercentage: 5
-        // }));
-        // tokens.push(TokenInfo({    //   BNT
-        //     tokenAddress: 0x1F573D6Fb3F13d689FF844B4cE37794d79a7FF1C,
-        //     priceOracleAddress: 0x1E6cF0D433de4FE882A437ABC654F58E1e78548c,
-        //     poolFee: uint24(3000),
-        //     indexPercentage: 5
-        // }));
-        // tokens.push(TokenInfo({    //   INJ
-        //     tokenAddress: 0xe28b3B32B6c345A34Ff64674606124Dd5Aceca30,
-        //     priceOracleAddress: 0xaE2EbE3c4D20cE13cE47cbb49b6d7ee631Cd816e,
-        //     poolFees: [uint24(3000), uint24(3000)],
-        //     intermediateToken: WETH,
-        //     indexPercentage: 5
-        // }));
     }
 
     function buy(uint256 amount) external nonReentrant checkSettlement override {
@@ -200,26 +179,26 @@ contract BaseIndex is Product {
 
         uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
         tokensToBuy = tokensToBuy.add(buyTokenAmount);
+        buyDebtManager.changeDebt(msg.sender, buyTokenAmount, true);
 
-        indexToken.transfer(msg.sender, realAmount);
         TransferHelper.safeTransferFrom(
-            buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether)
+            buyTokenAddress,
+            msg.sender,
+            address(this),
+            amount.mul(indexPrice).div(1 ether)
         );
-
         IERC20 _buyToken = IERC20(buyTokenAddress);
         _buyToken.transfer(owner(), productFee.mul(indexPrice).div(1 ether));
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
 
-    function retrieveDebt(uint amount) external nonReentrant checkSettlement checkUnlocked{
-        require(usersDebt[msg.sender].sub(amount) > 0, "Not enough debt, try selling your tokens first");
-        
-        usersDebt[msg.sender] = usersDebt[msg.sender].sub(amount);
-        totalAvailableDebt = totalAvailableDebt.sub(amount);
+    function retrieveDebt(uint amount, bool isBuyDebt) external nonReentrant checkSettlement checkUnlocked{
+        DebtManager manager = isBuyDebt ? buyDebtManager : sellDebtManager;
+        require(manager.getTotalDebt() >= amount, "Not enough total debt");
 
-        IERC20(buyTokenAddress).transfer(msg.sender, amount);
-        emit DebtRetrieved(msg.sender, amount);
+        ERC20(isBuyDebt ? address(indexToken) : buyTokenAddress).transfer(msg.sender, amount);
+        manager.changeDebt(msg.sender, amount, false);
     }
 
     function sell(uint amount) external override nonReentrant checkSettlement checkUnlocked {
@@ -227,13 +206,29 @@ contract BaseIndex is Product {
         require(realAmount >= 1, "You must sell more tokens");
 
         uint newUserDebt = realAmount.mul(getPrice()).div(1 ether);
-        usersDebt[msg.sender] = usersDebt[msg.sender].add(newUserDebt);
         tokensToSell = realAmount.add(tokensToSell);
+        sellDebtManager.changeDebt(msg.sender, newUserDebt, true);
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         indexToken.transfer(owner(), productFee);
 
         emit ProductSold(msg.sender, newUserDebt, realAmount);
+    }
+
+    function getTotalDebt(bool isBuy) external view returns (uint) {
+        if(isBuy){
+            return buyDebtManager.getTotalDebt();
+        }else{
+            return sellDebtManager.getTotalDebt();
+        }
+    }
+
+    function getUserDebt(bool isBuy, address user) external view returns (uint) {
+        if(isBuy){
+            return buyDebtManager.getUserDebt(user);
+        }else{
+            return sellDebtManager.getUserDebt(user);
+        }
     }
 
     function beginSettlement() override external onlyOwner{
@@ -250,37 +245,38 @@ contract BaseIndex is Product {
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-        uint minOutAmount = amount.mul(tokenPrice).mul(1 ether);
+        uint amountOut = amount.mul(1 ether).div(tokenPrice);
+        uint amountInMaximum = amount.add(amount.mul(1).div(100));
 
         if(token.intermediateToken == address(0)){
-            dexRouter.exactInputSingle(
-                ISwapRouter.ExactInputSingleParams({
+            dexRouter.exactOutputSingle(
+                ISwapRouter.ExactOutputSingleParams({
                     tokenIn: buyTokenAddress,
                     tokenOut: token.tokenAddress,
                     fee: token.poolFees[0],
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountIn: amount,
-                    amountOutMinimum: minOutAmount,
+                    amountOut: amountOut,
+                    amountInMaximum: amountInMaximum,
                     sqrtPriceLimitX96: 0
                 })
             );
         }else{
-            totalAvailableDebt.add(dexRouter.exactInput(
-                ISwapRouter.ExactInputParams({
+            dexRouter.exactOutput(
+                ISwapRouter.ExactOutputParams({
                     path: abi.encodePacked(
-                        token.tokenAddress,
-                        token.poolFees[1],
-                        token.intermediateToken,
+                        buyTokenAddress,
                         token.poolFees[0],
-                        buyTokenAddress
+                        token.intermediateToken,
+                        token.poolFees[1],
+                        token.tokenAddress
                     ),
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountIn: amount,
-                    amountOutMinimum: minOutAmount
+                    amountOut: amountOut,
+                    amountInMaximum: amountInMaximum
                 })
-            ));
+            );
         }
     }
 
@@ -319,6 +315,7 @@ contract BaseIndex is Product {
                 })
             );
         }
+
     }
 
     function manageTokens() external onlyOwner {
@@ -330,7 +327,7 @@ contract BaseIndex is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
         uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
-        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress, token.poolFees[0]);
+        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
         if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
         if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
@@ -343,7 +340,7 @@ contract BaseIndex is Product {
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
             indexTotalPrice = indexTotalPrice.add(
-                priceOracle.getPrice(token.priceOracleAddress, token.poolFees[0]).mul(token.indexPercentage).div(100)
+                priceOracle.getPrice(token.priceOracleAddress).mul(token.indexPercentage).div(100)
             );
         }
 

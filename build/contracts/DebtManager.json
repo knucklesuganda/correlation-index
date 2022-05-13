@@ -1,0 +1,2734 @@
+{
+  "contractName": "DebtManager",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "debtAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "DebtChanged",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "getUserDebt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTotalDebt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "debtAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isAddition",
+          "type": "bool"
+        }
+      ],
+      "name": "changeDebt",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.6+commit.7338295f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"debtAmount\",\"type\":\"uint256\"}],\"name\":\"DebtChanged\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"debtAmount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isAddition\",\"type\":\"bool\"}],\"name\":\"changeDebt\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTotalDebt\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getUserDebt\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/indices/DebtManager.sol\":\"DebtManager\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":1},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/math/SafeMath.sol\":{\"keccak256\":\"0xe22a1fc7400ae196eba2ad1562d0386462b00a6363b742d55a2fd2021a58586f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4a635cec58fb4141a16cfd408f1a21ac944c335a3beaba541c35d2e95c04536f\",\"dweb:/ipfs/QmXWcz73UenN1ji8jiWMbzxHjjfLbNQwLVKTEB5zNFE34K\"]},\"project:/contracts/indices/DebtManager.sol\":{\"keccak256\":\"0x71603b7ea22489d8810a9ed9f989d66f1a7eee9114f1b8df33abd8ab233d68a1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://0f10cc1248f9c23f4397b5d256355659852297a99380a64805b2a7a670e6b5b3\",\"dweb:/ipfs/QmTzusNQyrJxGuYu6VoMZvAFWfBbG4Kw8CTi7u4nSqXFie\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610525806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c806334ce998a14610046578063cca5e4b114610064578063e65896c9146100be575b600080fd5b61004e610116565b6040518082815260200191505060405180910390f35b6100bc6004803603606081101561007a57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919080351515906020019092919050505061011f565b005b610100600480360360208110156100d457600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061039b565b6040518082815260200191505060405180910390f35b60008054905090565b80156101da5761017782600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103e490919063ffffffff16565b600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506101cf826000546103e490919063ffffffff16565b60008190555061028b565b61022c82600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205461046c90919063ffffffff16565b600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506102848260005461046c90919063ffffffff16565b6000819055505b6000600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015610341576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260178152602001807f446562742063616e6e6f74206265206e6567617469766500000000000000000081525060200191505060405180910390fd5b7f206b7154b31a11c2b2e6152606cd086dfceae80d3b4e43cefa0f0b39ea0e1c638383604051808373ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a1505050565b6000600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b600080828401905083811015610462576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f536166654d6174683a206164646974696f6e206f766572666c6f77000000000081525060200191505060405180910390fd5b8091505092915050565b6000828211156104e4576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f536166654d6174683a207375627472616374696f6e206f766572666c6f77000081525060200191505060405180910390fd5b81830390509291505056fea2646970667358221220e147f21f978cfe27ff72f00bedf2565405e4d807f4fc15ec636c5cca126e505164736f6c63430007060033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c806334ce998a14610046578063cca5e4b114610064578063e65896c9146100be575b600080fd5b61004e610116565b6040518082815260200191505060405180910390f35b6100bc6004803603606081101561007a57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919080351515906020019092919050505061011f565b005b610100600480360360208110156100d457600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061039b565b6040518082815260200191505060405180910390f35b60008054905090565b80156101da5761017782600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020546103e490919063ffffffff16565b600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506101cf826000546103e490919063ffffffff16565b60008190555061028b565b61022c82600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205461046c90919063ffffffff16565b600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506102848260005461046c90919063ffffffff16565b6000819055505b6000600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015610341576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260178152602001807f446562742063616e6e6f74206265206e6567617469766500000000000000000081525060200191505060405180910390fd5b7f206b7154b31a11c2b2e6152606cd086dfceae80d3b4e43cefa0f0b39ea0e1c638383604051808373ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019250505060405180910390a1505050565b6000600160008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b600080828401905083811015610462576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601b8152602001807f536166654d6174683a206164646974696f6e206f766572666c6f77000000000081525060200191505060405180910390fd5b8091505092915050565b6000828211156104e4576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601e8152602001807f536166654d6174683a207375627472616374696f6e206f766572666c6f77000081525060200191505060405180910390fd5b81830390509291505056fea2646970667358221220e147f21f978cfe27ff72f00bedf2565405e4d807f4fc15ec636c5cca126e505164736f6c63430007060033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "116:980:13:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "116:980:13:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;444:97;;;:::i;:::-;;;;;;;;;;;;;;;;;;;549:542;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;325:111;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;444:97;491:4;515:18;;508:25;;444:97;:::o;549:542::-;644:10;640:324;;;692:34;715:10;692:9;:18;702:7;692:18;;;;;;;;;;;;;;;;:22;;:34;;;;:::i;:::-;671:9;:18;681:7;671:18;;;;;;;;;;;;;;;:55;;;;762:34;785:10;762:18;;:22;;:34;;;;:::i;:::-;741:18;:55;;;;640:324;;;848:34;871:10;848:9;:18;858:7;848:18;;;;;;;;;;;;;;;;:22;;:34;;;;:::i;:::-;827:9;:18;837:7;827:18;;;;;;;;;;;;;;;:55;;;;918:34;941:10;918:18;;:22;;:34;;;;:::i;:::-;897:18;:55;;;;640:324;1006:1;984:9;:18;994:7;984:18;;;;;;;;;;;;;;;;:23;;976:59;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1051:32;1063:7;1072:10;1051:32;;;;;;;;;;;;;;;;;;;;;;;;;;549:542;;;:::o;325:111::-;386:4;410:9;:18;420:7;410:18;;;;;;;;;;;;;;;;403:25;;325:111;;;:::o;2682:175:2:-;2740:7;2759:9;2775:1;2771;:5;2759:17;;2799:1;2794;:6;;2786:46;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2849:1;2842:8;;;2682:175;;;;:::o;3128:155::-;3186:7;3218:1;3213;:6;;3205:49;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3275:1;3271;:5;3264:12;;3128:155;;;;:::o",
+  "source": "// SPDX-License-Identifier: MIT\r\npragma solidity 0.7.6;\r\n\r\nimport \"@openzeppelin/contracts/math/SafeMath.sol\";\r\n\r\n\r\ncontract DebtManager{\r\n\r\n    using SafeMath for uint256;\r\n    uint private totalAvailableDebt;\r\n    mapping(address => uint) private usersDebt;\r\n    event DebtChanged(address account, uint debtAmount);\r\n\r\n    function getUserDebt(address account) external view returns (uint) {\r\n        return usersDebt[account];\r\n    }\r\n\r\n    function getTotalDebt() external view returns (uint) {\r\n        return totalAvailableDebt;\r\n    }\r\n\r\n    function changeDebt(address account, uint debtAmount, bool isAddition) external {\r\n        if (isAddition) {\r\n            usersDebt[account] = usersDebt[account].add(debtAmount);\r\n            totalAvailableDebt = totalAvailableDebt.add(debtAmount);\r\n        }else{\r\n            usersDebt[account] = usersDebt[account].sub(debtAmount);\r\n            totalAvailableDebt = totalAvailableDebt.sub(debtAmount);\r\n        }\r\n\r\n        require(usersDebt[account] >= 0, \"Debt cannot be negative\");\r\n        emit DebtChanged(account, debtAmount);\r\n    }\r\n\r\n}\r\n",
+  "sourcePath": "D:\\JavascriptProjects\\crypto-index\\contracts\\indices\\DebtManager.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/indices/DebtManager.sol",
+    "exportedSymbols": {
+      "DebtManager": [
+        2758
+      ],
+      "SafeMath": [
+        510
+      ]
+    },
+    "id": 2759,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 2657,
+        "literals": [
+          "solidity",
+          "0.7",
+          ".6"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "33:22:13"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/math/SafeMath.sol",
+        "file": "@openzeppelin/contracts/math/SafeMath.sol",
+        "id": 2658,
+        "nodeType": "ImportDirective",
+        "scope": 2759,
+        "sourceUnit": 511,
+        "src": "59:51:13",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 2758,
+        "linearizedBaseContracts": [
+          2758
+        ],
+        "name": "DebtManager",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "id": 2661,
+            "libraryName": {
+              "id": 2659,
+              "name": "SafeMath",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 510,
+              "src": "151:8:13",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_SafeMath_$510",
+                "typeString": "library SafeMath"
+              }
+            },
+            "nodeType": "UsingForDirective",
+            "src": "145:27:13",
+            "typeName": {
+              "id": 2660,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "164:7:13",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            }
+          },
+          {
+            "constant": false,
+            "id": 2663,
+            "mutability": "mutable",
+            "name": "totalAvailableDebt",
+            "nodeType": "VariableDeclaration",
+            "scope": 2758,
+            "src": "178:31:13",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 2662,
+              "name": "uint",
+              "nodeType": "ElementaryTypeName",
+              "src": "178:4:13",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "visibility": "private"
+          },
+          {
+            "constant": false,
+            "id": 2667,
+            "mutability": "mutable",
+            "name": "usersDebt",
+            "nodeType": "VariableDeclaration",
+            "scope": 2758,
+            "src": "216:42:13",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+              "typeString": "mapping(address => uint256)"
+            },
+            "typeName": {
+              "id": 2666,
+              "keyType": {
+                "id": 2664,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "224:7:13",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "216:24:13",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                "typeString": "mapping(address => uint256)"
+              },
+              "valueType": {
+                "id": 2665,
+                "name": "uint",
+                "nodeType": "ElementaryTypeName",
+                "src": "235:4:13",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                }
+              }
+            },
+            "visibility": "private"
+          },
+          {
+            "anonymous": false,
+            "id": 2673,
+            "name": "DebtChanged",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 2672,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2669,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2673,
+                  "src": "283:15:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2668,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "283:7:13",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2671,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "debtAmount",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2673,
+                  "src": "300:15:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2670,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "300:4:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "282:34:13"
+            },
+            "src": "265:52:13"
+          },
+          {
+            "body": {
+              "id": 2684,
+              "nodeType": "Block",
+              "src": "392:44:13",
+              "statements": [
+                {
+                  "expression": {
+                    "baseExpression": {
+                      "id": 2680,
+                      "name": "usersDebt",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 2667,
+                      "src": "410:9:13",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                        "typeString": "mapping(address => uint256)"
+                      }
+                    },
+                    "id": 2682,
+                    "indexExpression": {
+                      "id": 2681,
+                      "name": "account",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 2675,
+                      "src": "420:7:13",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "410:18:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "functionReturnParameters": 2679,
+                  "id": 2683,
+                  "nodeType": "Return",
+                  "src": "403:25:13"
+                }
+              ]
+            },
+            "functionSelector": "e65896c9",
+            "id": 2685,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getUserDebt",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 2676,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2675,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2685,
+                  "src": "346:15:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2674,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "346:7:13",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "345:17:13"
+            },
+            "returnParameters": {
+              "id": 2679,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2678,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2685,
+                  "src": "386:4:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2677,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "386:4:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "385:6:13"
+            },
+            "scope": 2758,
+            "src": "325:111:13",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 2692,
+              "nodeType": "Block",
+              "src": "497:44:13",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 2690,
+                    "name": "totalAvailableDebt",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 2663,
+                    "src": "515:18:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "functionReturnParameters": 2689,
+                  "id": 2691,
+                  "nodeType": "Return",
+                  "src": "508:25:13"
+                }
+              ]
+            },
+            "functionSelector": "34ce998a",
+            "id": 2693,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getTotalDebt",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 2686,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "465:2:13"
+            },
+            "returnParameters": {
+              "id": 2689,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2688,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2693,
+                  "src": "491:4:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2687,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "491:4:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "490:6:13"
+            },
+            "scope": 2758,
+            "src": "444:97:13",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 2756,
+              "nodeType": "Block",
+              "src": "629:462:13",
+              "statements": [
+                {
+                  "condition": {
+                    "id": 2702,
+                    "name": "isAddition",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 2699,
+                    "src": "644:10:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": {
+                    "id": 2740,
+                    "nodeType": "Block",
+                    "src": "812:152:13",
+                    "statements": [
+                      {
+                        "expression": {
+                          "id": 2731,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "baseExpression": {
+                              "id": 2722,
+                              "name": "usersDebt",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 2667,
+                              "src": "827:9:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                                "typeString": "mapping(address => uint256)"
+                              }
+                            },
+                            "id": 2724,
+                            "indexExpression": {
+                              "id": 2723,
+                              "name": "account",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 2695,
+                              "src": "837:7:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": true,
+                            "nodeType": "IndexAccess",
+                            "src": "827:18:13",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "arguments": [
+                              {
+                                "id": 2729,
+                                "name": "debtAmount",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 2697,
+                                "src": "871:10:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "expression": {
+                                "baseExpression": {
+                                  "id": 2725,
+                                  "name": "usersDebt",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 2667,
+                                  "src": "848:9:13",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                                    "typeString": "mapping(address => uint256)"
+                                  }
+                                },
+                                "id": 2727,
+                                "indexExpression": {
+                                  "id": 2726,
+                                  "name": "account",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 2695,
+                                  "src": "858:7:13",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                },
+                                "isConstant": false,
+                                "isLValue": true,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "nodeType": "IndexAccess",
+                                "src": "848:18:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              },
+                              "id": 2728,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberName": "sub",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 359,
+                              "src": "848:22:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$returns$_t_uint256_$bound_to$_t_uint256_$",
+                                "typeString": "function (uint256,uint256) pure returns (uint256)"
+                              }
+                            },
+                            "id": 2730,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "848:34:13",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "src": "827:55:13",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "id": 2732,
+                        "nodeType": "ExpressionStatement",
+                        "src": "827:55:13"
+                      },
+                      {
+                        "expression": {
+                          "id": 2738,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "id": 2733,
+                            "name": "totalAvailableDebt",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 2663,
+                            "src": "897:18:13",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "arguments": [
+                              {
+                                "id": 2736,
+                                "name": "debtAmount",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 2697,
+                                "src": "941:10:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "expression": {
+                                "id": 2734,
+                                "name": "totalAvailableDebt",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 2663,
+                                "src": "918:18:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              },
+                              "id": 2735,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberName": "sub",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 359,
+                              "src": "918:22:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$returns$_t_uint256_$bound_to$_t_uint256_$",
+                                "typeString": "function (uint256,uint256) pure returns (uint256)"
+                              }
+                            },
+                            "id": 2737,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "918:34:13",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "src": "897:55:13",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "id": 2739,
+                        "nodeType": "ExpressionStatement",
+                        "src": "897:55:13"
+                      }
+                    ]
+                  },
+                  "id": 2741,
+                  "nodeType": "IfStatement",
+                  "src": "640:324:13",
+                  "trueBody": {
+                    "id": 2721,
+                    "nodeType": "Block",
+                    "src": "656:152:13",
+                    "statements": [
+                      {
+                        "expression": {
+                          "id": 2712,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "baseExpression": {
+                              "id": 2703,
+                              "name": "usersDebt",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 2667,
+                              "src": "671:9:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                                "typeString": "mapping(address => uint256)"
+                              }
+                            },
+                            "id": 2705,
+                            "indexExpression": {
+                              "id": 2704,
+                              "name": "account",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 2695,
+                              "src": "681:7:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": true,
+                            "nodeType": "IndexAccess",
+                            "src": "671:18:13",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "arguments": [
+                              {
+                                "id": 2710,
+                                "name": "debtAmount",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 2697,
+                                "src": "715:10:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "expression": {
+                                "baseExpression": {
+                                  "id": 2706,
+                                  "name": "usersDebt",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 2667,
+                                  "src": "692:9:13",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                                    "typeString": "mapping(address => uint256)"
+                                  }
+                                },
+                                "id": 2708,
+                                "indexExpression": {
+                                  "id": 2707,
+                                  "name": "account",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 2695,
+                                  "src": "702:7:13",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                },
+                                "isConstant": false,
+                                "isLValue": true,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "nodeType": "IndexAccess",
+                                "src": "692:18:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              },
+                              "id": 2709,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberName": "add",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 337,
+                              "src": "692:22:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$returns$_t_uint256_$bound_to$_t_uint256_$",
+                                "typeString": "function (uint256,uint256) pure returns (uint256)"
+                              }
+                            },
+                            "id": 2711,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "692:34:13",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "src": "671:55:13",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "id": 2713,
+                        "nodeType": "ExpressionStatement",
+                        "src": "671:55:13"
+                      },
+                      {
+                        "expression": {
+                          "id": 2719,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "id": 2714,
+                            "name": "totalAvailableDebt",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 2663,
+                            "src": "741:18:13",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "arguments": [
+                              {
+                                "id": 2717,
+                                "name": "debtAmount",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 2697,
+                                "src": "785:10:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "expression": {
+                                "id": 2715,
+                                "name": "totalAvailableDebt",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 2663,
+                                "src": "762:18:13",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              },
+                              "id": 2716,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberName": "add",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 337,
+                              "src": "762:22:13",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$returns$_t_uint256_$bound_to$_t_uint256_$",
+                                "typeString": "function (uint256,uint256) pure returns (uint256)"
+                              }
+                            },
+                            "id": 2718,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "762:34:13",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          },
+                          "src": "741:55:13",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "id": 2720,
+                        "nodeType": "ExpressionStatement",
+                        "src": "741:55:13"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "commonType": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "id": 2747,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "baseExpression": {
+                            "id": 2743,
+                            "name": "usersDebt",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 2667,
+                            "src": "984:9:13",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                              "typeString": "mapping(address => uint256)"
+                            }
+                          },
+                          "id": 2745,
+                          "indexExpression": {
+                            "id": 2744,
+                            "name": "account",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 2695,
+                            "src": "994:7:13",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "nodeType": "IndexAccess",
+                          "src": "984:18:13",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": ">=",
+                        "rightExpression": {
+                          "hexValue": "30",
+                          "id": 2746,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1006:1:13",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          },
+                          "value": "0"
+                        },
+                        "src": "984:23:13",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "hexValue": "446562742063616e6e6f74206265206e65676174697665",
+                        "id": 2748,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1009:25:13",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_63908f166197c7294108c2db803fc49389cda3663b40254da83bfc0fab32b7df",
+                          "typeString": "literal_string \"Debt cannot be negative\""
+                        },
+                        "value": "Debt cannot be negative"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_63908f166197c7294108c2db803fc49389cda3663b40254da83bfc0fab32b7df",
+                          "typeString": "literal_string \"Debt cannot be negative\""
+                        }
+                      ],
+                      "id": 2742,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        -18,
+                        -18
+                      ],
+                      "referencedDeclaration": -18,
+                      "src": "976:7:13",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 2749,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "976:59:13",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 2750,
+                  "nodeType": "ExpressionStatement",
+                  "src": "976:59:13"
+                },
+                {
+                  "eventCall": {
+                    "arguments": [
+                      {
+                        "id": 2752,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 2695,
+                        "src": "1063:7:13",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      {
+                        "id": 2753,
+                        "name": "debtAmount",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 2697,
+                        "src": "1072:10:13",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        },
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "id": 2751,
+                      "name": "DebtChanged",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 2673,
+                      "src": "1051:11:13",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_uint256_$returns$__$",
+                        "typeString": "function (address,uint256)"
+                      }
+                    },
+                    "id": 2754,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1051:32:13",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 2755,
+                  "nodeType": "EmitStatement",
+                  "src": "1046:37:13"
+                }
+              ]
+            },
+            "functionSelector": "cca5e4b1",
+            "id": 2757,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "changeDebt",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 2700,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2695,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2757,
+                  "src": "569:15:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2694,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "569:7:13",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2697,
+                  "mutability": "mutable",
+                  "name": "debtAmount",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2757,
+                  "src": "586:15:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2696,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "586:4:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2699,
+                  "mutability": "mutable",
+                  "name": "isAddition",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2757,
+                  "src": "603:15:13",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 2698,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "603:4:13",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "568:51:13"
+            },
+            "returnParameters": {
+              "id": 2701,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "629:0:13"
+            },
+            "scope": 2758,
+            "src": "549:542:13",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 2759,
+        "src": "116:980:13"
+      }
+    ],
+    "src": "33:1065:13"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/indices/DebtManager.sol",
+      "exportedSymbols": {
+        "DebtManager": [
+          2758
+        ],
+        "SafeMath": [
+          510
+        ]
+      },
+      "license": "MIT"
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            "0.7",
+            ".6"
+          ]
+        },
+        "id": 2657,
+        "name": "PragmaDirective",
+        "src": "33:22:13"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 511,
+          "absolutePath": "@openzeppelin/contracts/math/SafeMath.sol",
+          "file": "@openzeppelin/contracts/math/SafeMath.sol",
+          "scope": 2759,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 2658,
+        "name": "ImportDirective",
+        "src": "59:51:13"
+      },
+      {
+        "attributes": {
+          "abstract": false,
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "contract",
+          "fullyImplemented": true,
+          "linearizedBaseContracts": [
+            2758
+          ],
+          "name": "DebtManager",
+          "scope": 2759
+        },
+        "children": [
+          {
+            "children": [
+              {
+                "attributes": {
+                  "name": "SafeMath",
+                  "referencedDeclaration": 510,
+                  "type": "library SafeMath"
+                },
+                "id": 2659,
+                "name": "UserDefinedTypeName",
+                "src": "151:8:13"
+              },
+              {
+                "attributes": {
+                  "name": "uint256",
+                  "type": "uint256"
+                },
+                "id": 2660,
+                "name": "ElementaryTypeName",
+                "src": "164:7:13"
+              }
+            ],
+            "id": 2661,
+            "name": "UsingForDirective",
+            "src": "145:27:13"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "mutability": "mutable",
+              "name": "totalAvailableDebt",
+              "scope": 2758,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "uint256",
+              "visibility": "private"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "name": "uint",
+                  "type": "uint256"
+                },
+                "id": 2662,
+                "name": "ElementaryTypeName",
+                "src": "178:4:13"
+              }
+            ],
+            "id": 2663,
+            "name": "VariableDeclaration",
+            "src": "178:31:13"
+          },
+          {
+            "attributes": {
+              "constant": false,
+              "mutability": "mutable",
+              "name": "usersDebt",
+              "scope": 2758,
+              "stateVariable": true,
+              "storageLocation": "default",
+              "type": "mapping(address => uint256)",
+              "visibility": "private"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "type": "mapping(address => uint256)"
+                },
+                "children": [
+                  {
+                    "attributes": {
+                      "name": "address",
+                      "type": "address"
+                    },
+                    "id": 2664,
+                    "name": "ElementaryTypeName",
+                    "src": "224:7:13"
+                  },
+                  {
+                    "attributes": {
+                      "name": "uint",
+                      "type": "uint256"
+                    },
+                    "id": 2665,
+                    "name": "ElementaryTypeName",
+                    "src": "235:4:13"
+                  }
+                ],
+                "id": 2666,
+                "name": "Mapping",
+                "src": "216:24:13"
+              }
+            ],
+            "id": 2667,
+            "name": "VariableDeclaration",
+            "src": "216:42:13"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "DebtChanged"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "account",
+                      "scope": 2673,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 2668,
+                        "name": "ElementaryTypeName",
+                        "src": "283:7:13"
+                      }
+                    ],
+                    "id": 2669,
+                    "name": "VariableDeclaration",
+                    "src": "283:15:13"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "debtAmount",
+                      "scope": 2673,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 2670,
+                        "name": "ElementaryTypeName",
+                        "src": "300:4:13"
+                      }
+                    ],
+                    "id": 2671,
+                    "name": "VariableDeclaration",
+                    "src": "300:15:13"
+                  }
+                ],
+                "id": 2672,
+                "name": "ParameterList",
+                "src": "282:34:13"
+              }
+            ],
+            "id": 2673,
+            "name": "EventDefinition",
+            "src": "265:52:13"
+          },
+          {
+            "attributes": {
+              "functionSelector": "e65896c9",
+              "implemented": true,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "getUserDebt",
+              "scope": 2758,
+              "stateMutability": "view",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "account",
+                      "scope": 2685,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 2674,
+                        "name": "ElementaryTypeName",
+                        "src": "346:7:13"
+                      }
+                    ],
+                    "id": 2675,
+                    "name": "VariableDeclaration",
+                    "src": "346:15:13"
+                  }
+                ],
+                "id": 2676,
+                "name": "ParameterList",
+                "src": "345:17:13"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "",
+                      "scope": 2685,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 2677,
+                        "name": "ElementaryTypeName",
+                        "src": "386:4:13"
+                      }
+                    ],
+                    "id": 2678,
+                    "name": "VariableDeclaration",
+                    "src": "386:4:13"
+                  }
+                ],
+                "id": 2679,
+                "name": "ParameterList",
+                "src": "385:6:13"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 2679
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "type": "uint256"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 2667,
+                              "type": "mapping(address => uint256)",
+                              "value": "usersDebt"
+                            },
+                            "id": 2680,
+                            "name": "Identifier",
+                            "src": "410:9:13"
+                          },
+                          {
+                            "attributes": {
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 2675,
+                              "type": "address",
+                              "value": "account"
+                            },
+                            "id": 2681,
+                            "name": "Identifier",
+                            "src": "420:7:13"
+                          }
+                        ],
+                        "id": 2682,
+                        "name": "IndexAccess",
+                        "src": "410:18:13"
+                      }
+                    ],
+                    "id": 2683,
+                    "name": "Return",
+                    "src": "403:25:13"
+                  }
+                ],
+                "id": 2684,
+                "name": "Block",
+                "src": "392:44:13"
+              }
+            ],
+            "id": 2685,
+            "name": "FunctionDefinition",
+            "src": "325:111:13"
+          },
+          {
+            "attributes": {
+              "functionSelector": "34ce998a",
+              "implemented": true,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "getTotalDebt",
+              "scope": 2758,
+              "stateMutability": "view",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 2686,
+                "name": "ParameterList",
+                "src": "465:2:13"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "",
+                      "scope": 2693,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 2687,
+                        "name": "ElementaryTypeName",
+                        "src": "491:4:13"
+                      }
+                    ],
+                    "id": 2688,
+                    "name": "VariableDeclaration",
+                    "src": "491:4:13"
+                  }
+                ],
+                "id": 2689,
+                "name": "ParameterList",
+                "src": "490:6:13"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "functionReturnParameters": 2689
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "overloadedDeclarations": [
+                            null
+                          ],
+                          "referencedDeclaration": 2663,
+                          "type": "uint256",
+                          "value": "totalAvailableDebt"
+                        },
+                        "id": 2690,
+                        "name": "Identifier",
+                        "src": "515:18:13"
+                      }
+                    ],
+                    "id": 2691,
+                    "name": "Return",
+                    "src": "508:25:13"
+                  }
+                ],
+                "id": 2692,
+                "name": "Block",
+                "src": "497:44:13"
+              }
+            ],
+            "id": 2693,
+            "name": "FunctionDefinition",
+            "src": "444:97:13"
+          },
+          {
+            "attributes": {
+              "functionSelector": "cca5e4b1",
+              "implemented": true,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "changeDebt",
+              "scope": 2758,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "account",
+                      "scope": 2757,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 2694,
+                        "name": "ElementaryTypeName",
+                        "src": "569:7:13"
+                      }
+                    ],
+                    "id": 2695,
+                    "name": "VariableDeclaration",
+                    "src": "569:15:13"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "debtAmount",
+                      "scope": 2757,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint",
+                          "type": "uint256"
+                        },
+                        "id": 2696,
+                        "name": "ElementaryTypeName",
+                        "src": "586:4:13"
+                      }
+                    ],
+                    "id": 2697,
+                    "name": "VariableDeclaration",
+                    "src": "586:15:13"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "isAddition",
+                      "scope": 2757,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 2698,
+                        "name": "ElementaryTypeName",
+                        "src": "603:4:13"
+                      }
+                    ],
+                    "id": 2699,
+                    "name": "VariableDeclaration",
+                    "src": "603:15:13"
+                  }
+                ],
+                "id": 2700,
+                "name": "ParameterList",
+                "src": "568:51:13"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 2701,
+                "name": "ParameterList",
+                "src": "629:0:13"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "overloadedDeclarations": [
+                            null
+                          ],
+                          "referencedDeclaration": 2699,
+                          "type": "bool",
+                          "value": "isAddition"
+                        },
+                        "id": 2702,
+                        "name": "Identifier",
+                        "src": "644:10:13"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": true,
+                                      "type": "uint256"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2667,
+                                          "type": "mapping(address => uint256)",
+                                          "value": "usersDebt"
+                                        },
+                                        "id": 2703,
+                                        "name": "Identifier",
+                                        "src": "671:9:13"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2695,
+                                          "type": "address",
+                                          "value": "account"
+                                        },
+                                        "id": 2704,
+                                        "name": "Identifier",
+                                        "src": "681:7:13"
+                                      }
+                                    ],
+                                    "id": 2705,
+                                    "name": "IndexAccess",
+                                    "src": "671:18:13"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": false,
+                                      "isStructConstructorCall": false,
+                                      "lValueRequested": false,
+                                      "names": [
+                                        null
+                                      ],
+                                      "tryCall": false,
+                                      "type": "uint256",
+                                      "type_conversion": false
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": [
+                                            {
+                                              "typeIdentifier": "t_uint256",
+                                              "typeString": "uint256"
+                                            }
+                                          ],
+                                          "isConstant": false,
+                                          "isLValue": false,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "member_name": "add",
+                                          "referencedDeclaration": 337,
+                                          "type": "function (uint256,uint256) pure returns (uint256)"
+                                        },
+                                        "children": [
+                                          {
+                                            "attributes": {
+                                              "isConstant": false,
+                                              "isLValue": true,
+                                              "isPure": false,
+                                              "lValueRequested": false,
+                                              "type": "uint256"
+                                            },
+                                            "children": [
+                                              {
+                                                "attributes": {
+                                                  "overloadedDeclarations": [
+                                                    null
+                                                  ],
+                                                  "referencedDeclaration": 2667,
+                                                  "type": "mapping(address => uint256)",
+                                                  "value": "usersDebt"
+                                                },
+                                                "id": 2706,
+                                                "name": "Identifier",
+                                                "src": "692:9:13"
+                                              },
+                                              {
+                                                "attributes": {
+                                                  "overloadedDeclarations": [
+                                                    null
+                                                  ],
+                                                  "referencedDeclaration": 2695,
+                                                  "type": "address",
+                                                  "value": "account"
+                                                },
+                                                "id": 2707,
+                                                "name": "Identifier",
+                                                "src": "702:7:13"
+                                              }
+                                            ],
+                                            "id": 2708,
+                                            "name": "IndexAccess",
+                                            "src": "692:18:13"
+                                          }
+                                        ],
+                                        "id": 2709,
+                                        "name": "MemberAccess",
+                                        "src": "692:22:13"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2697,
+                                          "type": "uint256",
+                                          "value": "debtAmount"
+                                        },
+                                        "id": 2710,
+                                        "name": "Identifier",
+                                        "src": "715:10:13"
+                                      }
+                                    ],
+                                    "id": 2711,
+                                    "name": "FunctionCall",
+                                    "src": "692:34:13"
+                                  }
+                                ],
+                                "id": 2712,
+                                "name": "Assignment",
+                                "src": "671:55:13"
+                              }
+                            ],
+                            "id": 2713,
+                            "name": "ExpressionStatement",
+                            "src": "671:55:13"
+                          },
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 2663,
+                                      "type": "uint256",
+                                      "value": "totalAvailableDebt"
+                                    },
+                                    "id": 2714,
+                                    "name": "Identifier",
+                                    "src": "741:18:13"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": false,
+                                      "isStructConstructorCall": false,
+                                      "lValueRequested": false,
+                                      "names": [
+                                        null
+                                      ],
+                                      "tryCall": false,
+                                      "type": "uint256",
+                                      "type_conversion": false
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": [
+                                            {
+                                              "typeIdentifier": "t_uint256",
+                                              "typeString": "uint256"
+                                            }
+                                          ],
+                                          "isConstant": false,
+                                          "isLValue": false,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "member_name": "add",
+                                          "referencedDeclaration": 337,
+                                          "type": "function (uint256,uint256) pure returns (uint256)"
+                                        },
+                                        "children": [
+                                          {
+                                            "attributes": {
+                                              "overloadedDeclarations": [
+                                                null
+                                              ],
+                                              "referencedDeclaration": 2663,
+                                              "type": "uint256",
+                                              "value": "totalAvailableDebt"
+                                            },
+                                            "id": 2715,
+                                            "name": "Identifier",
+                                            "src": "762:18:13"
+                                          }
+                                        ],
+                                        "id": 2716,
+                                        "name": "MemberAccess",
+                                        "src": "762:22:13"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2697,
+                                          "type": "uint256",
+                                          "value": "debtAmount"
+                                        },
+                                        "id": 2717,
+                                        "name": "Identifier",
+                                        "src": "785:10:13"
+                                      }
+                                    ],
+                                    "id": 2718,
+                                    "name": "FunctionCall",
+                                    "src": "762:34:13"
+                                  }
+                                ],
+                                "id": 2719,
+                                "name": "Assignment",
+                                "src": "741:55:13"
+                              }
+                            ],
+                            "id": 2720,
+                            "name": "ExpressionStatement",
+                            "src": "741:55:13"
+                          }
+                        ],
+                        "id": 2721,
+                        "name": "Block",
+                        "src": "656:152:13"
+                      },
+                      {
+                        "children": [
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "isConstant": false,
+                                      "isLValue": true,
+                                      "isPure": false,
+                                      "lValueRequested": true,
+                                      "type": "uint256"
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2667,
+                                          "type": "mapping(address => uint256)",
+                                          "value": "usersDebt"
+                                        },
+                                        "id": 2722,
+                                        "name": "Identifier",
+                                        "src": "827:9:13"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2695,
+                                          "type": "address",
+                                          "value": "account"
+                                        },
+                                        "id": 2723,
+                                        "name": "Identifier",
+                                        "src": "837:7:13"
+                                      }
+                                    ],
+                                    "id": 2724,
+                                    "name": "IndexAccess",
+                                    "src": "827:18:13"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": false,
+                                      "isStructConstructorCall": false,
+                                      "lValueRequested": false,
+                                      "names": [
+                                        null
+                                      ],
+                                      "tryCall": false,
+                                      "type": "uint256",
+                                      "type_conversion": false
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": [
+                                            {
+                                              "typeIdentifier": "t_uint256",
+                                              "typeString": "uint256"
+                                            }
+                                          ],
+                                          "isConstant": false,
+                                          "isLValue": false,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "member_name": "sub",
+                                          "referencedDeclaration": 359,
+                                          "type": "function (uint256,uint256) pure returns (uint256)"
+                                        },
+                                        "children": [
+                                          {
+                                            "attributes": {
+                                              "isConstant": false,
+                                              "isLValue": true,
+                                              "isPure": false,
+                                              "lValueRequested": false,
+                                              "type": "uint256"
+                                            },
+                                            "children": [
+                                              {
+                                                "attributes": {
+                                                  "overloadedDeclarations": [
+                                                    null
+                                                  ],
+                                                  "referencedDeclaration": 2667,
+                                                  "type": "mapping(address => uint256)",
+                                                  "value": "usersDebt"
+                                                },
+                                                "id": 2725,
+                                                "name": "Identifier",
+                                                "src": "848:9:13"
+                                              },
+                                              {
+                                                "attributes": {
+                                                  "overloadedDeclarations": [
+                                                    null
+                                                  ],
+                                                  "referencedDeclaration": 2695,
+                                                  "type": "address",
+                                                  "value": "account"
+                                                },
+                                                "id": 2726,
+                                                "name": "Identifier",
+                                                "src": "858:7:13"
+                                              }
+                                            ],
+                                            "id": 2727,
+                                            "name": "IndexAccess",
+                                            "src": "848:18:13"
+                                          }
+                                        ],
+                                        "id": 2728,
+                                        "name": "MemberAccess",
+                                        "src": "848:22:13"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2697,
+                                          "type": "uint256",
+                                          "value": "debtAmount"
+                                        },
+                                        "id": 2729,
+                                        "name": "Identifier",
+                                        "src": "871:10:13"
+                                      }
+                                    ],
+                                    "id": 2730,
+                                    "name": "FunctionCall",
+                                    "src": "848:34:13"
+                                  }
+                                ],
+                                "id": 2731,
+                                "name": "Assignment",
+                                "src": "827:55:13"
+                              }
+                            ],
+                            "id": 2732,
+                            "name": "ExpressionStatement",
+                            "src": "827:55:13"
+                          },
+                          {
+                            "children": [
+                              {
+                                "attributes": {
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "operator": "=",
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 2663,
+                                      "type": "uint256",
+                                      "value": "totalAvailableDebt"
+                                    },
+                                    "id": 2733,
+                                    "name": "Identifier",
+                                    "src": "897:18:13"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "isConstant": false,
+                                      "isLValue": false,
+                                      "isPure": false,
+                                      "isStructConstructorCall": false,
+                                      "lValueRequested": false,
+                                      "names": [
+                                        null
+                                      ],
+                                      "tryCall": false,
+                                      "type": "uint256",
+                                      "type_conversion": false
+                                    },
+                                    "children": [
+                                      {
+                                        "attributes": {
+                                          "argumentTypes": [
+                                            {
+                                              "typeIdentifier": "t_uint256",
+                                              "typeString": "uint256"
+                                            }
+                                          ],
+                                          "isConstant": false,
+                                          "isLValue": false,
+                                          "isPure": false,
+                                          "lValueRequested": false,
+                                          "member_name": "sub",
+                                          "referencedDeclaration": 359,
+                                          "type": "function (uint256,uint256) pure returns (uint256)"
+                                        },
+                                        "children": [
+                                          {
+                                            "attributes": {
+                                              "overloadedDeclarations": [
+                                                null
+                                              ],
+                                              "referencedDeclaration": 2663,
+                                              "type": "uint256",
+                                              "value": "totalAvailableDebt"
+                                            },
+                                            "id": 2734,
+                                            "name": "Identifier",
+                                            "src": "918:18:13"
+                                          }
+                                        ],
+                                        "id": 2735,
+                                        "name": "MemberAccess",
+                                        "src": "918:22:13"
+                                      },
+                                      {
+                                        "attributes": {
+                                          "overloadedDeclarations": [
+                                            null
+                                          ],
+                                          "referencedDeclaration": 2697,
+                                          "type": "uint256",
+                                          "value": "debtAmount"
+                                        },
+                                        "id": 2736,
+                                        "name": "Identifier",
+                                        "src": "941:10:13"
+                                      }
+                                    ],
+                                    "id": 2737,
+                                    "name": "FunctionCall",
+                                    "src": "918:34:13"
+                                  }
+                                ],
+                                "id": 2738,
+                                "name": "Assignment",
+                                "src": "897:55:13"
+                              }
+                            ],
+                            "id": 2739,
+                            "name": "ExpressionStatement",
+                            "src": "897:55:13"
+                          }
+                        ],
+                        "id": 2740,
+                        "name": "Block",
+                        "src": "812:152:13"
+                      }
+                    ],
+                    "id": 2741,
+                    "name": "IfStatement",
+                    "src": "640:324:13"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "tryCall": false,
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_bool",
+                                  "typeString": "bool"
+                                },
+                                {
+                                  "typeIdentifier": "t_stringliteral_63908f166197c7294108c2db803fc49389cda3663b40254da83bfc0fab32b7df",
+                                  "typeString": "literal_string \"Debt cannot be negative\""
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                -18,
+                                -18
+                              ],
+                              "referencedDeclaration": -18,
+                              "type": "function (bool,string memory) pure",
+                              "value": "require"
+                            },
+                            "id": 2742,
+                            "name": "Identifier",
+                            "src": "976:7:13"
+                          },
+                          {
+                            "attributes": {
+                              "commonType": {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              },
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "operator": ">=",
+                              "type": "bool"
+                            },
+                            "children": [
+                              {
+                                "attributes": {
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "type": "uint256"
+                                },
+                                "children": [
+                                  {
+                                    "attributes": {
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 2667,
+                                      "type": "mapping(address => uint256)",
+                                      "value": "usersDebt"
+                                    },
+                                    "id": 2743,
+                                    "name": "Identifier",
+                                    "src": "984:9:13"
+                                  },
+                                  {
+                                    "attributes": {
+                                      "overloadedDeclarations": [
+                                        null
+                                      ],
+                                      "referencedDeclaration": 2695,
+                                      "type": "address",
+                                      "value": "account"
+                                    },
+                                    "id": 2744,
+                                    "name": "Identifier",
+                                    "src": "994:7:13"
+                                  }
+                                ],
+                                "id": 2745,
+                                "name": "IndexAccess",
+                                "src": "984:18:13"
+                              },
+                              {
+                                "attributes": {
+                                  "hexvalue": "30",
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": true,
+                                  "lValueRequested": false,
+                                  "token": "number",
+                                  "type": "int_const 0",
+                                  "value": "0"
+                                },
+                                "id": 2746,
+                                "name": "Literal",
+                                "src": "1006:1:13"
+                              }
+                            ],
+                            "id": 2747,
+                            "name": "BinaryOperation",
+                            "src": "984:23:13"
+                          },
+                          {
+                            "attributes": {
+                              "hexvalue": "446562742063616e6e6f74206265206e65676174697665",
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "token": "string",
+                              "type": "literal_string \"Debt cannot be negative\"",
+                              "value": "Debt cannot be negative"
+                            },
+                            "id": 2748,
+                            "name": "Literal",
+                            "src": "1009:25:13"
+                          }
+                        ],
+                        "id": 2749,
+                        "name": "FunctionCall",
+                        "src": "976:59:13"
+                      }
+                    ],
+                    "id": 2750,
+                    "name": "ExpressionStatement",
+                    "src": "976:59:13"
+                  },
+                  {
+                    "children": [
+                      {
+                        "attributes": {
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "isStructConstructorCall": false,
+                          "lValueRequested": false,
+                          "names": [
+                            null
+                          ],
+                          "tryCall": false,
+                          "type": "tuple()",
+                          "type_conversion": false
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                },
+                                {
+                                  "typeIdentifier": "t_uint256",
+                                  "typeString": "uint256"
+                                }
+                              ],
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 2673,
+                              "type": "function (address,uint256)",
+                              "value": "DebtChanged"
+                            },
+                            "id": 2751,
+                            "name": "Identifier",
+                            "src": "1051:11:13"
+                          },
+                          {
+                            "attributes": {
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 2695,
+                              "type": "address",
+                              "value": "account"
+                            },
+                            "id": 2752,
+                            "name": "Identifier",
+                            "src": "1063:7:13"
+                          },
+                          {
+                            "attributes": {
+                              "overloadedDeclarations": [
+                                null
+                              ],
+                              "referencedDeclaration": 2697,
+                              "type": "uint256",
+                              "value": "debtAmount"
+                            },
+                            "id": 2753,
+                            "name": "Identifier",
+                            "src": "1072:10:13"
+                          }
+                        ],
+                        "id": 2754,
+                        "name": "FunctionCall",
+                        "src": "1051:32:13"
+                      }
+                    ],
+                    "id": 2755,
+                    "name": "EmitStatement",
+                    "src": "1046:37:13"
+                  }
+                ],
+                "id": 2756,
+                "name": "Block",
+                "src": "629:462:13"
+              }
+            ],
+            "id": 2757,
+            "name": "FunctionDefinition",
+            "src": "549:542:13"
+          }
+        ],
+        "id": 2758,
+        "name": "ContractDefinition",
+        "src": "116:980:13"
+      }
+    ],
+    "id": 2759,
+    "name": "SourceUnit",
+    "src": "33:1065:13"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.6+commit.7338295f.Linux.g++"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.6",
+  "updatedAt": "2022-05-13T16:35:23.028Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
