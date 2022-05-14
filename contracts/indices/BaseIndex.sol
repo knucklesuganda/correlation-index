@@ -172,7 +172,7 @@ contract BaseIndex is Product {
         }));
     }
 
-    function buy(uint256 amount) external nonReentrant checkSettlement override {
+    function buy(uint256 amount) external override nonReentrant checkSettlement {
         uint256 indexPrice = getPrice();
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "Not enough tokens sent");
@@ -181,38 +181,35 @@ contract BaseIndex is Product {
         tokensToBuy = tokensToBuy.add(buyTokenAmount);
         buyDebtManager.changeDebt(msg.sender, buyTokenAmount, true);
 
-        TransferHelper.safeTransferFrom(
-            buyTokenAddress,
-            msg.sender,
-            address(this),
-            amount.mul(indexPrice).div(1 ether)
-        );
-        IERC20 _buyToken = IERC20(buyTokenAddress);
-        _buyToken.transfer(owner(), productFee.mul(indexPrice).div(1 ether));
+        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether));
+        IERC20(buyTokenAddress).transfer(owner(), productFee.mul(indexPrice).div(1 ether));
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
-    }
-
-    function retrieveDebt(uint amount, bool isBuyDebt) external nonReentrant checkSettlement checkUnlocked{
-        DebtManager manager = isBuyDebt ? buyDebtManager : sellDebtManager;
-        require(manager.getTotalDebt() >= amount, "Not enough total debt");
-
-        ERC20(isBuyDebt ? address(indexToken) : buyTokenAddress).transfer(msg.sender, amount);
-        manager.changeDebt(msg.sender, amount, false);
     }
 
     function sell(uint amount) external override nonReentrant checkSettlement checkUnlocked {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "You must sell more tokens");
 
-        uint newUserDebt = realAmount.mul(getPrice()).div(1 ether);
-        tokensToSell = realAmount.add(tokensToSell);
+        uint indexPrice = getPrice();
+        uint newUserDebt = realAmount.mul(indexPrice).div(1 ether);
+        uint buyProductFee = productFee.mul(indexPrice).div(1 ether);
+
+        tokensToSell = tokensToSell.add(realAmount);
+
         sellDebtManager.changeDebt(msg.sender, newUserDebt, true);
+        sellDebtManager.changeDebt(owner(), buyProductFee, true);
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
-        indexToken.transfer(owner(), productFee);
-
         emit ProductSold(msg.sender, newUserDebt, realAmount);
+    }
+
+    function retrieveDebt(uint amount, bool isBuyDebt) external nonReentrant checkSettlement checkUnlocked{
+        DebtManager manager = isBuyDebt ? buyDebtManager : sellDebtManager;
+        require(manager.getTotalDebt() >= amount && manager.getUserDebt(msg.sender) >= amount, "Not enough debt");
+
+        ERC20(isBuyDebt ? address(indexToken) : buyTokenAddress).transfer(msg.sender, amount);
+        manager.changeDebt(msg.sender, amount, false);
     }
 
     function getTotalDebt(bool isBuy) external view returns (uint) {
@@ -223,7 +220,7 @@ contract BaseIndex is Product {
         }
     }
 
-    function getUserDebt(bool isBuy, address user) external view returns (uint) {
+    function getUserDebt(address user, bool isBuy) external view returns (uint) {
         if(isBuy){
             return buyDebtManager.getUserDebt(user);
         }else{
