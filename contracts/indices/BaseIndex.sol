@@ -191,16 +191,12 @@ contract BaseIndex is Product {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "You must sell more tokens");
 
-        uint indexPrice = getPrice();
-        uint tokensToSellChange = realAmount.mul(indexPrice).div(1 ether);
-        uint buyProductFee = productFee.mul(indexPrice).div(1 ether);
-        tokensToSell = tokensToSell.add(realAmount);
-
-        sellDebtManager.changeDebt(msg.sender, tokensToSellChange, true);
-        sellDebtManager.changeDebt(owner(), buyProductFee, true);
+        tokensToSell = tokensToSell.add(amount);
+        sellDebtManager.changeDebt(msg.sender, realAmount, true);
+        sellDebtManager.changeDebt(owner(), productFee, true);
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
-        emit ProductSold(msg.sender, tokensToSellChange, realAmount);
+        emit ProductSold(msg.sender, realAmount.mul(getPrice()), realAmount);
     }
 
     function retrieveDebt(uint amount, bool isBuyDebt) external nonReentrant checkSettlement checkUnlocked{
@@ -234,7 +230,8 @@ contract BaseIndex is Product {
     }
 
     function endSettlement() override external onlyOwner {
-        buyDebtManager.changeTotalDebt(tokensToBuy, true);
+        buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(getPrice()), true);
+        sellDebtManager.changeTotalDebt(tokensToSell, true);
         tokensToBuy = 0;
         tokensToSell = 0;
         isSettlement = false;
@@ -243,7 +240,7 @@ contract BaseIndex is Product {
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = amount.add(amount.mul(1).div(100));
+        uint amountInMaximum = amount.add(amount.mul(10).div(100));
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
@@ -275,6 +272,7 @@ contract BaseIndex is Product {
                 })
             );
         }
+
     }
 
     function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
