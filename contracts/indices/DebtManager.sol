@@ -5,17 +5,17 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 
 contract UserDebtData{
+    using SafeMath for uint256;
+
     mapping(address => uint) private debtData;
     mapping(address => bool) private userInSet;
     address[] private users;
 
-    function add(address _addr) external {
-        if(inSet[_addr]){
-            return false;
+    function addUser(address _addr) private {
+        if(!userInSet[_addr]){
+            userInSet[_addr] = true;
+            users.push(_addr);
         }
-
-        userInSet[_addr] = true;
-        users.push(_addr);
     }
 
     function changeDebt(address account, uint debtAmount, bool isAddition) external {
@@ -25,12 +25,12 @@ contract UserDebtData{
             debtData[account] = debtData[account].sub(debtAmount);
         }
 
+        addUser(account);
         require(debtData[account] >= 0, "Debt cannot be negative");
     }
 
-    function getUserDebt(address account) external view returns(uint) {
-        return debtData[account];
-    }
+    function getUserDebt(address account) external view returns(uint) { return debtData[account]; }    
+    function getAllUsers() external view returns(address[] memory){ return users; }
 
 }
 
@@ -42,13 +42,9 @@ contract DebtManager{
     UserDebtData private debtData = new UserDebtData();
     event DebtChanged(address account, uint debtAmount);
 
-    function getUserDebt(address account) external view returns (uint) {
-        return debtData.getUserDebt(account);
-    }
-
-    function getTotalDebt() external view returns (uint) {
-        return totalAvailableDebt;
-    }
+    function getUserDebt(address account) external view returns (uint) { return debtData.getUserDebt(account); }
+    function getTotalDebt() external view returns (uint) { return totalAvailableDebt; }
+    function getAllUsers() external view returns (address[] memory) { return debtData.getAllUsers(); }
 
     function changeTotalDebt(uint debtAmount, bool isAddition) external {
         if (isAddition) {

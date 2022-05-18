@@ -179,7 +179,7 @@ contract BaseIndex is Product {
         uint256 indexPrice = getPrice();
         uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
         tokensToBuy = tokensToBuy.add(buyTokenAmount);
-        buyDebtManager.changeDebt(msg.sender, buyTokenAmount, true);
+        buyDebtManager.changeDebt(msg.sender, realAmount, true);
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether));
         IERC20(buyTokenAddress).transfer(owner(), productFee.mul(indexPrice).div(1 ether));
@@ -234,6 +234,7 @@ contract BaseIndex is Product {
     }
 
     function endSettlement() override external onlyOwner {
+        buyDebtManager.changeTotalDebt(tokensToBuy, true);
         tokensToBuy = 0;
         tokensToSell = 0;
         isSettlement = false;
@@ -279,7 +280,7 @@ contract BaseIndex is Product {
     function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = amount.add(amount.mul(1).div(100));
+        uint amountInMaximum = amount.add(amount.mul(10).div(100));
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
@@ -311,11 +312,6 @@ contract BaseIndex is Product {
                 })
             );
         }
-
-        for (uint256 index = 0; index < array.length; index++) {
-            
-        }
-
     }
 
     function manageTokens() external onlyOwner {
