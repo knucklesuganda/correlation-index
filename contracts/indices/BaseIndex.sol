@@ -173,10 +173,10 @@ contract BaseIndex is Product {
     }
 
     function buy(uint256 amount) external override nonReentrant checkSettlement {
-        uint256 indexPrice = getPrice();
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "Not enough tokens sent");
 
+        uint256 indexPrice = getPrice();
         uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
         tokensToBuy = tokensToBuy.add(buyTokenAmount);
         buyDebtManager.changeDebt(msg.sender, buyTokenAmount, true);
@@ -192,16 +192,15 @@ contract BaseIndex is Product {
         require(realAmount >= 1, "You must sell more tokens");
 
         uint indexPrice = getPrice();
-        uint newUserDebt = realAmount.mul(indexPrice).div(1 ether);
+        uint tokensToSellChange = realAmount.mul(indexPrice).div(1 ether);
         uint buyProductFee = productFee.mul(indexPrice).div(1 ether);
-
         tokensToSell = tokensToSell.add(realAmount);
 
-        sellDebtManager.changeDebt(msg.sender, newUserDebt, true);
+        sellDebtManager.changeDebt(msg.sender, tokensToSellChange, true);
         sellDebtManager.changeDebt(owner(), buyProductFee, true);
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
-        emit ProductSold(msg.sender, newUserDebt, realAmount);
+        emit ProductSold(msg.sender, tokensToSellChange, realAmount);
     }
 
     function retrieveDebt(uint amount, bool isBuyDebt) external nonReentrant checkSettlement checkUnlocked{
@@ -313,13 +312,15 @@ contract BaseIndex is Product {
             );
         }
 
+        for (uint256 index = 0; index < array.length; index++) {
+            
+        }
+
     }
 
     function manageTokens() external onlyOwner {
         lastManagedToken += 1;
-        if(lastManagedToken > tokens.length - 1){
-            lastManagedToken = 0;
-        }
+        if(lastManagedToken > tokens.length - 1){ lastManagedToken = 0; }
 
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
@@ -328,7 +329,6 @@ contract BaseIndex is Product {
 
         if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
         if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
-
     }
 
     function getPrice() public view override returns (uint256) {
