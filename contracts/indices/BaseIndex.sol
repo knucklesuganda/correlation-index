@@ -271,7 +271,6 @@ contract BaseIndex is Product {
     }
     // Users interaction
 
-
     // Settlement and asset management
     function beginSettlement() override external onlyOwner{
         isSettlement = true;
