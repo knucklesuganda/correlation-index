@@ -229,13 +229,13 @@ contract BaseIndex is Product {
     }
 
     function endSettlement() override external onlyOwner {
-        buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(getPrice()), true);
-        sellDebtManager.changeTotalDebt(tokensToSell, true);
+        uint productPrice = getPrice();
+
+        buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(productPrice), true);
+        sellDebtManager.changeTotalDebt(tokensToSell.mul(1 ether).div(productPrice), true);
         tokensToBuy = 0;
         tokensToSell = 0;
         isSettlement = false;
-        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, 0);
-        TransferHelper.safeApprove(address(indexToken), dexRouterAddress, 0);
     }
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
@@ -322,12 +322,8 @@ contract BaseIndex is Product {
         uint tokensToSellAmount = tokensToSell.mul(token.indexPercentage).div(100);
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
-        if(tokensToBuyAmount > 0){
-            manageTokensBuy(token, tokensToBuyAmount, tokenPrice);
-        }
-        if(tokensToSellAmount > 0){
-            manageTokensSell(token, tokensToSellAmount, tokenPrice);
-        }
+        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
+        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
     }
 
     function getPrice() public view override returns (uint256) {
