@@ -241,7 +241,7 @@ contract BaseIndex is Product {
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = amount.mul(productFee).div(productFeeTotal);
+        uint amountInMaximum = amount.add(amount.mul(productFee).div(productFeeTotal));
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
