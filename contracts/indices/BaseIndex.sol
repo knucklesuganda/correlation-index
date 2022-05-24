@@ -13,6 +13,7 @@ import "./IndexToken.sol";
 import "./DebtManager.sol";
 import "../management/BaseProduct.sol";
 
+
 contract BaseIndex is Product {
     using SafeMath for uint256;
 
@@ -226,8 +227,12 @@ contract BaseIndex is Product {
 
     function beginSettlement() override external onlyOwner{
         isSettlement = true;
-        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuy);
-        TransferHelper.safeApprove(address(indexToken), dexRouterAddress, tokensToSell);
+
+        uint totalBuyFees = tokensToBuy.mul(productFee).div(productFeeTotal);
+        uint totalSellFees = tokensToSell.mul(productFee).div(productFeeTotal);
+
+        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuy.add(totalBuyFees));
+        TransferHelper.safeApprove(address(indexToken), dexRouterAddress, tokensToSell.add(totalSellFees));
     }
 
     function endSettlement() override external onlyOwner {
@@ -236,12 +241,14 @@ contract BaseIndex is Product {
         tokensToBuy = 0;
         tokensToSell = 0;
         isSettlement = false;
+        TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, 0);
+        TransferHelper.safeApprove(address(indexToken), dexRouterAddress, 0);
     }
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = amount.mul(productFee / 2).div(productFeeTotal);
+        uint amountInMaximum = amount.mul(productFee).div(productFeeTotal);
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(

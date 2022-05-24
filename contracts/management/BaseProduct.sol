@@ -48,8 +48,8 @@ abstract contract Product is Ownable, ReentrancyGuard {
 
     function calculateFee(uint amount) public view returns(uint, uint){
         uint productFeeAmount = amount.div(productFeeTotal).mul(productFee);
-        uint realAmount = amount.sub(productFeeAmount);
-        return (productFeeAmount, realAmount);
+        // uint realAmount = amount.add(productFeeAmount);
+        return (productFeeAmount, amount);
     }
 
     function changeFee(uint8 _fee, uint _feeTotal) external onlyOwner {
