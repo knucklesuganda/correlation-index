@@ -182,9 +182,10 @@ contract BaseIndex is Product {
         tokensToBuy = tokensToBuy.add(buyTokenAmount);
         buyDebtManager.changeDebt(msg.sender, realAmount, true);
 
-        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether));
+        TransferHelper.safeTransferFrom(
+            buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether)
+        );
         IERC20(buyTokenAddress).transfer(owner(), productFee.mul(indexPrice).div(2).div(1 ether));
-
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
 
@@ -210,19 +211,11 @@ contract BaseIndex is Product {
     }
 
     function getTotalDebt(bool isBuy) external view returns (uint) {
-        if(isBuy){
-            return buyDebtManager.getTotalDebt();
-        }else{
-            return sellDebtManager.getTotalDebt();
-        }
+        return (isBuy ? buyDebtManager : sellDebtManager).getTotalDebt();
     }
 
     function getUserDebt(address user, bool isBuy) external view returns (uint) {
-        if(isBuy){
-            return buyDebtManager.getUserDebt(user);
-        }else{
-            return sellDebtManager.getUserDebt(user);
-        }
+        return (isBuy ? buyDebtManager : sellDebtManager).getUserDebt(user);
     }
 
     function beginSettlement() override external onlyOwner{
