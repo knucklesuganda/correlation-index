@@ -37,7 +37,12 @@ contract Observer is Ownable{
 
         for (uint256 index = 0; index < products.length; index++) {
             if (products[index].productAddress == productAddress) {
-                delete products[index];
+
+                for (uint i = index; i < products.length-1; i++){
+                    products[i] = products[i+1];
+                }
+
+                products.pop();
                 emit ProductDeleted(productAddress);
                 break;
             }

@@ -13,31 +13,6 @@ import "./IndexToken.sol";
 import "./DebtManager.sol";
 import "../management/BaseProduct.sol";
 
-
-contract PriceCollateral is Ownable{
-    uint private priceCollateralPercentage;
-    uint private priceCollateralTotal;
-
-    function addPriceCollateral(uint value) public view returns (uint) {
-        return value.add(value.mul(priceCollateralPercentage).div(priceCollateralTotal));
-    }
-
-    function removePriceCollateral(uint value) public view returns (uint) {
-        return value.sub(value.mul(priceCollateralPercentage).div(priceCollateralTotal));
-    }
-
-    function getPriceCollateral() external view returns(uint, uint){
-        return (priceCollateralPercentage, priceCollateralTotal);
-    }
-
-    function changeCollateral(uint newCollateralPercentage, uint newCollateralTotal) external onlyOwner {
-        priceCollateralPercentage = newCollateralPercentage;
-        priceCollateralTotal = newCollateralTotal;
-    }
-
-}
-
-
 contract BaseIndex is Product {
     using SafeMath for uint256;
 
@@ -58,7 +33,6 @@ contract BaseIndex is Product {
     DebtManager private sellDebtManager = new DebtManager();
     DebtManager private buyDebtManager = new DebtManager();
     PriceOracle private priceOracle = new PriceOracle();
-    PriceCollateral private collateralManager = new PriceCollateral();
 
     uint public lastManagedToken = 0;   // TODO: change the visibility
     uint public tokensToSell;    // index tokens that will be sold
@@ -100,31 +74,13 @@ contract BaseIndex is Product {
         return totalValue;
     }
 
-    function getPrice() public view override returns (uint256) {
-        uint256 indexTotalPrice;
-
-        for (uint256 i = 0; i < tokens.length; i++) {
-            TokenInfo memory token = tokens[i];
-            indexTotalPrice = indexTotalPrice.add(
-                priceOracle.getPrice(token.priceOracleAddress).mul(token.indexPercentage).div(100)
-            );
-        }
-
-        return collateralManager.addPriceCollateral(indexTotalPrice).div(indexPriceAdjustment);
-    }
-
-    function getPriceCollateral() external view returns (uint256) {
-        return collateralManager.getPriceCollateral();
-    }
-
     constructor() {
-        dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;  // Uniswap V3 Router
-        buyTokenAddress =  0x6B175474E89094C44Da98b954EedeAC495271d0F; // DAI
+        dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;      // Uniswap V3 Router
+        buyTokenAddress =  0x6B175474E89094C44Da98b954EedeAC495271d0F;      // DAI
         WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
         productFee = 10;
         productFeeTotal = 100;
-        priceCollateralPercentage = 10;
         indexPriceAdjustment = 100;
 
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
@@ -149,7 +105,7 @@ contract BaseIndex is Product {
             priceOracleAddress: 0x14e613AC84a31f709eadbdF89C6CC390fDc9540A,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: WETH,
-            indexPercentage: 5
+            indexPercentage: 10
         }));
         tokens.push(TokenInfo({ // 3) UNI
             tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
@@ -163,7 +119,7 @@ contract BaseIndex is Product {
             priceOracleAddress: 0xc929ad75B72593967DE83E7F7Cda0493458261D9,
             poolFees: [uint24(3000), 10000],
             intermediateToken: WETH,
-            indexPercentage: 5
+            indexPercentage: 10
         }));
         tokens.push(TokenInfo({ // 5) SNX
             tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
@@ -212,14 +168,11 @@ contract BaseIndex is Product {
             priceOracleAddress: 0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f,
             poolFees: [uint24(3000), 10000],
             intermediateToken: WETH,
-            indexPercentage: 5
+            indexPercentage: 10
         }));
     }
 
-    // Users interaction
     function buy(uint256 amount) external override nonReentrant checkSettlement {
-        amount = collateralManager.removePriceCollateral(amount);
-
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "Not enough tokens sent");
 
@@ -228,11 +181,8 @@ contract BaseIndex is Product {
         tokensToBuy = tokensToBuy.add(buyTokenAmount);
         buyDebtManager.changeDebt(msg.sender, realAmount, true);
 
-        TransferHelper.safeTransferFrom(
-            buyTokenAddress, msg.sender,
-            address(this), amount.mul(indexPrice).div(1 ether)
-        );
-        IERC20(buyTokenAddress).transfer(owner(), productFee.mul(indexPrice).div(1 ether));     // TODO: change to debt manager
+        TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether));
+        IERC20(buyTokenAddress).transfer(owner(), productFee.mul(indexPrice).div(2).div(1 ether));
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
@@ -255,11 +205,15 @@ contract BaseIndex is Product {
 
         ERC20(isBuyDebt ? address(indexToken) : buyTokenAddress).transfer(msg.sender, amount);
         manager.changeDebt(msg.sender, amount, false);
+        manager.changeTotalDebt(amount, false);
     }
 
     function getTotalDebt(bool isBuy) external view returns (uint) {
-        if(isBuy){ return buyDebtManager.getTotalDebt(); }
-        else{ return sellDebtManager.getTotalDebt(); }
+        if(isBuy){
+            return buyDebtManager.getTotalDebt();
+        }else{
+            return sellDebtManager.getTotalDebt();
+        }
     }
 
     function getUserDebt(address user, bool isBuy) external view returns (uint) {
@@ -269,9 +223,7 @@ contract BaseIndex is Product {
             return sellDebtManager.getUserDebt(user);
         }
     }
-    // Users interaction
 
-    // Settlement and asset management
     function beginSettlement() override external onlyOwner{
         isSettlement = true;
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuy);
@@ -289,7 +241,7 @@ contract BaseIndex is Product {
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = collateralManager.addPriceCollateral(amount);
+        uint amountInMaximum = amount.mul(productFee / 2).div(productFeeTotal);
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
@@ -327,7 +279,7 @@ contract BaseIndex is Product {
     function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = collateralManager.addPriceCollateral(amount);
+        uint amountInMaximum = amount.add(amount.mul(productFee).div(productFeeTotal));
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
@@ -366,13 +318,29 @@ contract BaseIndex is Product {
         if(lastManagedToken > tokens.length - 1){ lastManagedToken = 0; }
 
         TokenInfo memory token = tokens[lastManagedToken];
-        uint tokensToBuyAmount = tokensToBuy.div(100).mul(token.indexPercentage);
-        uint tokensToSellAmount = tokensToSell.div(100).mul(token.indexPercentage);
+        uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
+        uint tokensToSellAmount = tokensToSell.mul(token.indexPercentage).div(100);
         uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
 
-        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
-        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
+        if(tokensToBuyAmount > 0){
+            manageTokensBuy(token, tokensToBuyAmount, tokenPrice);
+        }
+        if(tokensToSellAmount > 0){
+            manageTokensSell(token, tokensToSellAmount, tokenPrice);
+        }
     }
-    // Settlement and asset management
+
+    function getPrice() public view override returns (uint256) {
+        uint256 indexTotalPrice;
+
+        for (uint256 i = 0; i < tokens.length; i++) {
+            TokenInfo memory token = tokens[i];
+            indexTotalPrice = indexTotalPrice.add(
+                priceOracle.getPrice(token.priceOracleAddress).mul(token.indexPercentage).div(100)
+            );
+        }
+
+        return indexTotalPrice;//.div(indexPriceAdjustment);
+    }
 
 }
