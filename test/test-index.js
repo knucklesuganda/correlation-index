@@ -19,7 +19,7 @@ contract('BaseIndex', (accounts) => {
         buyToken = await IERC20.at(await index.buyTokenAddress());
         indexToken = await IERC20.at(await index.indexToken());
 
-        FUNDS_VALUE = new BN("100000000000000000000", 10);
+        FUNDS_VALUE = new BN("1000000000000000000000", 10);     // 1000$
         await buyToken.approve(await index.address, FUNDS_VALUE, { from: account });
     });
 
@@ -57,21 +57,23 @@ contract('BaseIndex', (accounts) => {
     // 
     // });
 
-    it("must sell and buy tokens in manageTokens()", async () => {
-
+    it("must buy tokens", async () => {
         const tokens = FUNDS_VALUE.div(await index.getPrice());
+        await index.buy(tokens, { from: account });
 
-        let transaction = await index.buy(tokens, { from: account });
+        const feeData = await index.getProductFee();
+        const productFee = (feeData[1].toNumber() * feeData[0].toNumber()) / 100;
 
-        indexToken.approve(index.address, tokens, { from: account });
-        transaction = await index.sell(tokens, { from: account });
+        assert.equal(await index.getUserDebt(account, true), tokens.sub(tokens.div(100).mul(productFee)));
 
         const components = await index.getComponents();
+        await index.beginSettlement({ from: indexOwner });
 
         for (const component of components) {
-            await index.manageTokens(component.tokenAddress, { from: indexOwner });
+            await index.manageTokens({ from: indexOwner });
         }
-
+    
+        await index.endSettlement({ from: indexOwner });
     });
 
     // it("should increase the balance of the index owner by fee", async () => {

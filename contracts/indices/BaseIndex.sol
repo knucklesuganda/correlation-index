@@ -239,7 +239,7 @@ contract BaseIndex is Product {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(tokenPrice).div(1 ether);
         uint amountInMaximum = amount.add(amount.mul(productFee).div(productFeeTotal));
-        TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountInMaximum);
+        TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountOut);
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
