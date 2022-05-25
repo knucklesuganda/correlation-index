@@ -222,10 +222,7 @@ contract BaseIndex is Product {
         isSettlement = true;
 
         uint totalBuyFees = tokensToBuy.mul(productFee).div(productFeeTotal);
-        uint totalSellFees = tokensToSell.mul(productFee).div(productFeeTotal);
-
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, tokensToBuy.add(totalBuyFees));
-        TransferHelper.safeApprove(address(indexToken), dexRouterAddress, tokensToSell.add(totalSellFees));
     }
 
     function endSettlement() override external onlyOwner {
@@ -240,14 +237,15 @@ contract BaseIndex is Product {
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-        uint amountOut = amount.mul(1 ether).div(tokenPrice);
+        uint amountOut = amount.mul(tokenPrice).div(1 ether);
         uint amountInMaximum = amount.add(amount.mul(productFee).div(productFeeTotal));
+        TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountInMaximum);
 
         if(token.intermediateToken == address(0)){
             dexRouter.exactOutputSingle(
                 ISwapRouter.ExactOutputSingleParams({
-                    tokenIn: buyTokenAddress,
-                    tokenOut: token.tokenAddress,
+                    tokenIn: token.tokenAddress,
+                    tokenOut: buyTokenAddress,
                     fee: token.poolFees[0],
                     recipient: address(this),
                     deadline: block.timestamp,
