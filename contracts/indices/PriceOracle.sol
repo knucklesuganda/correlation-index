@@ -44,10 +44,27 @@ contract PriceOracle {
         WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     }
 
-    function getPrice(address secondToken) external view returns (uint) {
-        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(baseToken, secondToken, 3000));
-        (, int24 tick, , , , , ) = pool.slot0();
-        return OracleLibrary.getQuoteAtTick(tick, 1 ether, secondToken, baseToken);
+    function getPrice(
+        address secondToken, uint24[2] memory poolFees, address intermediateToken
+    ) external view returns (uint) {
+
+        if(intermediateToken == address(0)){
+            IUniswapV3Pool secondPool = IUniswapV3Pool(factory.getPool(baseToken, secondToken, poolFees[0]));
+            (, int24 tick, ,,,, ) = secondPool.slot0();
+            return OracleLibrary.getQuoteAtTick(tick, 1 ether, secondToken, baseToken);
+        }
+
+        IUniswapV3Pool firstPool = IUniswapV3Pool(factory.getPool(intermediateToken, secondToken, poolFees[1]));
+        (, int24 firstTick, , , , , ) = firstPool.slot0();
+        uint firstSwapPrice = OracleLibrary.getQuoteAtTick(firstTick, 1 ether, secondToken, intermediateToken);
+
+        IUniswapV3Pool secondPool = IUniswapV3Pool(factory.getPool(baseToken, intermediateToken, poolFees[0]));
+        (, int24 secondTick, , , , , ) = secondPool.slot0();
+        uint secondSwapPrice = OracleLibrary.getQuoteAtTick(
+            secondTick, uint128(firstSwapPrice), intermediateToken, baseToken
+        );
+
+        return secondSwapPrice;
     }
 
 }

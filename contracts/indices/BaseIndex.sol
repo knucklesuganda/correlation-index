@@ -51,8 +51,8 @@ contract BaseIndex is Product {
         return "Correlation index is a tool that allows you to diversify your investments";
     }
 
-    function getTokenPrice(TokenInfo memory token) external view returns (uint256) {
-        return priceOracle.getPrice(token.priceOracleAddress);
+    function getTokenPrice(TokenInfo memory token) public view returns (uint256) {
+        return priceOracle.getPrice(token.tokenAddress, token.poolFees, token.intermediateToken);
     }
 
     function image() external pure override returns (string memory) {
@@ -64,11 +64,7 @@ contract BaseIndex is Product {
 
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory tokenInfo = tokens[i];
-            IERC20 token = IERC20(tokenInfo.tokenAddress);
-
-            uint tokenBalance = token.balanceOf(address(this)).mul(
-                priceOracle.getPrice(tokenInfo.priceOracleAddress)
-            );
+            uint tokenBalance = IERC20(tokenInfo.tokenAddress).balanceOf(address(this)).mul(getTokenPrice(tokenInfo));
             totalValue = totalValue.add(tokenBalance.div(1 ether));
         }
 
@@ -318,7 +314,7 @@ contract BaseIndex is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
         uint tokensToSellAmount = tokensToSell.mul(token.indexPercentage).div(100);
-        uint tokenPrice = priceOracle.getPrice(token.priceOracleAddress);
+        uint tokenPrice = getTokenPrice(token);
 
         if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
         if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
@@ -330,7 +326,8 @@ contract BaseIndex is Product {
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
             indexTotalPrice = indexTotalPrice.add(
-                priceOracle.getPrice(token.priceOracleAddress).mul(token.indexPercentage).div(100)
+                priceOracle.getPrice(token.tokenAddress, token.poolFees, 
+                    token.intermediateToken).mul(token.indexPercentage).div(100)
             );
         }
 
