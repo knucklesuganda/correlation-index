@@ -36,8 +36,9 @@ contract BaseIndex is Product {
     PriceOracle private priceOracle = new PriceOracle();
 
     uint public lastManagedToken = 0;   // TODO: change the visibility
-    uint public tokensToSell;    // index tokens that will be sold
+    uint public tokensToSell;    // TODO: remove 10 eth index tokens that will be sold
     uint public tokensToBuy;    // usd tokens that will be bought
+    uint public tokensSold = 0;    // index tokens that have been sold
 
     function name() external pure override returns (string memory) { return "CryptoIndex"; }
     function symbol() external pure override returns (string memory) { return "CRYPTIX"; }
@@ -51,8 +52,8 @@ contract BaseIndex is Product {
         return "Correlation index is a tool that allows you to diversify your investments";
     }
 
-    function getTokenPrice(TokenInfo memory token) public view returns (uint256) {
-        return priceOracle.getPrice(token.tokenAddress, token.poolFees, token.intermediateToken);
+    function getTokenPrice(TokenInfo memory token, bool isReverse) public view returns (uint256) {
+        return priceOracle.getPrice(token.tokenAddress, token.poolFees, token.intermediateToken, isReverse);
     }
 
     function image() external pure override returns (string memory) {
@@ -64,7 +65,8 @@ contract BaseIndex is Product {
 
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory tokenInfo = tokens[i];
-            uint tokenBalance = IERC20(tokenInfo.tokenAddress).balanceOf(address(this)).mul(getTokenPrice(tokenInfo));
+            uint tokenBalance = IERC20(tokenInfo.tokenAddress).balanceOf(address(this))
+                .mul(getTokenPrice(tokenInfo, false));
             totalValue = totalValue.add(tokenBalance.div(1 ether));
         }
 
@@ -84,7 +86,7 @@ contract BaseIndex is Product {
         isLocked = false;
 
         tokens.push(TokenInfo({ // 0) WETH
-            tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+            tokenAddress: WETH,
             priceOracleAddress: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: address(0),
@@ -225,47 +227,57 @@ contract BaseIndex is Product {
         uint productPrice = getPrice();
 
         buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(productPrice), true);
-        sellDebtManager.changeTotalDebt(tokensToSell.mul(1 ether).div(productPrice), true);
+        sellDebtManager.changeTotalDebt(tokensSold.mul(1 ether).div(productPrice), true);
         tokensToBuy = 0;
         tokensToSell = 0;
+        tokensSold = 0;
         isSettlement = false;
     }
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-        uint amountOut = amount.mul(tokenPrice).div(1 ether);
-        uint amountInMaximum = amount.add(amount.mul(productFee).div(productFeeTotal));
-        TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountOut);
+
+        uint amountIn = amount.mul(tokenPrice).div(1 ether);
+        uint amountOutMinimum = amount.sub(amount.mul(productFee).div(productFeeTotal));
+
+        uint amountOut;
+        TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountIn);
 
         if(token.intermediateToken == address(0)){
-            dexRouter.exactOutputSingle(
-                ISwapRouter.ExactOutputSingleParams({
+            amountOut = dexRouter.exactInputSingle(
+                ISwapRouter.ExactInputSingleParams({
                     tokenIn: token.tokenAddress,
                     tokenOut: buyTokenAddress,
                     fee: token.poolFees[0],
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountOut: amountOut,
-                    amountInMaximum: amountInMaximum,
+                    amountIn: amountIn,
+                    amountOutMinimum: amountOutMinimum,
                     sqrtPriceLimitX96: 0
                 })
             );
         }else{
-            dexRouter.exactOutput(
-                ISwapRouter.ExactOutputParams({
+            amountOut = dexRouter.exactInput(
+                ISwapRouter.ExactInputParams({
                     path: abi.encodePacked(
-                        buyTokenAddress,
-                        token.poolFees[0],
-                        token.intermediateToken,
+                        token.tokenAddress,
                         token.poolFees[1],
-                        token.tokenAddress
+                        token.intermediateToken,
+                        token.poolFees[0],
+                        buyTokenAddress
                     ),
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountOut: amountOut,
-                    amountInMaximum: amountInMaximum
+                    amountIn: amountIn,
+                    amountOutMinimum: amountOutMinimum
                 })
             );
+        }
+
+        uint currentTokensSold = amountOut.mul(100).div(token.indexPercentage);
+
+        if(currentTokensSold < tokensSold || tokensSold == 0){
+            tokensSold = currentTokensSold;
         }
 
     }
@@ -314,10 +326,10 @@ contract BaseIndex is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
         uint tokensToSellAmount = tokensToSell.mul(token.indexPercentage).div(100);
-        uint tokenPrice = getTokenPrice(token);
 
-        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
-        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
+        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, getTokenPrice(token, false)); }
+        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, getTokenPrice(token, true)); }
+
     }
 
     function getPrice() public view override returns (uint256) {
@@ -325,10 +337,7 @@ contract BaseIndex is Product {
 
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
-            indexTotalPrice = indexTotalPrice.add(
-                priceOracle.getPrice(token.tokenAddress, token.poolFees, 
-                    token.intermediateToken).mul(token.indexPercentage).div(100)
-            );
+            indexTotalPrice = indexTotalPrice.add(getTokenPrice(token, false).mul(token.indexPercentage).div(100));
         }
 
         return indexTotalPrice;//.div(indexPriceAdjustment);
