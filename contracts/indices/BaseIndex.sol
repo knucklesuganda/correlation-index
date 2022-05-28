@@ -191,9 +191,11 @@ contract BaseIndex is Product {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "You must sell more tokens");
 
+        uint indexPrice = getPrice();
+
         tokensToSell = tokensToSell.add(amount);
-        sellDebtManager.changeDebt(msg.sender, realAmount, true);
-        sellDebtManager.changeDebt(owner(), productFee, true);
+        sellDebtManager.changeDebt(msg.sender, realAmount.mul(indexPrice).div(1 ether), true);
+        sellDebtManager.changeDebt(owner(), productFee.mul(indexPrice).div(1 ether), true);
 
         TransferHelper.safeTransferFrom(address(indexToken), msg.sender, address(this), amount);
         emit ProductSold(msg.sender, realAmount.mul(getPrice()), realAmount);
@@ -227,18 +229,27 @@ contract BaseIndex is Product {
         uint productPrice = getPrice();
 
         buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(productPrice), true);
-        sellDebtManager.changeTotalDebt(tokensSold.mul(1 ether).div(productPrice), true);
+        sellDebtManager.changeTotalDebt(tokensSold.mul(productPrice).div(1 ether), true);
         tokensToBuy = 0;
         tokensToSell = 0;
         tokensSold = 0;
         isSettlement = false;
     }
 
+    uint public a;
+
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        uint amountIn = amount.mul(tokenPrice).div(1 ether);
-        uint amountOutMinimum = amount.sub(amount.mul(productFee).div(productFeeTotal));
+        // amount = x%
+        // balance = 100%
+
+        uint tokenBalance = ERC20(token.tokenAddress).balanceOf(address(this));
+        uint amountIn = amount.mul(100).div(tokenBalance).mul(1 ether);
+
+        amount = amount.mul(tokenPrice).div(1 ether);
+        a = amountIn;
+        uint amountOutMinimum = amountIn.sub(amountIn.mul(productFee).div(productFeeTotal));
 
         uint amountOut;
         TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountIn);
@@ -274,10 +285,8 @@ contract BaseIndex is Product {
             );
         }
 
-        uint currentTokensSold = amountOut.mul(100).div(token.indexPercentage);
-
-        if(currentTokensSold < tokensSold || tokensSold == 0){
-            tokensSold = currentTokensSold;
+        if(amountOut < tokensSold || tokensSold == 0){
+            tokensSold = amountOut;
         }
 
     }
@@ -326,9 +335,10 @@ contract BaseIndex is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
         uint tokensToSellAmount = tokensToSell.mul(token.indexPercentage).div(100);
+        uint tokenPrice = getTokenPrice(token, false);
 
-        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, getTokenPrice(token, false)); }
-        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, getTokenPrice(token, true)); }
+        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
+        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
 
     }
 
