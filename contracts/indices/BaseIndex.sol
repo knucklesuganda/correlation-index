@@ -241,21 +241,17 @@ contract BaseIndex is Product {
         uint tokenBalance = ERC20(tokens[i].tokenAddress).balanceOf(address(this));
         uint amountIn = amount.mul(tokenBalance).div(100).div(1 ether);
 
-        // balance = 100%
-        // x = amount
-
         return (amount, tokenBalance, amountIn);
     }
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        // uint tokenBalance = ERC20(token.tokenAddress).balanceOf(address(this));
-        uint amountIn = amount; // .mul(tokenBalance).div(100).div(1 ether);
-        // uint amountIn = amount.mul(100).div(tokenBalance).mul(1 ether);
+        uint tokenPercentage = amount.mul(getPrice()).mul(token.indexPercentage).div(100);
+        uint amountIn = tokenPercentage.div(tokenPrice);
 
-        uint usdAmount = amountIn.mul(tokenPrice).div(1 ether);
-        uint amountOutMinimum = amountIn.sub(amountIn.mul(productFee).div(productFeeTotal));
+        uint usdAmountIn = amountIn.mul(tokenPrice).div(1 ether);
+        uint amountOutMinimum = usdAmountIn.sub(usdAmountIn.mul(productFee).div(productFeeTotal));
 
         uint amountOut;
         TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountIn);
@@ -340,7 +336,7 @@ contract BaseIndex is Product {
 
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
-        uint tokensToSellAmount = tokensToSell.mul(token.indexPercentage).div(100);
+        uint tokensToSellAmount = tokensToSell;
         uint tokenPrice = getTokenPrice(token, false);
 
         if(tokensToBuyAmount > 0){
