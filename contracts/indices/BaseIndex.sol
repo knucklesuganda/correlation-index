@@ -226,7 +226,8 @@ contract BaseIndex is Product {
         uint productPrice = getPrice();
 
         buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(productPrice), true);
-        sellDebtManager.changeTotalDebt(tokensSold.mul(productPrice).div(1 ether), true);
+        sellDebtManager.changeTotalDebt(tokensSold, true);
+
         tokensToBuy = 0;
         tokensToSell = 0;
         tokensSold = 0;
@@ -276,10 +277,7 @@ contract BaseIndex is Product {
             );
         }
 
-        if(amountOut < tokensSold || tokensSold == 0){
-            tokensSold = amountOut;
-        }
-
+        tokensSold = tokensSold.add(amountOut);
     }
 
     function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
