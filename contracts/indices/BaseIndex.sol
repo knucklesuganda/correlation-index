@@ -236,19 +236,25 @@ contract BaseIndex is Product {
         isSettlement = false;
     }
 
-    uint public a;
+    function g(uint sellt, uint i) public view returns(uint, uint, uint){
+        uint amount = sellt.mul(tokens[i].indexPercentage).div(100);
+        uint tokenBalance = ERC20(tokens[i].tokenAddress).balanceOf(address(this));
+        uint amountIn = amount.mul(tokenBalance).div(100).div(1 ether);
+
+        // balance = 100%
+        // x = amount
+
+        return (amount, tokenBalance, amountIn);
+    }
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        // amount = x%
-        // balance = 100%
+        // uint tokenBalance = ERC20(token.tokenAddress).balanceOf(address(this));
+        uint amountIn = amount; // .mul(tokenBalance).div(100).div(1 ether);
+        // uint amountIn = amount.mul(100).div(tokenBalance).mul(1 ether);
 
-        uint tokenBalance = ERC20(token.tokenAddress).balanceOf(address(this));
-        uint amountIn = amount.mul(100).div(tokenBalance).mul(1 ether);
-
-        amount = amount.mul(tokenPrice).div(1 ether);
-        a = amountIn;
+        uint usdAmount = amountIn.mul(tokenPrice).div(1 ether);
         uint amountOutMinimum = amountIn.sub(amountIn.mul(productFee).div(productFeeTotal));
 
         uint amountOut;
@@ -337,9 +343,12 @@ contract BaseIndex is Product {
         uint tokensToSellAmount = tokensToSell.mul(token.indexPercentage).div(100);
         uint tokenPrice = getTokenPrice(token, false);
 
-        if(tokensToBuyAmount > 0){ manageTokensBuy(token, tokensToBuyAmount, tokenPrice); }
-        if(tokensToSellAmount > 0){ manageTokensSell(token, tokensToSellAmount, tokenPrice); }
-
+        if(tokensToBuyAmount > 0){
+            manageTokensBuy(token, tokensToBuyAmount, tokenPrice);
+        }
+        if(tokensToSellAmount > 0){
+            manageTokensSell(token, tokensToSellAmount, tokenPrice);
+        }
     }
 
     function getPrice() public view override returns (uint256) {
