@@ -51,30 +51,19 @@ contract PriceOracle {
     }
 
     function getPrice(
-        address _secondToken, uint24[2] memory poolFees, address intermediateToken, bool isReverse
+        address secondToken, uint24[2] memory poolFees, address intermediateToken
     ) external view returns (uint) {
-        address firstToken;
-        address secondToken;
-
-        if(isReverse){
-            firstToken = _secondToken;
-            secondToken = baseToken;
-        } else {
-            firstToken = baseToken;
-            secondToken = _secondToken;
-        }
-
 
         if(intermediateToken == address(0)){
-            int24 tick = getLatestTick(firstToken, secondToken, poolFees[0]);
-            return OracleLibrary.getQuoteAtTick(tick, 1 ether, secondToken, firstToken);
+            int24 tick = getLatestTick(baseToken, secondToken, poolFees[0]);
+            return OracleLibrary.getQuoteAtTick(tick, 1 ether, secondToken, baseToken);
         }else{
             int24 firstTick = getLatestTick(intermediateToken, secondToken, poolFees[1]);
             uint firstSwapPrice = OracleLibrary.getQuoteAtTick(firstTick, 1 ether, secondToken, intermediateToken);
 
-            int24 secondTick = getLatestTick(firstToken, intermediateToken, poolFees[0]);
+            int24 secondTick = getLatestTick(baseToken, intermediateToken, poolFees[0]);
             uint secondSwapPrice = OracleLibrary.getQuoteAtTick(
-                secondTick, uint128(firstSwapPrice), intermediateToken, firstToken
+                secondTick, uint128(firstSwapPrice), intermediateToken, baseToken
             );
 
             return secondSwapPrice;

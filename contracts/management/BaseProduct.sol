@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 abstract contract Product is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
-    bool public isLocked;
     address public buyTokenAddress;
     uint8 internal productFee;
     uint internal productFeeTotal;
@@ -20,11 +19,6 @@ abstract contract Product is Ownable, ReentrancyGuard {
 
     event ProductBought(address account, uint buyTokenAmount, uint indexTokenAmount);
     event ProductSold(address account, uint buyTokenAmount, uint indexTokenAmount);
-
-    modifier checkUnlocked{
-        require(!isLocked, "Product is locked");
-        _;
-    }
 
     modifier checkSettlement{
         require(!isSettlement, "Product is being settled, try again later");

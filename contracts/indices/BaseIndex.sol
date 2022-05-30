@@ -52,8 +52,8 @@ contract BaseIndex is Product {
         return "Correlation index is a tool that allows you to diversify your investments";
     }
 
-    function getTokenPrice(TokenInfo memory token, bool isReverse) public view returns (uint256) {
-        return priceOracle.getPrice(token.tokenAddress, token.poolFees, token.intermediateToken, isReverse);
+    function getTokenPrice(TokenInfo memory token) public view returns (uint256) {
+        return priceOracle.getPrice(token.tokenAddress, token.poolFees, token.intermediateToken);
     }
 
     function image() external pure override returns (string memory) {
@@ -65,8 +65,7 @@ contract BaseIndex is Product {
 
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory tokenInfo = tokens[i];
-            uint tokenBalance = IERC20(tokenInfo.tokenAddress).balanceOf(address(this))
-                .mul(getTokenPrice(tokenInfo, false));
+            uint tokenBalance = IERC20(tokenInfo.tokenAddress).balanceOf(address(this)).mul(getTokenPrice(tokenInfo));
             totalValue = totalValue.add(tokenBalance.div(1 ether));
         }
 
@@ -81,9 +80,7 @@ contract BaseIndex is Product {
         productFee = 10;
         productFeeTotal = 100;
         indexPriceAdjustment = 100;
-
         indexToken = new IndexToken(address(this), "Crypto index token", 18, "CRYPTIX");
-        isLocked = false;
 
         tokens.push(TokenInfo({ // 0) WETH
             tokenAddress: WETH,
@@ -187,7 +184,7 @@ contract BaseIndex is Product {
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
 
-    function sell(uint amount) external override nonReentrant checkSettlement checkUnlocked {
+    function sell(uint amount) external override nonReentrant checkSettlement{
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount >= 1, "You must sell more tokens");
 
@@ -201,7 +198,7 @@ contract BaseIndex is Product {
         emit ProductSold(msg.sender, realAmount.mul(getPrice()), realAmount);
     }
 
-    function retrieveDebt(uint amount, bool isBuyDebt) external nonReentrant checkSettlement checkUnlocked{
+    function retrieveDebt(uint amount, bool isBuyDebt) external nonReentrant checkSettlement{
         DebtManager manager = isBuyDebt ? buyDebtManager : sellDebtManager;
         require(manager.getTotalDebt() >= amount && manager.getUserDebt(msg.sender) >= amount, "Not enough debt");
 
@@ -234,14 +231,6 @@ contract BaseIndex is Product {
         tokensToSell = 0;
         tokensSold = 0;
         isSettlement = false;
-    }
-
-    function g(uint sellt, uint i) public view returns(uint, uint, uint){
-        uint amount = sellt.mul(tokens[i].indexPercentage).div(100);
-        uint tokenBalance = ERC20(tokens[i].tokenAddress).balanceOf(address(this));
-        uint amountIn = amount.mul(tokenBalance).div(100).div(1 ether);
-
-        return (amount, tokenBalance, amountIn);
     }
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
@@ -337,7 +326,7 @@ contract BaseIndex is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
         uint tokensToSellAmount = tokensToSell;
-        uint tokenPrice = getTokenPrice(token, false);
+        uint tokenPrice = getTokenPrice(token);
 
         if(tokensToBuyAmount > 0){
             manageTokensBuy(token, tokensToBuyAmount, tokenPrice);
@@ -352,10 +341,10 @@ contract BaseIndex is Product {
 
         for (uint256 i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
-            indexTotalPrice = indexTotalPrice.add(getTokenPrice(token, false).mul(token.indexPercentage).div(100));
+            indexTotalPrice = indexTotalPrice.add(getTokenPrice(token).mul(token.indexPercentage).div(100));
         }
 
-        return indexTotalPrice;//.div(indexPriceAdjustment);
+        return indexTotalPrice;     //.div(indexPriceAdjustment);
     }
 
 }
