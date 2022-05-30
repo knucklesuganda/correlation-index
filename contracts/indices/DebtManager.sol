@@ -19,14 +19,16 @@ contract UserDebtData{
     }
 
     function changeDebt(address account, uint debtAmount, bool isAddition) external {
+        uint accountDebt = debtData[account];
+
         if (isAddition) {
-            debtData[account] = debtData[account].add(debtAmount);
+            accountDebt = accountDebt.add(debtAmount);
         }else{
-            debtData[account] = debtData[account].sub(debtAmount);
+            accountDebt = accountDebt.sub(debtAmount);
         }
 
+        debtData[account] = accountDebt;
         addUser(account);
-        require(debtData[account] >= 0, "Debt cannot be negative");
     }
 
     function getUserDebt(address account) external view returns(uint) { return debtData[account]; }    
@@ -40,7 +42,9 @@ contract DebtManager{
     using SafeMath for uint256;
     uint private totalAvailableDebt;
     UserDebtData private debtData = new UserDebtData();
-    event DebtChanged(address account, uint debtAmount);
+
+    event UserDebtChanged(address account, uint debtAmount);
+    event TotalDebtChanged(uint totalDebt, uint debtChange, bool isAddition);
 
     function getUserDebt(address account) external view returns (uint) { return debtData.getUserDebt(account); }
     function getTotalDebt() external view returns (uint) { return totalAvailableDebt; }
@@ -52,11 +56,13 @@ contract DebtManager{
         }else{
             totalAvailableDebt = totalAvailableDebt.sub(debtAmount);
         }
+
+        emit TotalDebtChanged(totalAvailableDebt, debtAmount, isAddition);
     }
 
     function changeDebt(address account, uint debtAmount, bool isAddition) external {
         debtData.changeDebt(account, debtAmount, isAddition);
-        emit DebtChanged(account, debtAmount);
+        emit UserDebtChanged(account, debtAmount);
     }
 
 }

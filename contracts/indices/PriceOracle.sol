@@ -34,17 +34,18 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract PriceOracle {
     using SafeMath for uint256;
+
     IUniswapV3Factory private factory;
     address baseToken;
     address WETH;
 
-    constructor(){
-        factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-        baseToken = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-        WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    constructor(address _factoryAddress, address _baseToken, address _WETH){
+        factory = IUniswapV3Factory(_factoryAddress);
+        baseToken = _baseToken;
+        WETH = _WETH;
     }
 
-    function getLatestTick(address firstToken, address secondToken, uint24 fee) internal view returns(int24){
+    function getLatestTick(address firstToken, address secondToken, uint24 fee) private view returns(int24){
         IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));
         (, int24 tick, ,,,, ) = pool.slot0();
         return tick;
