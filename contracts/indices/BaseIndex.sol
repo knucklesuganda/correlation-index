@@ -38,6 +38,7 @@ contract BaseIndex is Product {
     uint public tokensToSell = 0;
     uint public tokensToBuy = 0;
     uint private tokensSold = 0;
+    uint private buyAmountRequired = 0;
 
     function name() external pure override returns (string memory) { return "Index"; }
     function symbol() external pure override returns (string memory) { return "VID"; }
@@ -228,7 +229,12 @@ contract BaseIndex is Product {
         buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(getPrice()), true);
         sellDebtManager.changeTotalDebt(tokensSold, true);
 
+        if (buyAmountRequired < tokensToBuy && buyAmountRequired != 0) {
+            TransferHelper.safeTransfer(buyTokenAddress, owner(), tokensToBuy.sub(buyAmountRequired));
+        }
+
         tokensToBuy = 0;
+        buyAmountRequired = 0;
         tokensToSell = 0;
         tokensSold = 0;
         isSettlement = false;
@@ -288,9 +294,10 @@ contract BaseIndex is Product {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
         uint amountInMaximum = amount.add(getTokensDrawdown(amount));
+        uint amountInRequired;
 
         if(token.intermediateToken == address(0)){
-            dexRouter.exactOutputSingle(
+            amountInRequired = dexRouter.exactOutputSingle(
                 ISwapRouter.ExactOutputSingleParams({
                     tokenIn: buyTokenAddress,
                     tokenOut: token.tokenAddress,
@@ -303,7 +310,7 @@ contract BaseIndex is Product {
                 })
             );
         }else{
-            dexRouter.exactOutput(
+            amountInRequired = dexRouter.exactOutput(
                 ISwapRouter.ExactOutputParams({
                     path: abi.encodePacked(
                         token.tokenAddress,
@@ -320,6 +327,7 @@ contract BaseIndex is Product {
             );
         }
 
+        buyAmountRequired = buyAmountRequired.add(amountInRequired);
     }
 
     function manageTokens() external onlyOwner {
