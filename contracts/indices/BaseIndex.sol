@@ -35,20 +35,22 @@ contract BaseIndex is Product {
     PriceOracle private immutable priceOracle;
 
     uint private lastManagedToken = 0;
-    uint private tokensToSell = 0;
-    uint private tokensToBuy = 0;
+    uint public tokensToSell = 0;
+    uint public tokensToBuy = 0;
     uint private tokensSold = 0;
+    uint private tokensBought = 0;
+    uint private tokensBoughtPrice = 0;
 
-    function name() external pure override returns (string memory) { return "CryptoIndex"; }
-    function symbol() external pure override returns (string memory) { return "CRYPTIX"; }
+    function name() external pure override returns (string memory) { return "Index"; }
+    function symbol() external pure override returns (string memory) { return "VID"; }
     function getComponents() external view returns (TokenInfo[] memory) { return tokens; }
 
     function shortDescription() external pure override returns (string memory) {
-        return "Correlation index is a tool that allows you to diversify your investments";
+        return "Void Index - diversify your investments.";
     }
 
     function longDescription() external pure override returns (string memory) {
-        return "Correlation index is a tool that allows you to diversify your investments";
+        return "Void Index - diversify your investments. It features 20 tokens from Uniswap and allows you to buy all of them at once. You receive VID tokens as a proof of funds ownership";
     }
 
     function getTokenPrice(TokenInfo memory token) public view returns (uint256) {
@@ -57,6 +59,7 @@ contract BaseIndex is Product {
 
     function image() external pure override returns (string memory) {
         return "https://cryptologos.cc/logos/polymath-network-poly-logo.png?v=022";
+        // TODO: change image to public url
     }
 
     function getTotalLockedValue() external view override returns (uint256) {
@@ -203,7 +206,7 @@ contract BaseIndex is Product {
 
         address token = isBuyDebt ? address(indexToken) : buyTokenAddress;
 
-        TransferHelper.safeTransferFrom(token, address(this), msg.sender, amount);
+        TransferHelper.safeTransfer(token, msg.sender, amount);
         manager.changeDebt(msg.sender, amount, false);
         manager.changeTotalDebt(amount, false);
     }
@@ -224,15 +227,19 @@ contract BaseIndex is Product {
     }
 
     function endSettlement() override external onlyOwner {
-        uint productPrice = getPrice();
-
-        buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(productPrice), true);
-        sellDebtManager.changeTotalDebt(tokensSold, true);  // TODO: what if the price changes for tokensToBuy?
+        buyDebtManager.changeTotalDebt(tokensBought.div(tokensBoughtPrice), true);
+        sellDebtManager.changeTotalDebt(tokensSold, true);
 
         tokensToBuy = 0;
         tokensToSell = 0;
         tokensSold = 0;
+        tokensBought = 0;
+        tokensBoughtPrice = 0;
         isSettlement = false;
+    }
+
+    function getTokensDrawdown(uint amount) private view returns(uint){
+        return amount.mul(productFee).mul(10).div(productFeeTotal);
     }
 
     function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
@@ -242,7 +249,7 @@ contract BaseIndex is Product {
         uint amountIn = tokenPercentage.div(tokenPrice);
 
         uint usdAmountIn = amountIn.mul(tokenPrice).div(1 ether);
-        uint amountOutMinimum = usdAmountIn.sub(usdAmountIn.mul(productFee).div(productFeeTotal));
+        uint amountOutMinimum = usdAmountIn.sub(getTokensDrawdown(usdAmountIn));
 
         uint amountOut;
         TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountIn);
@@ -283,40 +290,43 @@ contract BaseIndex is Product {
 
     function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-        uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = amount.add(amount.mul(productFee).div(productFeeTotal));
+        uint amountIn = amount.mul(1 ether).div(tokenPrice);
+        uint amountOutMinimum = amountIn.sub(getTokensDrawdown(amountIn)); // TODO: make amount out with the token
+        uint amountOut;
 
         if(token.intermediateToken == address(0)){
-            dexRouter.exactOutputSingle(
-                ISwapRouter.ExactOutputSingleParams({
+            amountOut = dexRouter.exactInputSingle(
+                ISwapRouter.ExactInputSingleParams({
                     tokenIn: buyTokenAddress,
                     tokenOut: token.tokenAddress,
                     fee: token.poolFees[0],
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountOut: amountOut,
-                    amountInMaximum: amountInMaximum,
+                    amountIn: amountIn,
+                    amountOutMinimum: amountOutMinimum,
                     sqrtPriceLimitX96: 0
                 })
             );
         }else{
-            dexRouter.exactOutput(
-                ISwapRouter.ExactOutputParams({
+            amountOut = dexRouter.exactInput(
+                ISwapRouter.ExactInputParams({
                     path: abi.encodePacked(
-                        token.tokenAddress,
-                        token.poolFees[1],
-                        token.intermediateToken,
+                        buyTokenAddress,
                         token.poolFees[0],
-                        buyTokenAddress
+                        token.intermediateToken,
+                        token.poolFees[1],
+                        token.tokenAddress
                     ),
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountOut: amountOut,
-                    amountInMaximum: amountInMaximum
+                    amountIn: amountIn,
+                    amountOutMinimum: amountOutMinimum
                 })
             );
         }
 
+        tokensBought += amountOut.mul(tokenPrice).div(1 ether);
+        tokensBoughtPrice = tokensBoughtPrice.add(tokenPrice.mul(token.indexPercentage).div(100));
     }
 
     function manageTokens() external onlyOwner {
