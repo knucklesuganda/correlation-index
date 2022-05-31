@@ -38,8 +38,6 @@ contract BaseIndex is Product {
     uint public tokensToSell = 0;
     uint public tokensToBuy = 0;
     uint private tokensSold = 0;
-    uint private tokensBought = 0;
-    uint private tokensBoughtPrice = 0;
 
     function name() external pure override returns (string memory) { return "Index"; }
     function symbol() external pure override returns (string memory) { return "VID"; }
@@ -227,14 +225,12 @@ contract BaseIndex is Product {
     }
 
     function endSettlement() override external onlyOwner {
-        buyDebtManager.changeTotalDebt(tokensBought.div(tokensBoughtPrice), true);
+        buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(getPrice()), true);
         sellDebtManager.changeTotalDebt(tokensSold, true);
 
         tokensToBuy = 0;
         tokensToSell = 0;
         tokensSold = 0;
-        tokensBought = 0;
-        tokensBoughtPrice = 0;
         isSettlement = false;
     }
 
@@ -290,43 +286,40 @@ contract BaseIndex is Product {
 
     function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-        uint amountIn = amount.mul(1 ether).div(tokenPrice);
-        uint amountOutMinimum = amountIn.sub(getTokensDrawdown(amountIn)); // TODO: make amount out with the token
-        uint amountOut;
+        uint amountOut = amount.mul(1 ether).div(tokenPrice);
+        uint amountInMaximum = amount.add(getTokensDrawdown(amount));
 
         if(token.intermediateToken == address(0)){
-            amountOut = dexRouter.exactInputSingle(
-                ISwapRouter.ExactInputSingleParams({
+            dexRouter.exactOutputSingle(
+                ISwapRouter.ExactOutputSingleParams({
                     tokenIn: buyTokenAddress,
                     tokenOut: token.tokenAddress,
                     fee: token.poolFees[0],
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountIn: amountIn,
-                    amountOutMinimum: amountOutMinimum,
+                    amountOut: amountOut,
+                    amountInMaximum: amountInMaximum,
                     sqrtPriceLimitX96: 0
                 })
             );
         }else{
-            amountOut = dexRouter.exactInput(
-                ISwapRouter.ExactInputParams({
+            dexRouter.exactOutput(
+                ISwapRouter.ExactOutputParams({
                     path: abi.encodePacked(
-                        buyTokenAddress,
-                        token.poolFees[0],
-                        token.intermediateToken,
+                        token.tokenAddress,
                         token.poolFees[1],
-                        token.tokenAddress
+                        token.intermediateToken,
+                        token.poolFees[0],
+                        buyTokenAddress
                     ),
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountIn: amountIn,
-                    amountOutMinimum: amountOutMinimum
+                    amountOut: amountOut,
+                    amountInMaximum: amountInMaximum
                 })
             );
         }
 
-        tokensBought += amountOut.mul(tokenPrice).div(1 ether);
-        tokensBoughtPrice = tokensBoughtPrice.add(tokenPrice.mul(token.indexPercentage).div(100));
     }
 
     function manageTokens() external onlyOwner {

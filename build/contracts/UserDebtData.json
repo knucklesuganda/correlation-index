@@ -71,21 +71,21 @@
     "absolutePath": "project:/contracts/indices/DebtManager.sol",
     "exportedSymbols": {
       "DebtManager": [
-        4810
+        4771
       ],
       "SafeMath": [
         464
       ],
       "UserDebtData": [
-        4698
+        4659
       ]
     },
-    "id": 4811,
+    "id": 4772,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 4593,
+        "id": 4554,
         "literals": [
           "solidity",
           "0.7",
@@ -97,9 +97,9 @@
       {
         "absolutePath": "@openzeppelin/contracts/math/SafeMath.sol",
         "file": "@openzeppelin/contracts/math/SafeMath.sol",
-        "id": 4594,
+        "id": 4555,
         "nodeType": "ImportDirective",
-        "scope": 4811,
+        "scope": 4772,
         "sourceUnit": 465,
         "src": "59:51:25",
         "symbolAliases": [],
@@ -111,17 +111,17 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 4698,
+        "id": 4659,
         "linearizedBaseContracts": [
-          4698
+          4659
         ],
         "name": "UserDebtData",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "id": 4597,
+            "id": 4558,
             "libraryName": {
-              "id": 4595,
+              "id": 4556,
               "name": "SafeMath",
               "nodeType": "UserDefinedTypeName",
               "referencedDeclaration": 464,
@@ -134,7 +134,7 @@
             "nodeType": "UsingForDirective",
             "src": "144:27:25",
             "typeName": {
-              "id": 4596,
+              "id": 4557,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "163:7:25",
@@ -146,11 +146,11 @@
           },
           {
             "constant": false,
-            "id": 4601,
+            "id": 4562,
             "mutability": "mutable",
             "name": "debtData",
             "nodeType": "VariableDeclaration",
-            "scope": 4698,
+            "scope": 4659,
             "src": "179:41:25",
             "stateVariable": true,
             "storageLocation": "default",
@@ -159,9 +159,9 @@
               "typeString": "mapping(address => uint256)"
             },
             "typeName": {
-              "id": 4600,
+              "id": 4561,
               "keyType": {
-                "id": 4598,
+                "id": 4559,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
                 "src": "187:7:25",
@@ -177,7 +177,7 @@
                 "typeString": "mapping(address => uint256)"
               },
               "valueType": {
-                "id": 4599,
+                "id": 4560,
                 "name": "uint",
                 "nodeType": "ElementaryTypeName",
                 "src": "198:4:25",
@@ -191,11 +191,11 @@
           },
           {
             "constant": false,
-            "id": 4605,
+            "id": 4566,
             "mutability": "mutable",
             "name": "userInSet",
             "nodeType": "VariableDeclaration",
-            "scope": 4698,
+            "scope": 4659,
             "src": "227:42:25",
             "stateVariable": true,
             "storageLocation": "default",
@@ -204,9 +204,9 @@
               "typeString": "mapping(address => bool)"
             },
             "typeName": {
-              "id": 4604,
+              "id": 4565,
               "keyType": {
-                "id": 4602,
+                "id": 4563,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
                 "src": "235:7:25",
@@ -222,7 +222,7 @@
                 "typeString": "mapping(address => bool)"
               },
               "valueType": {
-                "id": 4603,
+                "id": 4564,
                 "name": "bool",
                 "nodeType": "ElementaryTypeName",
                 "src": "246:4:25",
@@ -236,11 +236,11 @@
           },
           {
             "constant": false,
-            "id": 4608,
+            "id": 4569,
             "mutability": "mutable",
             "name": "users",
             "nodeType": "VariableDeclaration",
-            "scope": 4698,
+            "scope": 4659,
             "src": "276:23:25",
             "stateVariable": true,
             "storageLocation": "default",
@@ -250,7 +250,7 @@
             },
             "typeName": {
               "baseType": {
-                "id": 4606,
+                "id": 4567,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
                 "src": "276:7:25",
@@ -260,7 +260,7 @@
                   "typeString": "address"
                 }
               },
-              "id": 4607,
+              "id": 4568,
               "nodeType": "ArrayTypeName",
               "src": "276:9:25",
               "typeDescriptions": {
@@ -272,13 +272,13 @@
           },
           {
             "body": {
-              "id": 4631,
+              "id": 4592,
               "nodeType": "Block",
               "src": "348:121:25",
               "statements": [
                 {
                   "condition": {
-                    "id": 4616,
+                    "id": 4577,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -289,24 +289,24 @@
                     "src": "362:17:25",
                     "subExpression": {
                       "baseExpression": {
-                        "id": 4613,
+                        "id": 4574,
                         "name": "userInSet",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4605,
+                        "referencedDeclaration": 4566,
                         "src": "363:9:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
                           "typeString": "mapping(address => bool)"
                         }
                       },
-                      "id": 4615,
+                      "id": 4576,
                       "indexExpression": {
-                        "id": 4614,
+                        "id": 4575,
                         "name": "_addr",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4610,
+                        "referencedDeclaration": 4571,
                         "src": "373:5:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -329,41 +329,41 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 4630,
+                  "id": 4591,
                   "nodeType": "IfStatement",
                   "src": "359:103:25",
                   "trueBody": {
-                    "id": 4629,
+                    "id": 4590,
                     "nodeType": "Block",
                     "src": "380:82:25",
                     "statements": [
                       {
                         "expression": {
-                          "id": 4621,
+                          "id": 4582,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
                             "baseExpression": {
-                              "id": 4617,
+                              "id": 4578,
                               "name": "userInSet",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 4605,
+                              "referencedDeclaration": 4566,
                               "src": "395:9:25",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
                                 "typeString": "mapping(address => bool)"
                               }
                             },
-                            "id": 4619,
+                            "id": 4580,
                             "indexExpression": {
-                              "id": 4618,
+                              "id": 4579,
                               "name": "_addr",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 4610,
+                              "referencedDeclaration": 4571,
                               "src": "405:5:25",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_address",
@@ -385,7 +385,7 @@
                           "operator": "=",
                           "rightHandSide": {
                             "hexValue": "74727565",
-                            "id": 4620,
+                            "id": 4581,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -405,7 +405,7 @@
                             "typeString": "bool"
                           }
                         },
-                        "id": 4622,
+                        "id": 4583,
                         "nodeType": "ExpressionStatement",
                         "src": "395:23:25"
                       },
@@ -413,11 +413,11 @@
                         "expression": {
                           "arguments": [
                             {
-                              "id": 4626,
+                              "id": 4587,
                               "name": "_addr",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 4610,
+                              "referencedDeclaration": 4571,
                               "src": "444:5:25",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_address",
@@ -433,18 +433,18 @@
                               }
                             ],
                             "expression": {
-                              "id": 4623,
+                              "id": 4584,
                               "name": "users",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 4608,
+                              "referencedDeclaration": 4569,
                               "src": "433:5:25",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_array$_t_address_$dyn_storage",
                                 "typeString": "address[] storage ref"
                               }
                             },
-                            "id": 4625,
+                            "id": 4586,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -457,7 +457,7 @@
                               "typeString": "function (address)"
                             }
                           },
-                          "id": 4627,
+                          "id": 4588,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -472,7 +472,7 @@
                             "typeString": "tuple()"
                           }
                         },
-                        "id": 4628,
+                        "id": 4589,
                         "nodeType": "ExpressionStatement",
                         "src": "433:17:25"
                       }
@@ -481,23 +481,23 @@
                 }
               ]
             },
-            "id": 4632,
+            "id": 4593,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "addUser",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4611,
+              "id": 4572,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4610,
+                  "id": 4571,
                   "mutability": "mutable",
                   "name": "_addr",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4632,
+                  "scope": 4593,
                   "src": "325:13:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -506,7 +506,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4609,
+                    "id": 4570,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "325:7:25",
@@ -522,12 +522,12 @@
               "src": "324:15:25"
             },
             "returnParameters": {
-              "id": 4612,
+              "id": 4573,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "348:0:25"
             },
-            "scope": 4698,
+            "scope": 4659,
             "src": "308:161:25",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -535,22 +535,22 @@
           },
           {
             "body": {
-              "id": 4675,
+              "id": 4636,
               "nodeType": "Block",
               "src": "557:294:25",
               "statements": [
                 {
                   "assignments": [
-                    4642
+                    4603
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 4642,
+                      "id": 4603,
                       "mutability": "mutable",
                       "name": "accountDebt",
                       "nodeType": "VariableDeclaration",
-                      "scope": 4675,
+                      "scope": 4636,
                       "src": "568:16:25",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -559,7 +559,7 @@
                         "typeString": "uint256"
                       },
                       "typeName": {
-                        "id": 4641,
+                        "id": 4602,
                         "name": "uint",
                         "nodeType": "ElementaryTypeName",
                         "src": "568:4:25",
@@ -571,27 +571,27 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 4646,
+                  "id": 4607,
                   "initialValue": {
                     "baseExpression": {
-                      "id": 4643,
+                      "id": 4604,
                       "name": "debtData",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4601,
+                      "referencedDeclaration": 4562,
                       "src": "587:8:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                         "typeString": "mapping(address => uint256)"
                       }
                     },
-                    "id": 4645,
+                    "id": 4606,
                     "indexExpression": {
-                      "id": 4644,
+                      "id": 4605,
                       "name": "account",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4634,
+                      "referencedDeclaration": 4595,
                       "src": "596:7:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -614,11 +614,11 @@
                 },
                 {
                   "condition": {
-                    "id": 4647,
+                    "id": 4608,
                     "name": "isAddition",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4638,
+                    "referencedDeclaration": 4599,
                     "src": "621:10:25",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
@@ -626,23 +626,23 @@
                     }
                   },
                   "falseBody": {
-                    "id": 4663,
+                    "id": 4624,
                     "nodeType": "Block",
                     "src": "705:68:25",
                     "statements": [
                       {
                         "expression": {
-                          "id": 4661,
+                          "id": 4622,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
-                            "id": 4656,
+                            "id": 4617,
                             "name": "accountDebt",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 4642,
+                            "referencedDeclaration": 4603,
                             "src": "720:11:25",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -654,11 +654,11 @@
                           "rightHandSide": {
                             "arguments": [
                               {
-                                "id": 4659,
+                                "id": 4620,
                                 "name": "debtAmount",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4636,
+                                "referencedDeclaration": 4597,
                                 "src": "750:10:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -674,18 +674,18 @@
                                 }
                               ],
                               "expression": {
-                                "id": 4657,
+                                "id": 4618,
                                 "name": "accountDebt",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4642,
+                                "referencedDeclaration": 4603,
                                 "src": "734:11:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
                                   "typeString": "uint256"
                                 }
                               },
-                              "id": 4658,
+                              "id": 4619,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -699,7 +699,7 @@
                                 "typeString": "function (uint256,uint256) pure returns (uint256)"
                               }
                             },
-                            "id": 4660,
+                            "id": 4621,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -720,33 +720,33 @@
                             "typeString": "uint256"
                           }
                         },
-                        "id": 4662,
+                        "id": 4623,
                         "nodeType": "ExpressionStatement",
                         "src": "720:41:25"
                       }
                     ]
                   },
-                  "id": 4664,
+                  "id": 4625,
                   "nodeType": "IfStatement",
                   "src": "617:156:25",
                   "trueBody": {
-                    "id": 4655,
+                    "id": 4616,
                     "nodeType": "Block",
                     "src": "633:68:25",
                     "statements": [
                       {
                         "expression": {
-                          "id": 4653,
+                          "id": 4614,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
-                            "id": 4648,
+                            "id": 4609,
                             "name": "accountDebt",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 4642,
+                            "referencedDeclaration": 4603,
                             "src": "648:11:25",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -758,11 +758,11 @@
                           "rightHandSide": {
                             "arguments": [
                               {
-                                "id": 4651,
+                                "id": 4612,
                                 "name": "debtAmount",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4636,
+                                "referencedDeclaration": 4597,
                                 "src": "678:10:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -778,18 +778,18 @@
                                 }
                               ],
                               "expression": {
-                                "id": 4649,
+                                "id": 4610,
                                 "name": "accountDebt",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4642,
+                                "referencedDeclaration": 4603,
                                 "src": "662:11:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
                                   "typeString": "uint256"
                                 }
                               },
-                              "id": 4650,
+                              "id": 4611,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -803,7 +803,7 @@
                                 "typeString": "function (uint256,uint256) pure returns (uint256)"
                               }
                             },
-                            "id": 4652,
+                            "id": 4613,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -824,7 +824,7 @@
                             "typeString": "uint256"
                           }
                         },
-                        "id": 4654,
+                        "id": 4615,
                         "nodeType": "ExpressionStatement",
                         "src": "648:41:25"
                       }
@@ -833,31 +833,31 @@
                 },
                 {
                   "expression": {
-                    "id": 4669,
+                    "id": 4630,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "baseExpression": {
-                        "id": 4665,
+                        "id": 4626,
                         "name": "debtData",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4601,
+                        "referencedDeclaration": 4562,
                         "src": "785:8:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                           "typeString": "mapping(address => uint256)"
                         }
                       },
-                      "id": 4667,
+                      "id": 4628,
                       "indexExpression": {
-                        "id": 4666,
+                        "id": 4627,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4634,
+                        "referencedDeclaration": 4595,
                         "src": "794:7:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -878,11 +878,11 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 4668,
+                      "id": 4629,
                       "name": "accountDebt",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4642,
+                      "referencedDeclaration": 4603,
                       "src": "805:11:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
@@ -895,7 +895,7 @@
                       "typeString": "uint256"
                     }
                   },
-                  "id": 4670,
+                  "id": 4631,
                   "nodeType": "ExpressionStatement",
                   "src": "785:31:25"
                 },
@@ -903,11 +903,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 4672,
+                        "id": 4633,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4634,
+                        "referencedDeclaration": 4595,
                         "src": "835:7:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -922,18 +922,18 @@
                           "typeString": "address"
                         }
                       ],
-                      "id": 4671,
+                      "id": 4632,
                       "name": "addUser",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4632,
+                      "referencedDeclaration": 4593,
                       "src": "827:7:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 4673,
+                    "id": 4634,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -948,30 +948,30 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 4674,
+                  "id": 4635,
                   "nodeType": "ExpressionStatement",
                   "src": "827:16:25"
                 }
               ]
             },
             "functionSelector": "cca5e4b1",
-            "id": 4676,
+            "id": 4637,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "changeDebt",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4639,
+              "id": 4600,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4634,
+                  "id": 4595,
                   "mutability": "mutable",
                   "name": "account",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4676,
+                  "scope": 4637,
                   "src": "497:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -980,7 +980,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4633,
+                    "id": 4594,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "497:7:25",
@@ -994,11 +994,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 4636,
+                  "id": 4597,
                   "mutability": "mutable",
                   "name": "debtAmount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4676,
+                  "scope": 4637,
                   "src": "514:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1007,7 +1007,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4635,
+                    "id": 4596,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "514:4:25",
@@ -1020,11 +1020,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 4638,
+                  "id": 4599,
                   "mutability": "mutable",
                   "name": "isAddition",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4676,
+                  "scope": 4637,
                   "src": "531:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1033,7 +1033,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 4637,
+                    "id": 4598,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "531:4:25",
@@ -1048,12 +1048,12 @@
               "src": "496:51:25"
             },
             "returnParameters": {
-              "id": 4640,
+              "id": 4601,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "557:0:25"
             },
-            "scope": 4698,
+            "scope": 4659,
             "src": "477:374:25",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -1061,31 +1061,31 @@
           },
           {
             "body": {
-              "id": 4687,
+              "id": 4648,
               "nodeType": "Block",
               "src": "925:29:25",
               "statements": [
                 {
                   "expression": {
                     "baseExpression": {
-                      "id": 4683,
+                      "id": 4644,
                       "name": "debtData",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4601,
+                      "referencedDeclaration": 4562,
                       "src": "934:8:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
                         "typeString": "mapping(address => uint256)"
                       }
                     },
-                    "id": 4685,
+                    "id": 4646,
                     "indexExpression": {
-                      "id": 4684,
+                      "id": 4645,
                       "name": "account",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4678,
+                      "referencedDeclaration": 4639,
                       "src": "943:7:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -1103,31 +1103,31 @@
                       "typeString": "uint256"
                     }
                   },
-                  "functionReturnParameters": 4682,
-                  "id": 4686,
+                  "functionReturnParameters": 4643,
+                  "id": 4647,
                   "nodeType": "Return",
                   "src": "927:24:25"
                 }
               ]
             },
             "functionSelector": "e65896c9",
-            "id": 4688,
+            "id": 4649,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "getUserDebt",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4679,
+              "id": 4640,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4678,
+                  "id": 4639,
                   "mutability": "mutable",
                   "name": "account",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4688,
+                  "scope": 4649,
                   "src": "880:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1136,7 +1136,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4677,
+                    "id": 4638,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "880:7:25",
@@ -1152,16 +1152,16 @@
               "src": "879:17:25"
             },
             "returnParameters": {
-              "id": 4682,
+              "id": 4643,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4681,
+                  "id": 4642,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4688,
+                  "scope": 4649,
                   "src": "919:4:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1170,7 +1170,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4680,
+                    "id": 4641,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "919:4:25",
@@ -1184,7 +1184,7 @@
               ],
               "src": "918:6:25"
             },
-            "scope": 4698,
+            "scope": 4659,
             "src": "859:95:25",
             "stateMutability": "view",
             "virtual": false,
@@ -1192,54 +1192,54 @@
           },
           {
             "body": {
-              "id": 4696,
+              "id": 4657,
               "nodeType": "Block",
               "src": "1026:17:25",
               "statements": [
                 {
                   "expression": {
-                    "id": 4694,
+                    "id": 4655,
                     "name": "users",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4608,
+                    "referencedDeclaration": 4569,
                     "src": "1035:5:25",
                     "typeDescriptions": {
                       "typeIdentifier": "t_array$_t_address_$dyn_storage",
                       "typeString": "address[] storage ref"
                     }
                   },
-                  "functionReturnParameters": 4693,
-                  "id": 4695,
+                  "functionReturnParameters": 4654,
+                  "id": 4656,
                   "nodeType": "Return",
                   "src": "1028:12:25"
                 }
               ]
             },
             "functionSelector": "e2842d79",
-            "id": 4697,
+            "id": 4658,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "getAllUsers",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4689,
+              "id": 4650,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "984:2:25"
             },
             "returnParameters": {
-              "id": 4693,
+              "id": 4654,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4692,
+                  "id": 4653,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4697,
+                  "scope": 4658,
                   "src": "1009:16:25",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -1249,7 +1249,7 @@
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 4690,
+                      "id": 4651,
                       "name": "address",
                       "nodeType": "ElementaryTypeName",
                       "src": "1009:7:25",
@@ -1259,7 +1259,7 @@
                         "typeString": "address"
                       }
                     },
-                    "id": 4691,
+                    "id": 4652,
                     "nodeType": "ArrayTypeName",
                     "src": "1009:9:25",
                     "typeDescriptions": {
@@ -1272,35 +1272,35 @@
               ],
               "src": "1008:18:25"
             },
-            "scope": 4698,
+            "scope": 4659,
             "src": "964:79:25",
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 4811,
+        "scope": 4772,
         "src": "116:932:25"
       },
       {
         "abstract": false,
         "baseContracts": [],
         "contractDependencies": [
-          4698
+          4659
         ],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 4810,
+        "id": 4771,
         "linearizedBaseContracts": [
-          4810
+          4771
         ],
         "name": "DebtManager",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "id": 4701,
+            "id": 4662,
             "libraryName": {
-              "id": 4699,
+              "id": 4660,
               "name": "SafeMath",
               "nodeType": "UserDefinedTypeName",
               "referencedDeclaration": 464,
@@ -1313,7 +1313,7 @@
             "nodeType": "UsingForDirective",
             "src": "1083:27:25",
             "typeName": {
-              "id": 4700,
+              "id": 4661,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "1102:7:25",
@@ -1325,11 +1325,11 @@
           },
           {
             "constant": false,
-            "id": 4703,
+            "id": 4664,
             "mutability": "mutable",
             "name": "totalAvailableDebt",
             "nodeType": "VariableDeclaration",
-            "scope": 4810,
+            "scope": 4771,
             "src": "1116:31:25",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1338,7 +1338,7 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 4702,
+              "id": 4663,
               "name": "uint",
               "nodeType": "ElementaryTypeName",
               "src": "1116:4:25",
@@ -1351,26 +1351,26 @@
           },
           {
             "constant": false,
-            "id": 4708,
+            "id": 4669,
             "mutability": "mutable",
             "name": "debtData",
             "nodeType": "VariableDeclaration",
-            "scope": 4810,
+            "scope": 4771,
             "src": "1154:50:25",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_UserDebtData_$4698",
+              "typeIdentifier": "t_contract$_UserDebtData_$4659",
               "typeString": "contract UserDebtData"
             },
             "typeName": {
-              "id": 4704,
+              "id": 4665,
               "name": "UserDebtData",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 4698,
+              "referencedDeclaration": 4659,
               "src": "1154:12:25",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_UserDebtData_$4698",
+                "typeIdentifier": "t_contract$_UserDebtData_$4659",
                 "typeString": "contract UserDebtData"
               }
             },
@@ -1378,7 +1378,7 @@
               "arguments": [],
               "expression": {
                 "argumentTypes": [],
-                "id": 4706,
+                "id": 4667,
                 "isConstant": false,
                 "isLValue": false,
                 "isPure": false,
@@ -1386,22 +1386,22 @@
                 "nodeType": "NewExpression",
                 "src": "1186:16:25",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_UserDebtData_$4698_$",
+                  "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_UserDebtData_$4659_$",
                   "typeString": "function () returns (contract UserDebtData)"
                 },
                 "typeName": {
-                  "id": 4705,
+                  "id": 4666,
                   "name": "UserDebtData",
                   "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 4698,
+                  "referencedDeclaration": 4659,
                   "src": "1190:12:25",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_UserDebtData_$4698",
+                    "typeIdentifier": "t_contract$_UserDebtData_$4659",
                     "typeString": "contract UserDebtData"
                   }
                 }
               },
-              "id": 4707,
+              "id": 4668,
               "isConstant": false,
               "isLValue": false,
               "isPure": false,
@@ -1412,7 +1412,7 @@
               "src": "1186:18:25",
               "tryCall": false,
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_UserDebtData_$4698",
+                "typeIdentifier": "t_contract$_UserDebtData_$4659",
                 "typeString": "contract UserDebtData"
               }
             },
@@ -1420,21 +1420,21 @@
           },
           {
             "anonymous": false,
-            "id": 4714,
+            "id": 4675,
             "name": "UserDebtChanged",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 4713,
+              "id": 4674,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4710,
+                  "id": 4671,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "account",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4714,
+                  "scope": 4675,
                   "src": "1235:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1443,7 +1443,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4709,
+                    "id": 4670,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1235:7:25",
@@ -1457,12 +1457,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 4712,
+                  "id": 4673,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "debtAmount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4714,
+                  "scope": 4675,
                   "src": "1252:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1471,7 +1471,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4711,
+                    "id": 4672,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1252:4:25",
@@ -1489,21 +1489,21 @@
           },
           {
             "anonymous": false,
-            "id": 4722,
+            "id": 4683,
             "name": "TotalDebtChanged",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 4721,
+              "id": 4682,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4716,
+                  "id": 4677,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "totalDebt",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4722,
+                  "scope": 4683,
                   "src": "1298:14:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1512,7 +1512,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4715,
+                    "id": 4676,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1298:4:25",
@@ -1525,12 +1525,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 4718,
+                  "id": 4679,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "debtChange",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4722,
+                  "scope": 4683,
                   "src": "1314:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1539,7 +1539,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4717,
+                    "id": 4678,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1314:4:25",
@@ -1552,12 +1552,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 4720,
+                  "id": 4681,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "isAddition",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4722,
+                  "scope": 4683,
                   "src": "1331:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1566,7 +1566,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 4719,
+                    "id": 4680,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "1331:4:25",
@@ -1584,7 +1584,7 @@
           },
           {
             "body": {
-              "id": 4734,
+              "id": 4695,
               "nodeType": "Block",
               "src": "1423:41:25",
               "statements": [
@@ -1592,11 +1592,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 4731,
+                        "id": 4692,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4724,
+                        "referencedDeclaration": 4685,
                         "src": "1453:7:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1612,32 +1612,32 @@
                         }
                       ],
                       "expression": {
-                        "id": 4729,
+                        "id": 4690,
                         "name": "debtData",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4708,
+                        "referencedDeclaration": 4669,
                         "src": "1432:8:25",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_UserDebtData_$4698",
+                          "typeIdentifier": "t_contract$_UserDebtData_$4659",
                           "typeString": "contract UserDebtData"
                         }
                       },
-                      "id": 4730,
+                      "id": 4691,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "getUserDebt",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4688,
+                      "referencedDeclaration": 4649,
                       "src": "1432:20:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
                         "typeString": "function (address) view external returns (uint256)"
                       }
                     },
-                    "id": 4732,
+                    "id": 4693,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1652,31 +1652,31 @@
                       "typeString": "uint256"
                     }
                   },
-                  "functionReturnParameters": 4728,
-                  "id": 4733,
+                  "functionReturnParameters": 4689,
+                  "id": 4694,
                   "nodeType": "Return",
                   "src": "1425:36:25"
                 }
               ]
             },
             "functionSelector": "e65896c9",
-            "id": 4735,
+            "id": 4696,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "getUserDebt",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4725,
+              "id": 4686,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4724,
+                  "id": 4685,
                   "mutability": "mutable",
                   "name": "account",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4735,
+                  "scope": 4696,
                   "src": "1377:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1685,7 +1685,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4723,
+                    "id": 4684,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1377:7:25",
@@ -1701,16 +1701,16 @@
               "src": "1376:17:25"
             },
             "returnParameters": {
-              "id": 4728,
+              "id": 4689,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4727,
+                  "id": 4688,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4735,
+                  "scope": 4696,
                   "src": "1417:4:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1719,7 +1719,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4726,
+                    "id": 4687,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1417:4:25",
@@ -1733,7 +1733,7 @@
               ],
               "src": "1416:6:25"
             },
-            "scope": 4810,
+            "scope": 4771,
             "src": "1356:108:25",
             "stateMutability": "view",
             "virtual": false,
@@ -1741,54 +1741,54 @@
           },
           {
             "body": {
-              "id": 4742,
+              "id": 4703,
               "nodeType": "Block",
               "src": "1523:30:25",
               "statements": [
                 {
                   "expression": {
-                    "id": 4740,
+                    "id": 4701,
                     "name": "totalAvailableDebt",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4703,
+                    "referencedDeclaration": 4664,
                     "src": "1532:18:25",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "functionReturnParameters": 4739,
-                  "id": 4741,
+                  "functionReturnParameters": 4700,
+                  "id": 4702,
                   "nodeType": "Return",
                   "src": "1525:25:25"
                 }
               ]
             },
             "functionSelector": "34ce998a",
-            "id": 4743,
+            "id": 4704,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "getTotalDebt",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4736,
+              "id": 4697,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1491:2:25"
             },
             "returnParameters": {
-              "id": 4739,
+              "id": 4700,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4738,
+                  "id": 4699,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4743,
+                  "scope": 4704,
                   "src": "1517:4:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1797,7 +1797,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4737,
+                    "id": 4698,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1517:4:25",
@@ -1811,7 +1811,7 @@
               ],
               "src": "1516:6:25"
             },
-            "scope": 4810,
+            "scope": 4771,
             "src": "1470:83:25",
             "stateMutability": "view",
             "virtual": false,
@@ -1819,7 +1819,7 @@
           },
           {
             "body": {
-              "id": 4753,
+              "id": 4714,
               "nodeType": "Block",
               "src": "1623:34:25",
               "statements": [
@@ -1829,32 +1829,32 @@
                     "expression": {
                       "argumentTypes": [],
                       "expression": {
-                        "id": 4749,
+                        "id": 4710,
                         "name": "debtData",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4708,
+                        "referencedDeclaration": 4669,
                         "src": "1632:8:25",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_UserDebtData_$4698",
+                          "typeIdentifier": "t_contract$_UserDebtData_$4659",
                           "typeString": "contract UserDebtData"
                         }
                       },
-                      "id": 4750,
+                      "id": 4711,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "getAllUsers",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4697,
+                      "referencedDeclaration": 4658,
                       "src": "1632:20:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_array$_t_address_$dyn_memory_ptr_$",
                         "typeString": "function () view external returns (address[] memory)"
                       }
                     },
-                    "id": 4751,
+                    "id": 4712,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1869,37 +1869,37 @@
                       "typeString": "address[] memory"
                     }
                   },
-                  "functionReturnParameters": 4748,
-                  "id": 4752,
+                  "functionReturnParameters": 4709,
+                  "id": 4713,
                   "nodeType": "Return",
                   "src": "1625:29:25"
                 }
               ]
             },
             "functionSelector": "e2842d79",
-            "id": 4754,
+            "id": 4715,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "getAllUsers",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4744,
+              "id": 4705,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1579:2:25"
             },
             "returnParameters": {
-              "id": 4748,
+              "id": 4709,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4747,
+                  "id": 4708,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4754,
+                  "scope": 4715,
                   "src": "1605:16:25",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -1909,7 +1909,7 @@
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 4745,
+                      "id": 4706,
                       "name": "address",
                       "nodeType": "ElementaryTypeName",
                       "src": "1605:7:25",
@@ -1919,7 +1919,7 @@
                         "typeString": "address"
                       }
                     },
-                    "id": 4746,
+                    "id": 4707,
                     "nodeType": "ArrayTypeName",
                     "src": "1605:9:25",
                     "typeDescriptions": {
@@ -1932,7 +1932,7 @@
               ],
               "src": "1604:18:25"
             },
-            "scope": 4810,
+            "scope": 4771,
             "src": "1559:98:25",
             "stateMutability": "view",
             "virtual": false,
@@ -1940,17 +1940,17 @@
           },
           {
             "body": {
-              "id": 4785,
+              "id": 4746,
               "nodeType": "Block",
               "src": "1733:280:25",
               "statements": [
                 {
                   "condition": {
-                    "id": 4761,
+                    "id": 4722,
                     "name": "isAddition",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 4758,
+                    "referencedDeclaration": 4719,
                     "src": "1748:10:25",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
@@ -1958,23 +1958,23 @@
                     }
                   },
                   "falseBody": {
-                    "id": 4777,
+                    "id": 4738,
                     "nodeType": "Block",
                     "src": "1846:82:25",
                     "statements": [
                       {
                         "expression": {
-                          "id": 4775,
+                          "id": 4736,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
-                            "id": 4770,
+                            "id": 4731,
                             "name": "totalAvailableDebt",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 4703,
+                            "referencedDeclaration": 4664,
                             "src": "1861:18:25",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -1986,11 +1986,11 @@
                           "rightHandSide": {
                             "arguments": [
                               {
-                                "id": 4773,
+                                "id": 4734,
                                 "name": "debtAmount",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4756,
+                                "referencedDeclaration": 4717,
                                 "src": "1905:10:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -2006,18 +2006,18 @@
                                 }
                               ],
                               "expression": {
-                                "id": 4771,
+                                "id": 4732,
                                 "name": "totalAvailableDebt",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4703,
+                                "referencedDeclaration": 4664,
                                 "src": "1882:18:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
                                   "typeString": "uint256"
                                 }
                               },
-                              "id": 4772,
+                              "id": 4733,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -2031,7 +2031,7 @@
                                 "typeString": "function (uint256,uint256) pure returns (uint256)"
                               }
                             },
-                            "id": 4774,
+                            "id": 4735,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -2052,33 +2052,33 @@
                             "typeString": "uint256"
                           }
                         },
-                        "id": 4776,
+                        "id": 4737,
                         "nodeType": "ExpressionStatement",
                         "src": "1861:55:25"
                       }
                     ]
                   },
-                  "id": 4778,
+                  "id": 4739,
                   "nodeType": "IfStatement",
                   "src": "1744:184:25",
                   "trueBody": {
-                    "id": 4769,
+                    "id": 4730,
                     "nodeType": "Block",
                     "src": "1760:82:25",
                     "statements": [
                       {
                         "expression": {
-                          "id": 4767,
+                          "id": 4728,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
-                            "id": 4762,
+                            "id": 4723,
                             "name": "totalAvailableDebt",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 4703,
+                            "referencedDeclaration": 4664,
                             "src": "1775:18:25",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -2090,11 +2090,11 @@
                           "rightHandSide": {
                             "arguments": [
                               {
-                                "id": 4765,
+                                "id": 4726,
                                 "name": "debtAmount",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4756,
+                                "referencedDeclaration": 4717,
                                 "src": "1819:10:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -2110,18 +2110,18 @@
                                 }
                               ],
                               "expression": {
-                                "id": 4763,
+                                "id": 4724,
                                 "name": "totalAvailableDebt",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 4703,
+                                "referencedDeclaration": 4664,
                                 "src": "1796:18:25",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
                                   "typeString": "uint256"
                                 }
                               },
-                              "id": 4764,
+                              "id": 4725,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -2135,7 +2135,7 @@
                                 "typeString": "function (uint256,uint256) pure returns (uint256)"
                               }
                             },
-                            "id": 4766,
+                            "id": 4727,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -2156,7 +2156,7 @@
                             "typeString": "uint256"
                           }
                         },
-                        "id": 4768,
+                        "id": 4729,
                         "nodeType": "ExpressionStatement",
                         "src": "1775:55:25"
                       }
@@ -2167,11 +2167,11 @@
                   "eventCall": {
                     "arguments": [
                       {
-                        "id": 4780,
+                        "id": 4741,
                         "name": "totalAvailableDebt",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4703,
+                        "referencedDeclaration": 4664,
                         "src": "1962:18:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2179,11 +2179,11 @@
                         }
                       },
                       {
-                        "id": 4781,
+                        "id": 4742,
                         "name": "debtAmount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4756,
+                        "referencedDeclaration": 4717,
                         "src": "1982:10:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2191,11 +2191,11 @@
                         }
                       },
                       {
-                        "id": 4782,
+                        "id": 4743,
                         "name": "isAddition",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4758,
+                        "referencedDeclaration": 4719,
                         "src": "1994:10:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bool",
@@ -2218,18 +2218,18 @@
                           "typeString": "bool"
                         }
                       ],
-                      "id": 4779,
+                      "id": 4740,
                       "name": "TotalDebtChanged",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4722,
+                      "referencedDeclaration": 4683,
                       "src": "1945:16:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_uint256_$_t_uint256_$_t_bool_$returns$__$",
                         "typeString": "function (uint256,uint256,bool)"
                       }
                     },
-                    "id": 4783,
+                    "id": 4744,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2244,30 +2244,30 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 4784,
+                  "id": 4745,
                   "nodeType": "EmitStatement",
                   "src": "1940:65:25"
                 }
               ]
             },
             "functionSelector": "f8c493d6",
-            "id": 4786,
+            "id": 4747,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "changeTotalDebt",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4759,
+              "id": 4720,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4756,
+                  "id": 4717,
                   "mutability": "mutable",
                   "name": "debtAmount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4786,
+                  "scope": 4747,
                   "src": "1690:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2276,7 +2276,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4755,
+                    "id": 4716,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1690:4:25",
@@ -2289,11 +2289,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 4758,
+                  "id": 4719,
                   "mutability": "mutable",
                   "name": "isAddition",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4786,
+                  "scope": 4747,
                   "src": "1707:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2302,7 +2302,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 4757,
+                    "id": 4718,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "1707:4:25",
@@ -2317,12 +2317,12 @@
               "src": "1689:34:25"
             },
             "returnParameters": {
-              "id": 4760,
+              "id": 4721,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1733:0:25"
             },
-            "scope": 4810,
+            "scope": 4771,
             "src": "1665:348:25",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -2330,7 +2330,7 @@
           },
           {
             "body": {
-              "id": 4808,
+              "id": 4769,
               "nodeType": "Block",
               "src": "2101:123:25",
               "statements": [
@@ -2338,11 +2338,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 4798,
+                        "id": 4759,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4788,
+                        "referencedDeclaration": 4749,
                         "src": "2132:7:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2350,11 +2350,11 @@
                         }
                       },
                       {
-                        "id": 4799,
+                        "id": 4760,
                         "name": "debtAmount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4790,
+                        "referencedDeclaration": 4751,
                         "src": "2141:10:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2362,11 +2362,11 @@
                         }
                       },
                       {
-                        "id": 4800,
+                        "id": 4761,
                         "name": "isAddition",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4792,
+                        "referencedDeclaration": 4753,
                         "src": "2153:10:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bool",
@@ -2390,32 +2390,32 @@
                         }
                       ],
                       "expression": {
-                        "id": 4795,
+                        "id": 4756,
                         "name": "debtData",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4708,
+                        "referencedDeclaration": 4669,
                         "src": "2112:8:25",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_UserDebtData_$4698",
+                          "typeIdentifier": "t_contract$_UserDebtData_$4659",
                           "typeString": "contract UserDebtData"
                         }
                       },
-                      "id": 4797,
+                      "id": 4758,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "changeDebt",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4676,
+                      "referencedDeclaration": 4637,
                       "src": "2112:19:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_uint256_$_t_bool_$returns$__$",
                         "typeString": "function (address,uint256,bool) external"
                       }
                     },
-                    "id": 4801,
+                    "id": 4762,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2430,7 +2430,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 4802,
+                  "id": 4763,
                   "nodeType": "ExpressionStatement",
                   "src": "2112:52:25"
                 },
@@ -2438,11 +2438,11 @@
                   "eventCall": {
                     "arguments": [
                       {
-                        "id": 4804,
+                        "id": 4765,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4788,
+                        "referencedDeclaration": 4749,
                         "src": "2196:7:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2450,11 +2450,11 @@
                         }
                       },
                       {
-                        "id": 4805,
+                        "id": 4766,
                         "name": "debtAmount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 4790,
+                        "referencedDeclaration": 4751,
                         "src": "2205:10:25",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2473,18 +2473,18 @@
                           "typeString": "uint256"
                         }
                       ],
-                      "id": 4803,
+                      "id": 4764,
                       "name": "UserDebtChanged",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 4714,
+                      "referencedDeclaration": 4675,
                       "src": "2180:15:25",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_uint256_$returns$__$",
                         "typeString": "function (address,uint256)"
                       }
                     },
-                    "id": 4806,
+                    "id": 4767,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2499,30 +2499,30 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 4807,
+                  "id": 4768,
                   "nodeType": "EmitStatement",
                   "src": "2175:41:25"
                 }
               ]
             },
             "functionSelector": "cca5e4b1",
-            "id": 4809,
+            "id": 4770,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
             "name": "changeDebt",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 4793,
+              "id": 4754,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 4788,
+                  "id": 4749,
                   "mutability": "mutable",
                   "name": "account",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4809,
+                  "scope": 4770,
                   "src": "2041:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2531,7 +2531,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 4787,
+                    "id": 4748,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "2041:7:25",
@@ -2545,11 +2545,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 4790,
+                  "id": 4751,
                   "mutability": "mutable",
                   "name": "debtAmount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4809,
+                  "scope": 4770,
                   "src": "2058:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2558,7 +2558,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 4789,
+                    "id": 4750,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "2058:4:25",
@@ -2571,11 +2571,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 4792,
+                  "id": 4753,
                   "mutability": "mutable",
                   "name": "isAddition",
                   "nodeType": "VariableDeclaration",
-                  "scope": 4809,
+                  "scope": 4770,
                   "src": "2075:15:25",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2584,7 +2584,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 4791,
+                    "id": 4752,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "2075:4:25",
@@ -2599,19 +2599,19 @@
               "src": "2040:51:25"
             },
             "returnParameters": {
-              "id": 4794,
+              "id": 4755,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2101:0:25"
             },
-            "scope": 4810,
+            "scope": 4771,
             "src": "2021:203:25",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 4811,
+        "scope": 4772,
         "src": "1054:1175:25"
       }
     ],
@@ -2622,13 +2622,13 @@
       "absolutePath": "project:/contracts/indices/DebtManager.sol",
       "exportedSymbols": {
         "DebtManager": [
-          4810
+          4771
         ],
         "SafeMath": [
           464
         ],
         "UserDebtData": [
-          4698
+          4659
         ]
       },
       "license": "MIT"
@@ -2642,7 +2642,7 @@
             ".6"
           ]
         },
-        "id": 4593,
+        "id": 4554,
         "name": "PragmaDirective",
         "src": "33:22:25"
       },
@@ -2651,13 +2651,13 @@
           "SourceUnit": 465,
           "absolutePath": "@openzeppelin/contracts/math/SafeMath.sol",
           "file": "@openzeppelin/contracts/math/SafeMath.sol",
-          "scope": 4811,
+          "scope": 4772,
           "symbolAliases": [
             null
           ],
           "unitAlias": ""
         },
-        "id": 4594,
+        "id": 4555,
         "name": "ImportDirective",
         "src": "59:51:25"
       },
@@ -2673,10 +2673,10 @@
           "contractKind": "contract",
           "fullyImplemented": true,
           "linearizedBaseContracts": [
-            4698
+            4659
           ],
           "name": "UserDebtData",
-          "scope": 4811
+          "scope": 4772
         },
         "children": [
           {
@@ -2687,7 +2687,7 @@
                   "referencedDeclaration": 464,
                   "type": "library SafeMath"
                 },
-                "id": 4595,
+                "id": 4556,
                 "name": "UserDefinedTypeName",
                 "src": "150:8:25"
               },
@@ -2696,12 +2696,12 @@
                   "name": "uint256",
                   "type": "uint256"
                 },
-                "id": 4596,
+                "id": 4557,
                 "name": "ElementaryTypeName",
                 "src": "163:7:25"
               }
             ],
-            "id": 4597,
+            "id": 4558,
             "name": "UsingForDirective",
             "src": "144:27:25"
           },
@@ -2710,7 +2710,7 @@
               "constant": false,
               "mutability": "mutable",
               "name": "debtData",
-              "scope": 4698,
+              "scope": 4659,
               "stateVariable": true,
               "storageLocation": "default",
               "type": "mapping(address => uint256)",
@@ -2727,7 +2727,7 @@
                       "name": "address",
                       "type": "address"
                     },
-                    "id": 4598,
+                    "id": 4559,
                     "name": "ElementaryTypeName",
                     "src": "187:7:25"
                   },
@@ -2736,17 +2736,17 @@
                       "name": "uint",
                       "type": "uint256"
                     },
-                    "id": 4599,
+                    "id": 4560,
                     "name": "ElementaryTypeName",
                     "src": "198:4:25"
                   }
                 ],
-                "id": 4600,
+                "id": 4561,
                 "name": "Mapping",
                 "src": "179:24:25"
               }
             ],
-            "id": 4601,
+            "id": 4562,
             "name": "VariableDeclaration",
             "src": "179:41:25"
           },
@@ -2755,7 +2755,7 @@
               "constant": false,
               "mutability": "mutable",
               "name": "userInSet",
-              "scope": 4698,
+              "scope": 4659,
               "stateVariable": true,
               "storageLocation": "default",
               "type": "mapping(address => bool)",
@@ -2772,7 +2772,7 @@
                       "name": "address",
                       "type": "address"
                     },
-                    "id": 4602,
+                    "id": 4563,
                     "name": "ElementaryTypeName",
                     "src": "235:7:25"
                   },
@@ -2781,17 +2781,17 @@
                       "name": "bool",
                       "type": "bool"
                     },
-                    "id": 4603,
+                    "id": 4564,
                     "name": "ElementaryTypeName",
                     "src": "246:4:25"
                   }
                 ],
-                "id": 4604,
+                "id": 4565,
                 "name": "Mapping",
                 "src": "227:24:25"
               }
             ],
-            "id": 4605,
+            "id": 4566,
             "name": "VariableDeclaration",
             "src": "227:42:25"
           },
@@ -2800,7 +2800,7 @@
               "constant": false,
               "mutability": "mutable",
               "name": "users",
-              "scope": 4698,
+              "scope": 4659,
               "stateVariable": true,
               "storageLocation": "default",
               "type": "address[]",
@@ -2818,17 +2818,17 @@
                       "stateMutability": "nonpayable",
                       "type": "address"
                     },
-                    "id": 4606,
+                    "id": 4567,
                     "name": "ElementaryTypeName",
                     "src": "276:7:25"
                   }
                 ],
-                "id": 4607,
+                "id": 4568,
                 "name": "ArrayTypeName",
                 "src": "276:9:25"
               }
             ],
-            "id": 4608,
+            "id": 4569,
             "name": "VariableDeclaration",
             "src": "276:23:25"
           },
@@ -2841,7 +2841,7 @@
                 null
               ],
               "name": "addUser",
-              "scope": 4698,
+              "scope": 4659,
               "stateMutability": "nonpayable",
               "virtual": false,
               "visibility": "private"
@@ -2854,7 +2854,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "_addr",
-                      "scope": 4632,
+                      "scope": 4593,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -2867,17 +2867,17 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 4609,
+                        "id": 4570,
                         "name": "ElementaryTypeName",
                         "src": "325:7:25"
                       }
                     ],
-                    "id": 4610,
+                    "id": 4571,
                     "name": "VariableDeclaration",
                     "src": "325:13:25"
                   }
                 ],
-                "id": 4611,
+                "id": 4572,
                 "name": "ParameterList",
                 "src": "324:15:25"
               },
@@ -2888,7 +2888,7 @@
                   ]
                 },
                 "children": [],
-                "id": 4612,
+                "id": 4573,
                 "name": "ParameterList",
                 "src": "348:0:25"
               },
@@ -2922,11 +2922,11 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 4605,
+                                  "referencedDeclaration": 4566,
                                   "type": "mapping(address => bool)",
                                   "value": "userInSet"
                                 },
-                                "id": 4613,
+                                "id": 4574,
                                 "name": "Identifier",
                                 "src": "363:9:25"
                               },
@@ -2935,21 +2935,21 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 4610,
+                                  "referencedDeclaration": 4571,
                                   "type": "address",
                                   "value": "_addr"
                                 },
-                                "id": 4614,
+                                "id": 4575,
                                 "name": "Identifier",
                                 "src": "373:5:25"
                               }
                             ],
-                            "id": 4615,
+                            "id": 4576,
                             "name": "IndexAccess",
                             "src": "363:16:25"
                           }
                         ],
-                        "id": 4616,
+                        "id": 4577,
                         "name": "UnaryOperation",
                         "src": "362:17:25"
                       },
@@ -2981,11 +2981,11 @@
                                           "overloadedDeclarations": [
                                             null
                                           ],
-                                          "referencedDeclaration": 4605,
+                                          "referencedDeclaration": 4566,
                                           "type": "mapping(address => bool)",
                                           "value": "userInSet"
                                         },
-                                        "id": 4617,
+                                        "id": 4578,
                                         "name": "Identifier",
                                         "src": "395:9:25"
                                       },
@@ -2994,16 +2994,16 @@
                                           "overloadedDeclarations": [
                                             null
                                           ],
-                                          "referencedDeclaration": 4610,
+                                          "referencedDeclaration": 4571,
                                           "type": "address",
                                           "value": "_addr"
                                         },
-                                        "id": 4618,
+                                        "id": 4579,
                                         "name": "Identifier",
                                         "src": "405:5:25"
                                       }
                                     ],
-                                    "id": 4619,
+                                    "id": 4580,
                                     "name": "IndexAccess",
                                     "src": "395:16:25"
                                   },
@@ -3018,17 +3018,17 @@
                                       "type": "bool",
                                       "value": "true"
                                     },
-                                    "id": 4620,
+                                    "id": 4581,
                                     "name": "Literal",
                                     "src": "414:4:25"
                                   }
                                 ],
-                                "id": 4621,
+                                "id": 4582,
                                 "name": "Assignment",
                                 "src": "395:23:25"
                               }
                             ],
-                            "id": 4622,
+                            "id": 4583,
                             "name": "ExpressionStatement",
                             "src": "395:23:25"
                           },
@@ -3070,16 +3070,16 @@
                                           "overloadedDeclarations": [
                                             null
                                           ],
-                                          "referencedDeclaration": 4608,
+                                          "referencedDeclaration": 4569,
                                           "type": "address[] storage ref",
                                           "value": "users"
                                         },
-                                        "id": 4623,
+                                        "id": 4584,
                                         "name": "Identifier",
                                         "src": "433:5:25"
                                       }
                                     ],
-                                    "id": 4625,
+                                    "id": 4586,
                                     "name": "MemberAccess",
                                     "src": "433:10:25"
                                   },
@@ -3088,41 +3088,41 @@
                                       "overloadedDeclarations": [
                                         null
                                       ],
-                                      "referencedDeclaration": 4610,
+                                      "referencedDeclaration": 4571,
                                       "type": "address",
                                       "value": "_addr"
                                     },
-                                    "id": 4626,
+                                    "id": 4587,
                                     "name": "Identifier",
                                     "src": "444:5:25"
                                   }
                                 ],
-                                "id": 4627,
+                                "id": 4588,
                                 "name": "FunctionCall",
                                 "src": "433:17:25"
                               }
                             ],
-                            "id": 4628,
+                            "id": 4589,
                             "name": "ExpressionStatement",
                             "src": "433:17:25"
                           }
                         ],
-                        "id": 4629,
+                        "id": 4590,
                         "name": "Block",
                         "src": "380:82:25"
                       }
                     ],
-                    "id": 4630,
+                    "id": 4591,
                     "name": "IfStatement",
                     "src": "359:103:25"
                   }
                 ],
-                "id": 4631,
+                "id": 4592,
                 "name": "Block",
                 "src": "348:121:25"
               }
             ],
-            "id": 4632,
+            "id": 4593,
             "name": "FunctionDefinition",
             "src": "308:161:25"
           },
@@ -3136,7 +3136,7 @@
                 null
               ],
               "name": "changeDebt",
-              "scope": 4698,
+              "scope": 4659,
               "stateMutability": "nonpayable",
               "virtual": false,
               "visibility": "external"
@@ -3149,7 +3149,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "account",
-                      "scope": 4676,
+                      "scope": 4637,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -3162,12 +3162,12 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 4633,
+                        "id": 4594,
                         "name": "ElementaryTypeName",
                         "src": "497:7:25"
                       }
                     ],
-                    "id": 4634,
+                    "id": 4595,
                     "name": "VariableDeclaration",
                     "src": "497:15:25"
                   },
@@ -3176,7 +3176,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "debtAmount",
-                      "scope": 4676,
+                      "scope": 4637,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -3188,12 +3188,12 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4635,
+                        "id": 4596,
                         "name": "ElementaryTypeName",
                         "src": "514:4:25"
                       }
                     ],
-                    "id": 4636,
+                    "id": 4597,
                     "name": "VariableDeclaration",
                     "src": "514:15:25"
                   },
@@ -3202,7 +3202,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "isAddition",
-                      "scope": 4676,
+                      "scope": 4637,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "bool",
@@ -3214,17 +3214,17 @@
                           "name": "bool",
                           "type": "bool"
                         },
-                        "id": 4637,
+                        "id": 4598,
                         "name": "ElementaryTypeName",
                         "src": "531:4:25"
                       }
                     ],
-                    "id": 4638,
+                    "id": 4599,
                     "name": "VariableDeclaration",
                     "src": "531:15:25"
                   }
                 ],
-                "id": 4639,
+                "id": 4600,
                 "name": "ParameterList",
                 "src": "496:51:25"
               },
@@ -3235,7 +3235,7 @@
                   ]
                 },
                 "children": [],
-                "id": 4640,
+                "id": 4601,
                 "name": "ParameterList",
                 "src": "557:0:25"
               },
@@ -3244,7 +3244,7 @@
                   {
                     "attributes": {
                       "assignments": [
-                        4642
+                        4603
                       ]
                     },
                     "children": [
@@ -3253,7 +3253,7 @@
                           "constant": false,
                           "mutability": "mutable",
                           "name": "accountDebt",
-                          "scope": 4675,
+                          "scope": 4636,
                           "stateVariable": false,
                           "storageLocation": "default",
                           "type": "uint256",
@@ -3265,12 +3265,12 @@
                               "name": "uint",
                               "type": "uint256"
                             },
-                            "id": 4641,
+                            "id": 4602,
                             "name": "ElementaryTypeName",
                             "src": "568:4:25"
                           }
                         ],
-                        "id": 4642,
+                        "id": 4603,
                         "name": "VariableDeclaration",
                         "src": "568:16:25"
                       },
@@ -3288,11 +3288,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4601,
+                              "referencedDeclaration": 4562,
                               "type": "mapping(address => uint256)",
                               "value": "debtData"
                             },
-                            "id": 4643,
+                            "id": 4604,
                             "name": "Identifier",
                             "src": "587:8:25"
                           },
@@ -3301,21 +3301,21 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4634,
+                              "referencedDeclaration": 4595,
                               "type": "address",
                               "value": "account"
                             },
-                            "id": 4644,
+                            "id": 4605,
                             "name": "Identifier",
                             "src": "596:7:25"
                           }
                         ],
-                        "id": 4645,
+                        "id": 4606,
                         "name": "IndexAccess",
                         "src": "587:17:25"
                       }
                     ],
-                    "id": 4646,
+                    "id": 4607,
                     "name": "VariableDeclarationStatement",
                     "src": "568:36:25"
                   },
@@ -3326,11 +3326,11 @@
                           "overloadedDeclarations": [
                             null
                           ],
-                          "referencedDeclaration": 4638,
+                          "referencedDeclaration": 4599,
                           "type": "bool",
                           "value": "isAddition"
                         },
-                        "id": 4647,
+                        "id": 4608,
                         "name": "Identifier",
                         "src": "621:10:25"
                       },
@@ -3353,11 +3353,11 @@
                                       "overloadedDeclarations": [
                                         null
                                       ],
-                                      "referencedDeclaration": 4642,
+                                      "referencedDeclaration": 4603,
                                       "type": "uint256",
                                       "value": "accountDebt"
                                     },
-                                    "id": 4648,
+                                    "id": 4609,
                                     "name": "Identifier",
                                     "src": "648:11:25"
                                   },
@@ -3398,16 +3398,16 @@
                                               "overloadedDeclarations": [
                                                 null
                                               ],
-                                              "referencedDeclaration": 4642,
+                                              "referencedDeclaration": 4603,
                                               "type": "uint256",
                                               "value": "accountDebt"
                                             },
-                                            "id": 4649,
+                                            "id": 4610,
                                             "name": "Identifier",
                                             "src": "662:11:25"
                                           }
                                         ],
-                                        "id": 4650,
+                                        "id": 4611,
                                         "name": "MemberAccess",
                                         "src": "662:15:25"
                                       },
@@ -3416,31 +3416,31 @@
                                           "overloadedDeclarations": [
                                             null
                                           ],
-                                          "referencedDeclaration": 4636,
+                                          "referencedDeclaration": 4597,
                                           "type": "uint256",
                                           "value": "debtAmount"
                                         },
-                                        "id": 4651,
+                                        "id": 4612,
                                         "name": "Identifier",
                                         "src": "678:10:25"
                                       }
                                     ],
-                                    "id": 4652,
+                                    "id": 4613,
                                     "name": "FunctionCall",
                                     "src": "662:27:25"
                                   }
                                 ],
-                                "id": 4653,
+                                "id": 4614,
                                 "name": "Assignment",
                                 "src": "648:41:25"
                               }
                             ],
-                            "id": 4654,
+                            "id": 4615,
                             "name": "ExpressionStatement",
                             "src": "648:41:25"
                           }
                         ],
-                        "id": 4655,
+                        "id": 4616,
                         "name": "Block",
                         "src": "633:68:25"
                       },
@@ -3463,11 +3463,11 @@
                                       "overloadedDeclarations": [
                                         null
                                       ],
-                                      "referencedDeclaration": 4642,
+                                      "referencedDeclaration": 4603,
                                       "type": "uint256",
                                       "value": "accountDebt"
                                     },
-                                    "id": 4656,
+                                    "id": 4617,
                                     "name": "Identifier",
                                     "src": "720:11:25"
                                   },
@@ -3508,16 +3508,16 @@
                                               "overloadedDeclarations": [
                                                 null
                                               ],
-                                              "referencedDeclaration": 4642,
+                                              "referencedDeclaration": 4603,
                                               "type": "uint256",
                                               "value": "accountDebt"
                                             },
-                                            "id": 4657,
+                                            "id": 4618,
                                             "name": "Identifier",
                                             "src": "734:11:25"
                                           }
                                         ],
-                                        "id": 4658,
+                                        "id": 4619,
                                         "name": "MemberAccess",
                                         "src": "734:15:25"
                                       },
@@ -3526,36 +3526,36 @@
                                           "overloadedDeclarations": [
                                             null
                                           ],
-                                          "referencedDeclaration": 4636,
+                                          "referencedDeclaration": 4597,
                                           "type": "uint256",
                                           "value": "debtAmount"
                                         },
-                                        "id": 4659,
+                                        "id": 4620,
                                         "name": "Identifier",
                                         "src": "750:10:25"
                                       }
                                     ],
-                                    "id": 4660,
+                                    "id": 4621,
                                     "name": "FunctionCall",
                                     "src": "734:27:25"
                                   }
                                 ],
-                                "id": 4661,
+                                "id": 4622,
                                 "name": "Assignment",
                                 "src": "720:41:25"
                               }
                             ],
-                            "id": 4662,
+                            "id": 4623,
                             "name": "ExpressionStatement",
                             "src": "720:41:25"
                           }
                         ],
-                        "id": 4663,
+                        "id": 4624,
                         "name": "Block",
                         "src": "705:68:25"
                       }
                     ],
-                    "id": 4664,
+                    "id": 4625,
                     "name": "IfStatement",
                     "src": "617:156:25"
                   },
@@ -3585,11 +3585,11 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 4601,
+                                  "referencedDeclaration": 4562,
                                   "type": "mapping(address => uint256)",
                                   "value": "debtData"
                                 },
-                                "id": 4665,
+                                "id": 4626,
                                 "name": "Identifier",
                                 "src": "785:8:25"
                               },
@@ -3598,16 +3598,16 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 4634,
+                                  "referencedDeclaration": 4595,
                                   "type": "address",
                                   "value": "account"
                                 },
-                                "id": 4666,
+                                "id": 4627,
                                 "name": "Identifier",
                                 "src": "794:7:25"
                               }
                             ],
-                            "id": 4667,
+                            "id": 4628,
                             "name": "IndexAccess",
                             "src": "785:17:25"
                           },
@@ -3616,21 +3616,21 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4642,
+                              "referencedDeclaration": 4603,
                               "type": "uint256",
                               "value": "accountDebt"
                             },
-                            "id": 4668,
+                            "id": 4629,
                             "name": "Identifier",
                             "src": "805:11:25"
                           }
                         ],
-                        "id": 4669,
+                        "id": 4630,
                         "name": "Assignment",
                         "src": "785:31:25"
                       }
                     ],
-                    "id": 4670,
+                    "id": 4631,
                     "name": "ExpressionStatement",
                     "src": "785:31:25"
                   },
@@ -3662,11 +3662,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4632,
+                              "referencedDeclaration": 4593,
                               "type": "function (address)",
                               "value": "addUser"
                             },
-                            "id": 4671,
+                            "id": 4632,
                             "name": "Identifier",
                             "src": "827:7:25"
                           },
@@ -3675,31 +3675,31 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4634,
+                              "referencedDeclaration": 4595,
                               "type": "address",
                               "value": "account"
                             },
-                            "id": 4672,
+                            "id": 4633,
                             "name": "Identifier",
                             "src": "835:7:25"
                           }
                         ],
-                        "id": 4673,
+                        "id": 4634,
                         "name": "FunctionCall",
                         "src": "827:16:25"
                       }
                     ],
-                    "id": 4674,
+                    "id": 4635,
                     "name": "ExpressionStatement",
                     "src": "827:16:25"
                   }
                 ],
-                "id": 4675,
+                "id": 4636,
                 "name": "Block",
                 "src": "557:294:25"
               }
             ],
-            "id": 4676,
+            "id": 4637,
             "name": "FunctionDefinition",
             "src": "477:374:25"
           },
@@ -3713,7 +3713,7 @@
                 null
               ],
               "name": "getUserDebt",
-              "scope": 4698,
+              "scope": 4659,
               "stateMutability": "view",
               "virtual": false,
               "visibility": "external"
@@ -3726,7 +3726,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "account",
-                      "scope": 4688,
+                      "scope": 4649,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -3739,17 +3739,17 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 4677,
+                        "id": 4638,
                         "name": "ElementaryTypeName",
                         "src": "880:7:25"
                       }
                     ],
-                    "id": 4678,
+                    "id": 4639,
                     "name": "VariableDeclaration",
                     "src": "880:15:25"
                   }
                 ],
-                "id": 4679,
+                "id": 4640,
                 "name": "ParameterList",
                 "src": "879:17:25"
               },
@@ -3760,7 +3760,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "",
-                      "scope": 4688,
+                      "scope": 4649,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -3772,17 +3772,17 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4680,
+                        "id": 4641,
                         "name": "ElementaryTypeName",
                         "src": "919:4:25"
                       }
                     ],
-                    "id": 4681,
+                    "id": 4642,
                     "name": "VariableDeclaration",
                     "src": "919:4:25"
                   }
                 ],
-                "id": 4682,
+                "id": 4643,
                 "name": "ParameterList",
                 "src": "918:6:25"
               },
@@ -3790,7 +3790,7 @@
                 "children": [
                   {
                     "attributes": {
-                      "functionReturnParameters": 4682
+                      "functionReturnParameters": 4643
                     },
                     "children": [
                       {
@@ -3807,11 +3807,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4601,
+                              "referencedDeclaration": 4562,
                               "type": "mapping(address => uint256)",
                               "value": "debtData"
                             },
-                            "id": 4683,
+                            "id": 4644,
                             "name": "Identifier",
                             "src": "934:8:25"
                           },
@@ -3820,31 +3820,31 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4678,
+                              "referencedDeclaration": 4639,
                               "type": "address",
                               "value": "account"
                             },
-                            "id": 4684,
+                            "id": 4645,
                             "name": "Identifier",
                             "src": "943:7:25"
                           }
                         ],
-                        "id": 4685,
+                        "id": 4646,
                         "name": "IndexAccess",
                         "src": "934:17:25"
                       }
                     ],
-                    "id": 4686,
+                    "id": 4647,
                     "name": "Return",
                     "src": "927:24:25"
                   }
                 ],
-                "id": 4687,
+                "id": 4648,
                 "name": "Block",
                 "src": "925:29:25"
               }
             ],
-            "id": 4688,
+            "id": 4649,
             "name": "FunctionDefinition",
             "src": "859:95:25"
           },
@@ -3858,7 +3858,7 @@
                 null
               ],
               "name": "getAllUsers",
-              "scope": 4698,
+              "scope": 4659,
               "stateMutability": "view",
               "virtual": false,
               "visibility": "external"
@@ -3871,7 +3871,7 @@
                   ]
                 },
                 "children": [],
-                "id": 4689,
+                "id": 4650,
                 "name": "ParameterList",
                 "src": "984:2:25"
               },
@@ -3882,7 +3882,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "",
-                      "scope": 4697,
+                      "scope": 4658,
                       "stateVariable": false,
                       "storageLocation": "memory",
                       "type": "address[]",
@@ -3900,22 +3900,22 @@
                               "stateMutability": "nonpayable",
                               "type": "address"
                             },
-                            "id": 4690,
+                            "id": 4651,
                             "name": "ElementaryTypeName",
                             "src": "1009:7:25"
                           }
                         ],
-                        "id": 4691,
+                        "id": 4652,
                         "name": "ArrayTypeName",
                         "src": "1009:9:25"
                       }
                     ],
-                    "id": 4692,
+                    "id": 4653,
                     "name": "VariableDeclaration",
                     "src": "1009:16:25"
                   }
                 ],
-                "id": 4693,
+                "id": 4654,
                 "name": "ParameterList",
                 "src": "1008:18:25"
               },
@@ -3923,7 +3923,7 @@
                 "children": [
                   {
                     "attributes": {
-                      "functionReturnParameters": 4693
+                      "functionReturnParameters": 4654
                     },
                     "children": [
                       {
@@ -3931,31 +3931,31 @@
                           "overloadedDeclarations": [
                             null
                           ],
-                          "referencedDeclaration": 4608,
+                          "referencedDeclaration": 4569,
                           "type": "address[] storage ref",
                           "value": "users"
                         },
-                        "id": 4694,
+                        "id": 4655,
                         "name": "Identifier",
                         "src": "1035:5:25"
                       }
                     ],
-                    "id": 4695,
+                    "id": 4656,
                     "name": "Return",
                     "src": "1028:12:25"
                   }
                 ],
-                "id": 4696,
+                "id": 4657,
                 "name": "Block",
                 "src": "1026:17:25"
               }
             ],
-            "id": 4697,
+            "id": 4658,
             "name": "FunctionDefinition",
             "src": "964:79:25"
           }
         ],
-        "id": 4698,
+        "id": 4659,
         "name": "ContractDefinition",
         "src": "116:932:25"
       },
@@ -3966,15 +3966,15 @@
             null
           ],
           "contractDependencies": [
-            4698
+            4659
           ],
           "contractKind": "contract",
           "fullyImplemented": true,
           "linearizedBaseContracts": [
-            4810
+            4771
           ],
           "name": "DebtManager",
-          "scope": 4811
+          "scope": 4772
         },
         "children": [
           {
@@ -3985,7 +3985,7 @@
                   "referencedDeclaration": 464,
                   "type": "library SafeMath"
                 },
-                "id": 4699,
+                "id": 4660,
                 "name": "UserDefinedTypeName",
                 "src": "1089:8:25"
               },
@@ -3994,12 +3994,12 @@
                   "name": "uint256",
                   "type": "uint256"
                 },
-                "id": 4700,
+                "id": 4661,
                 "name": "ElementaryTypeName",
                 "src": "1102:7:25"
               }
             ],
-            "id": 4701,
+            "id": 4662,
             "name": "UsingForDirective",
             "src": "1083:27:25"
           },
@@ -4008,7 +4008,7 @@
               "constant": false,
               "mutability": "mutable",
               "name": "totalAvailableDebt",
-              "scope": 4810,
+              "scope": 4771,
               "stateVariable": true,
               "storageLocation": "default",
               "type": "uint256",
@@ -4020,12 +4020,12 @@
                   "name": "uint",
                   "type": "uint256"
                 },
-                "id": 4702,
+                "id": 4663,
                 "name": "ElementaryTypeName",
                 "src": "1116:4:25"
               }
             ],
-            "id": 4703,
+            "id": 4664,
             "name": "VariableDeclaration",
             "src": "1116:31:25"
           },
@@ -4034,7 +4034,7 @@
               "constant": false,
               "mutability": "mutable",
               "name": "debtData",
-              "scope": 4810,
+              "scope": 4771,
               "stateVariable": true,
               "storageLocation": "default",
               "type": "contract UserDebtData",
@@ -4044,10 +4044,10 @@
               {
                 "attributes": {
                   "name": "UserDebtData",
-                  "referencedDeclaration": 4698,
+                  "referencedDeclaration": 4659,
                   "type": "contract UserDebtData"
                 },
-                "id": 4704,
+                "id": 4665,
                 "name": "UserDefinedTypeName",
                 "src": "1154:12:25"
               },
@@ -4084,25 +4084,25 @@
                       {
                         "attributes": {
                           "name": "UserDebtData",
-                          "referencedDeclaration": 4698,
+                          "referencedDeclaration": 4659,
                           "type": "contract UserDebtData"
                         },
-                        "id": 4705,
+                        "id": 4666,
                         "name": "UserDefinedTypeName",
                         "src": "1190:12:25"
                       }
                     ],
-                    "id": 4706,
+                    "id": 4667,
                     "name": "NewExpression",
                     "src": "1186:16:25"
                   }
                 ],
-                "id": 4707,
+                "id": 4668,
                 "name": "FunctionCall",
                 "src": "1186:18:25"
               }
             ],
-            "id": 4708,
+            "id": 4669,
             "name": "VariableDeclaration",
             "src": "1154:50:25"
           },
@@ -4120,7 +4120,7 @@
                       "indexed": false,
                       "mutability": "mutable",
                       "name": "account",
-                      "scope": 4714,
+                      "scope": 4675,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -4133,12 +4133,12 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 4709,
+                        "id": 4670,
                         "name": "ElementaryTypeName",
                         "src": "1235:7:25"
                       }
                     ],
-                    "id": 4710,
+                    "id": 4671,
                     "name": "VariableDeclaration",
                     "src": "1235:15:25"
                   },
@@ -4148,7 +4148,7 @@
                       "indexed": false,
                       "mutability": "mutable",
                       "name": "debtAmount",
-                      "scope": 4714,
+                      "scope": 4675,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -4160,22 +4160,22 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4711,
+                        "id": 4672,
                         "name": "ElementaryTypeName",
                         "src": "1252:4:25"
                       }
                     ],
-                    "id": 4712,
+                    "id": 4673,
                     "name": "VariableDeclaration",
                     "src": "1252:15:25"
                   }
                 ],
-                "id": 4713,
+                "id": 4674,
                 "name": "ParameterList",
                 "src": "1234:34:25"
               }
             ],
-            "id": 4714,
+            "id": 4675,
             "name": "EventDefinition",
             "src": "1213:56:25"
           },
@@ -4193,7 +4193,7 @@
                       "indexed": false,
                       "mutability": "mutable",
                       "name": "totalDebt",
-                      "scope": 4722,
+                      "scope": 4683,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -4205,12 +4205,12 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4715,
+                        "id": 4676,
                         "name": "ElementaryTypeName",
                         "src": "1298:4:25"
                       }
                     ],
-                    "id": 4716,
+                    "id": 4677,
                     "name": "VariableDeclaration",
                     "src": "1298:14:25"
                   },
@@ -4220,7 +4220,7 @@
                       "indexed": false,
                       "mutability": "mutable",
                       "name": "debtChange",
-                      "scope": 4722,
+                      "scope": 4683,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -4232,12 +4232,12 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4717,
+                        "id": 4678,
                         "name": "ElementaryTypeName",
                         "src": "1314:4:25"
                       }
                     ],
-                    "id": 4718,
+                    "id": 4679,
                     "name": "VariableDeclaration",
                     "src": "1314:15:25"
                   },
@@ -4247,7 +4247,7 @@
                       "indexed": false,
                       "mutability": "mutable",
                       "name": "isAddition",
-                      "scope": 4722,
+                      "scope": 4683,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "bool",
@@ -4259,22 +4259,22 @@
                           "name": "bool",
                           "type": "bool"
                         },
-                        "id": 4719,
+                        "id": 4680,
                         "name": "ElementaryTypeName",
                         "src": "1331:4:25"
                       }
                     ],
-                    "id": 4720,
+                    "id": 4681,
                     "name": "VariableDeclaration",
                     "src": "1331:15:25"
                   }
                 ],
-                "id": 4721,
+                "id": 4682,
                 "name": "ParameterList",
                 "src": "1297:50:25"
               }
             ],
-            "id": 4722,
+            "id": 4683,
             "name": "EventDefinition",
             "src": "1275:73:25"
           },
@@ -4288,7 +4288,7 @@
                 null
               ],
               "name": "getUserDebt",
-              "scope": 4810,
+              "scope": 4771,
               "stateMutability": "view",
               "virtual": false,
               "visibility": "external"
@@ -4301,7 +4301,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "account",
-                      "scope": 4735,
+                      "scope": 4696,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -4314,17 +4314,17 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 4723,
+                        "id": 4684,
                         "name": "ElementaryTypeName",
                         "src": "1377:7:25"
                       }
                     ],
-                    "id": 4724,
+                    "id": 4685,
                     "name": "VariableDeclaration",
                     "src": "1377:15:25"
                   }
                 ],
-                "id": 4725,
+                "id": 4686,
                 "name": "ParameterList",
                 "src": "1376:17:25"
               },
@@ -4335,7 +4335,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "",
-                      "scope": 4735,
+                      "scope": 4696,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -4347,17 +4347,17 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4726,
+                        "id": 4687,
                         "name": "ElementaryTypeName",
                         "src": "1417:4:25"
                       }
                     ],
-                    "id": 4727,
+                    "id": 4688,
                     "name": "VariableDeclaration",
                     "src": "1417:4:25"
                   }
                 ],
-                "id": 4728,
+                "id": 4689,
                 "name": "ParameterList",
                 "src": "1416:6:25"
               },
@@ -4365,7 +4365,7 @@
                 "children": [
                   {
                     "attributes": {
-                      "functionReturnParameters": 4728
+                      "functionReturnParameters": 4689
                     },
                     "children": [
                       {
@@ -4396,7 +4396,7 @@
                               "isPure": false,
                               "lValueRequested": false,
                               "member_name": "getUserDebt",
-                              "referencedDeclaration": 4688,
+                              "referencedDeclaration": 4649,
                               "type": "function (address) view external returns (uint256)"
                             },
                             "children": [
@@ -4405,16 +4405,16 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 4708,
+                                  "referencedDeclaration": 4669,
                                   "type": "contract UserDebtData",
                                   "value": "debtData"
                                 },
-                                "id": 4729,
+                                "id": 4690,
                                 "name": "Identifier",
                                 "src": "1432:8:25"
                               }
                             ],
-                            "id": 4730,
+                            "id": 4691,
                             "name": "MemberAccess",
                             "src": "1432:20:25"
                           },
@@ -4423,31 +4423,31 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4724,
+                              "referencedDeclaration": 4685,
                               "type": "address",
                               "value": "account"
                             },
-                            "id": 4731,
+                            "id": 4692,
                             "name": "Identifier",
                             "src": "1453:7:25"
                           }
                         ],
-                        "id": 4732,
+                        "id": 4693,
                         "name": "FunctionCall",
                         "src": "1432:29:25"
                       }
                     ],
-                    "id": 4733,
+                    "id": 4694,
                     "name": "Return",
                     "src": "1425:36:25"
                   }
                 ],
-                "id": 4734,
+                "id": 4695,
                 "name": "Block",
                 "src": "1423:41:25"
               }
             ],
-            "id": 4735,
+            "id": 4696,
             "name": "FunctionDefinition",
             "src": "1356:108:25"
           },
@@ -4461,7 +4461,7 @@
                 null
               ],
               "name": "getTotalDebt",
-              "scope": 4810,
+              "scope": 4771,
               "stateMutability": "view",
               "virtual": false,
               "visibility": "external"
@@ -4474,7 +4474,7 @@
                   ]
                 },
                 "children": [],
-                "id": 4736,
+                "id": 4697,
                 "name": "ParameterList",
                 "src": "1491:2:25"
               },
@@ -4485,7 +4485,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "",
-                      "scope": 4743,
+                      "scope": 4704,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -4497,17 +4497,17 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4737,
+                        "id": 4698,
                         "name": "ElementaryTypeName",
                         "src": "1517:4:25"
                       }
                     ],
-                    "id": 4738,
+                    "id": 4699,
                     "name": "VariableDeclaration",
                     "src": "1517:4:25"
                   }
                 ],
-                "id": 4739,
+                "id": 4700,
                 "name": "ParameterList",
                 "src": "1516:6:25"
               },
@@ -4515,7 +4515,7 @@
                 "children": [
                   {
                     "attributes": {
-                      "functionReturnParameters": 4739
+                      "functionReturnParameters": 4700
                     },
                     "children": [
                       {
@@ -4523,26 +4523,26 @@
                           "overloadedDeclarations": [
                             null
                           ],
-                          "referencedDeclaration": 4703,
+                          "referencedDeclaration": 4664,
                           "type": "uint256",
                           "value": "totalAvailableDebt"
                         },
-                        "id": 4740,
+                        "id": 4701,
                         "name": "Identifier",
                         "src": "1532:18:25"
                       }
                     ],
-                    "id": 4741,
+                    "id": 4702,
                     "name": "Return",
                     "src": "1525:25:25"
                   }
                 ],
-                "id": 4742,
+                "id": 4703,
                 "name": "Block",
                 "src": "1523:30:25"
               }
             ],
-            "id": 4743,
+            "id": 4704,
             "name": "FunctionDefinition",
             "src": "1470:83:25"
           },
@@ -4556,7 +4556,7 @@
                 null
               ],
               "name": "getAllUsers",
-              "scope": 4810,
+              "scope": 4771,
               "stateMutability": "view",
               "virtual": false,
               "visibility": "external"
@@ -4569,7 +4569,7 @@
                   ]
                 },
                 "children": [],
-                "id": 4744,
+                "id": 4705,
                 "name": "ParameterList",
                 "src": "1579:2:25"
               },
@@ -4580,7 +4580,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "",
-                      "scope": 4754,
+                      "scope": 4715,
                       "stateVariable": false,
                       "storageLocation": "memory",
                       "type": "address[]",
@@ -4598,22 +4598,22 @@
                               "stateMutability": "nonpayable",
                               "type": "address"
                             },
-                            "id": 4745,
+                            "id": 4706,
                             "name": "ElementaryTypeName",
                             "src": "1605:7:25"
                           }
                         ],
-                        "id": 4746,
+                        "id": 4707,
                         "name": "ArrayTypeName",
                         "src": "1605:9:25"
                       }
                     ],
-                    "id": 4747,
+                    "id": 4708,
                     "name": "VariableDeclaration",
                     "src": "1605:16:25"
                   }
                 ],
-                "id": 4748,
+                "id": 4709,
                 "name": "ParameterList",
                 "src": "1604:18:25"
               },
@@ -4621,7 +4621,7 @@
                 "children": [
                   {
                     "attributes": {
-                      "functionReturnParameters": 4748
+                      "functionReturnParameters": 4709
                     },
                     "children": [
                       {
@@ -4652,7 +4652,7 @@
                               "isPure": false,
                               "lValueRequested": false,
                               "member_name": "getAllUsers",
-                              "referencedDeclaration": 4697,
+                              "referencedDeclaration": 4658,
                               "type": "function () view external returns (address[] memory)"
                             },
                             "children": [
@@ -4661,36 +4661,36 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 4708,
+                                  "referencedDeclaration": 4669,
                                   "type": "contract UserDebtData",
                                   "value": "debtData"
                                 },
-                                "id": 4749,
+                                "id": 4710,
                                 "name": "Identifier",
                                 "src": "1632:8:25"
                               }
                             ],
-                            "id": 4750,
+                            "id": 4711,
                             "name": "MemberAccess",
                             "src": "1632:20:25"
                           }
                         ],
-                        "id": 4751,
+                        "id": 4712,
                         "name": "FunctionCall",
                         "src": "1632:22:25"
                       }
                     ],
-                    "id": 4752,
+                    "id": 4713,
                     "name": "Return",
                     "src": "1625:29:25"
                   }
                 ],
-                "id": 4753,
+                "id": 4714,
                 "name": "Block",
                 "src": "1623:34:25"
               }
             ],
-            "id": 4754,
+            "id": 4715,
             "name": "FunctionDefinition",
             "src": "1559:98:25"
           },
@@ -4704,7 +4704,7 @@
                 null
               ],
               "name": "changeTotalDebt",
-              "scope": 4810,
+              "scope": 4771,
               "stateMutability": "nonpayable",
               "virtual": false,
               "visibility": "external"
@@ -4717,7 +4717,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "debtAmount",
-                      "scope": 4786,
+                      "scope": 4747,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -4729,12 +4729,12 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4755,
+                        "id": 4716,
                         "name": "ElementaryTypeName",
                         "src": "1690:4:25"
                       }
                     ],
-                    "id": 4756,
+                    "id": 4717,
                     "name": "VariableDeclaration",
                     "src": "1690:15:25"
                   },
@@ -4743,7 +4743,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "isAddition",
-                      "scope": 4786,
+                      "scope": 4747,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "bool",
@@ -4755,17 +4755,17 @@
                           "name": "bool",
                           "type": "bool"
                         },
-                        "id": 4757,
+                        "id": 4718,
                         "name": "ElementaryTypeName",
                         "src": "1707:4:25"
                       }
                     ],
-                    "id": 4758,
+                    "id": 4719,
                     "name": "VariableDeclaration",
                     "src": "1707:15:25"
                   }
                 ],
-                "id": 4759,
+                "id": 4720,
                 "name": "ParameterList",
                 "src": "1689:34:25"
               },
@@ -4776,7 +4776,7 @@
                   ]
                 },
                 "children": [],
-                "id": 4760,
+                "id": 4721,
                 "name": "ParameterList",
                 "src": "1733:0:25"
               },
@@ -4789,11 +4789,11 @@
                           "overloadedDeclarations": [
                             null
                           ],
-                          "referencedDeclaration": 4758,
+                          "referencedDeclaration": 4719,
                           "type": "bool",
                           "value": "isAddition"
                         },
-                        "id": 4761,
+                        "id": 4722,
                         "name": "Identifier",
                         "src": "1748:10:25"
                       },
@@ -4816,11 +4816,11 @@
                                       "overloadedDeclarations": [
                                         null
                                       ],
-                                      "referencedDeclaration": 4703,
+                                      "referencedDeclaration": 4664,
                                       "type": "uint256",
                                       "value": "totalAvailableDebt"
                                     },
-                                    "id": 4762,
+                                    "id": 4723,
                                     "name": "Identifier",
                                     "src": "1775:18:25"
                                   },
@@ -4861,16 +4861,16 @@
                                               "overloadedDeclarations": [
                                                 null
                                               ],
-                                              "referencedDeclaration": 4703,
+                                              "referencedDeclaration": 4664,
                                               "type": "uint256",
                                               "value": "totalAvailableDebt"
                                             },
-                                            "id": 4763,
+                                            "id": 4724,
                                             "name": "Identifier",
                                             "src": "1796:18:25"
                                           }
                                         ],
-                                        "id": 4764,
+                                        "id": 4725,
                                         "name": "MemberAccess",
                                         "src": "1796:22:25"
                                       },
@@ -4879,31 +4879,31 @@
                                           "overloadedDeclarations": [
                                             null
                                           ],
-                                          "referencedDeclaration": 4756,
+                                          "referencedDeclaration": 4717,
                                           "type": "uint256",
                                           "value": "debtAmount"
                                         },
-                                        "id": 4765,
+                                        "id": 4726,
                                         "name": "Identifier",
                                         "src": "1819:10:25"
                                       }
                                     ],
-                                    "id": 4766,
+                                    "id": 4727,
                                     "name": "FunctionCall",
                                     "src": "1796:34:25"
                                   }
                                 ],
-                                "id": 4767,
+                                "id": 4728,
                                 "name": "Assignment",
                                 "src": "1775:55:25"
                               }
                             ],
-                            "id": 4768,
+                            "id": 4729,
                             "name": "ExpressionStatement",
                             "src": "1775:55:25"
                           }
                         ],
-                        "id": 4769,
+                        "id": 4730,
                         "name": "Block",
                         "src": "1760:82:25"
                       },
@@ -4926,11 +4926,11 @@
                                       "overloadedDeclarations": [
                                         null
                                       ],
-                                      "referencedDeclaration": 4703,
+                                      "referencedDeclaration": 4664,
                                       "type": "uint256",
                                       "value": "totalAvailableDebt"
                                     },
-                                    "id": 4770,
+                                    "id": 4731,
                                     "name": "Identifier",
                                     "src": "1861:18:25"
                                   },
@@ -4971,16 +4971,16 @@
                                               "overloadedDeclarations": [
                                                 null
                                               ],
-                                              "referencedDeclaration": 4703,
+                                              "referencedDeclaration": 4664,
                                               "type": "uint256",
                                               "value": "totalAvailableDebt"
                                             },
-                                            "id": 4771,
+                                            "id": 4732,
                                             "name": "Identifier",
                                             "src": "1882:18:25"
                                           }
                                         ],
-                                        "id": 4772,
+                                        "id": 4733,
                                         "name": "MemberAccess",
                                         "src": "1882:22:25"
                                       },
@@ -4989,36 +4989,36 @@
                                           "overloadedDeclarations": [
                                             null
                                           ],
-                                          "referencedDeclaration": 4756,
+                                          "referencedDeclaration": 4717,
                                           "type": "uint256",
                                           "value": "debtAmount"
                                         },
-                                        "id": 4773,
+                                        "id": 4734,
                                         "name": "Identifier",
                                         "src": "1905:10:25"
                                       }
                                     ],
-                                    "id": 4774,
+                                    "id": 4735,
                                     "name": "FunctionCall",
                                     "src": "1882:34:25"
                                   }
                                 ],
-                                "id": 4775,
+                                "id": 4736,
                                 "name": "Assignment",
                                 "src": "1861:55:25"
                               }
                             ],
-                            "id": 4776,
+                            "id": 4737,
                             "name": "ExpressionStatement",
                             "src": "1861:55:25"
                           }
                         ],
-                        "id": 4777,
+                        "id": 4738,
                         "name": "Block",
                         "src": "1846:82:25"
                       }
                     ],
-                    "id": 4778,
+                    "id": 4739,
                     "name": "IfStatement",
                     "src": "1744:184:25"
                   },
@@ -5058,11 +5058,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4722,
+                              "referencedDeclaration": 4683,
                               "type": "function (uint256,uint256,bool)",
                               "value": "TotalDebtChanged"
                             },
-                            "id": 4779,
+                            "id": 4740,
                             "name": "Identifier",
                             "src": "1945:16:25"
                           },
@@ -5071,11 +5071,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4703,
+                              "referencedDeclaration": 4664,
                               "type": "uint256",
                               "value": "totalAvailableDebt"
                             },
-                            "id": 4780,
+                            "id": 4741,
                             "name": "Identifier",
                             "src": "1962:18:25"
                           },
@@ -5084,11 +5084,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4756,
+                              "referencedDeclaration": 4717,
                               "type": "uint256",
                               "value": "debtAmount"
                             },
-                            "id": 4781,
+                            "id": 4742,
                             "name": "Identifier",
                             "src": "1982:10:25"
                           },
@@ -5097,31 +5097,31 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4758,
+                              "referencedDeclaration": 4719,
                               "type": "bool",
                               "value": "isAddition"
                             },
-                            "id": 4782,
+                            "id": 4743,
                             "name": "Identifier",
                             "src": "1994:10:25"
                           }
                         ],
-                        "id": 4783,
+                        "id": 4744,
                         "name": "FunctionCall",
                         "src": "1945:60:25"
                       }
                     ],
-                    "id": 4784,
+                    "id": 4745,
                     "name": "EmitStatement",
                     "src": "1940:65:25"
                   }
                 ],
-                "id": 4785,
+                "id": 4746,
                 "name": "Block",
                 "src": "1733:280:25"
               }
             ],
-            "id": 4786,
+            "id": 4747,
             "name": "FunctionDefinition",
             "src": "1665:348:25"
           },
@@ -5135,7 +5135,7 @@
                 null
               ],
               "name": "changeDebt",
-              "scope": 4810,
+              "scope": 4771,
               "stateMutability": "nonpayable",
               "virtual": false,
               "visibility": "external"
@@ -5148,7 +5148,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "account",
-                      "scope": 4809,
+                      "scope": 4770,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -5161,12 +5161,12 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 4787,
+                        "id": 4748,
                         "name": "ElementaryTypeName",
                         "src": "2041:7:25"
                       }
                     ],
-                    "id": 4788,
+                    "id": 4749,
                     "name": "VariableDeclaration",
                     "src": "2041:15:25"
                   },
@@ -5175,7 +5175,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "debtAmount",
-                      "scope": 4809,
+                      "scope": 4770,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -5187,12 +5187,12 @@
                           "name": "uint",
                           "type": "uint256"
                         },
-                        "id": 4789,
+                        "id": 4750,
                         "name": "ElementaryTypeName",
                         "src": "2058:4:25"
                       }
                     ],
-                    "id": 4790,
+                    "id": 4751,
                     "name": "VariableDeclaration",
                     "src": "2058:15:25"
                   },
@@ -5201,7 +5201,7 @@
                       "constant": false,
                       "mutability": "mutable",
                       "name": "isAddition",
-                      "scope": 4809,
+                      "scope": 4770,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "bool",
@@ -5213,17 +5213,17 @@
                           "name": "bool",
                           "type": "bool"
                         },
-                        "id": 4791,
+                        "id": 4752,
                         "name": "ElementaryTypeName",
                         "src": "2075:4:25"
                       }
                     ],
-                    "id": 4792,
+                    "id": 4753,
                     "name": "VariableDeclaration",
                     "src": "2075:15:25"
                   }
                 ],
-                "id": 4793,
+                "id": 4754,
                 "name": "ParameterList",
                 "src": "2040:51:25"
               },
@@ -5234,7 +5234,7 @@
                   ]
                 },
                 "children": [],
-                "id": 4794,
+                "id": 4755,
                 "name": "ParameterList",
                 "src": "2101:0:25"
               },
@@ -5278,7 +5278,7 @@
                               "isPure": false,
                               "lValueRequested": false,
                               "member_name": "changeDebt",
-                              "referencedDeclaration": 4676,
+                              "referencedDeclaration": 4637,
                               "type": "function (address,uint256,bool) external"
                             },
                             "children": [
@@ -5287,16 +5287,16 @@
                                   "overloadedDeclarations": [
                                     null
                                   ],
-                                  "referencedDeclaration": 4708,
+                                  "referencedDeclaration": 4669,
                                   "type": "contract UserDebtData",
                                   "value": "debtData"
                                 },
-                                "id": 4795,
+                                "id": 4756,
                                 "name": "Identifier",
                                 "src": "2112:8:25"
                               }
                             ],
-                            "id": 4797,
+                            "id": 4758,
                             "name": "MemberAccess",
                             "src": "2112:19:25"
                           },
@@ -5305,11 +5305,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4788,
+                              "referencedDeclaration": 4749,
                               "type": "address",
                               "value": "account"
                             },
-                            "id": 4798,
+                            "id": 4759,
                             "name": "Identifier",
                             "src": "2132:7:25"
                           },
@@ -5318,11 +5318,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4790,
+                              "referencedDeclaration": 4751,
                               "type": "uint256",
                               "value": "debtAmount"
                             },
-                            "id": 4799,
+                            "id": 4760,
                             "name": "Identifier",
                             "src": "2141:10:25"
                           },
@@ -5331,21 +5331,21 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4792,
+                              "referencedDeclaration": 4753,
                               "type": "bool",
                               "value": "isAddition"
                             },
-                            "id": 4800,
+                            "id": 4761,
                             "name": "Identifier",
                             "src": "2153:10:25"
                           }
                         ],
-                        "id": 4801,
+                        "id": 4762,
                         "name": "FunctionCall",
                         "src": "2112:52:25"
                       }
                     ],
-                    "id": 4802,
+                    "id": 4763,
                     "name": "ExpressionStatement",
                     "src": "2112:52:25"
                   },
@@ -5381,11 +5381,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4714,
+                              "referencedDeclaration": 4675,
                               "type": "function (address,uint256)",
                               "value": "UserDebtChanged"
                             },
-                            "id": 4803,
+                            "id": 4764,
                             "name": "Identifier",
                             "src": "2180:15:25"
                           },
@@ -5394,11 +5394,11 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4788,
+                              "referencedDeclaration": 4749,
                               "type": "address",
                               "value": "account"
                             },
-                            "id": 4804,
+                            "id": 4765,
                             "name": "Identifier",
                             "src": "2196:7:25"
                           },
@@ -5407,41 +5407,41 @@
                               "overloadedDeclarations": [
                                 null
                               ],
-                              "referencedDeclaration": 4790,
+                              "referencedDeclaration": 4751,
                               "type": "uint256",
                               "value": "debtAmount"
                             },
-                            "id": 4805,
+                            "id": 4766,
                             "name": "Identifier",
                             "src": "2205:10:25"
                           }
                         ],
-                        "id": 4806,
+                        "id": 4767,
                         "name": "FunctionCall",
                         "src": "2180:36:25"
                       }
                     ],
-                    "id": 4807,
+                    "id": 4768,
                     "name": "EmitStatement",
                     "src": "2175:41:25"
                   }
                 ],
-                "id": 4808,
+                "id": 4769,
                 "name": "Block",
                 "src": "2101:123:25"
               }
             ],
-            "id": 4809,
+            "id": 4770,
             "name": "FunctionDefinition",
             "src": "2021:203:25"
           }
         ],
-        "id": 4810,
+        "id": 4771,
         "name": "ContractDefinition",
         "src": "1054:1175:25"
       }
     ],
-    "id": 4811,
+    "id": 4772,
     "name": "SourceUnit",
     "src": "33:2198:25"
   },
@@ -5451,7 +5451,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.6",
-  "updatedAt": "2022-05-31T09:56:51.000Z",
+  "updatedAt": "2022-05-31T13:01:19.829Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
