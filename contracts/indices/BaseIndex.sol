@@ -105,7 +105,7 @@ contract BaseIndex is Product {
             tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: _WETH,
-            indexPercentage: 5
+            indexPercentage: 2
         }));
         tokens.push(TokenInfo({ // 2) WBNB
             tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
@@ -135,7 +135,7 @@ contract BaseIndex is Product {
             tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: _WETH,
-            indexPercentage: 5
+            indexPercentage: 2
         }));
         tokens.push(TokenInfo({ // 7) COMP
             tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
@@ -147,26 +147,57 @@ contract BaseIndex is Product {
             tokenAddress: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: _WETH,
-            indexPercentage: 5
+            indexPercentage: 1
         }));
         tokens.push(TokenInfo({ // 9) SUSHI
             tokenAddress: 0x6B3595068778DD592e39A122f4f5a5cF09C90fE2,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: _WETH,
-            indexPercentage: 10
+            indexPercentage: 8
         }));
         tokens.push(TokenInfo({ // 10) APE
             tokenAddress: 0x4d224452801ACEd8B2F0aebE155379bb5D594381,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: _WETH,
-            indexPercentage: 10
+            indexPercentage: 7
         }));
         tokens.push(TokenInfo({ // 11) CRV
             tokenAddress: 0xD533a949740bb3306d119CC777fa900bA034cd52,
             poolFees: [uint24(3000), 10000],
             intermediateToken: _WETH,
-            indexPercentage: 10
+            indexPercentage: 5
         }));
+        tokens.push(TokenInfo({ // 12) LOOKS
+            tokenAddress: 0xf4d2888d29d722226fafa5d9b24f9164c092421e,
+            poolFees: [uint24(3000), uint24(3000)],
+            intermediateToken: _WETH,
+            indexPercentage: 2
+        }));
+        tokens.push(TokenInfo({ // 13) AAVE
+            tokenAddress: 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,
+            poolFees: [uint24(3000), uint24(3000)],
+            intermediateToken: _WETH,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({ // 14) MATIC
+            tokenAddress: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0,
+            poolFees: [uint24(3000), uint24(3000)],
+            intermediateToken: _WETH,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({ // 14) FTX
+            tokenAddress: 0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9,
+            poolFees: [uint24(3000), uint24(3000)],
+            intermediateToken: _WETH,
+            indexPercentage: 5
+        }));
+        tokens.push(TokenInfo({ // 15) GNOSIS
+            tokenAddress: 0x6810e776880C02933D47DB1b9fc05908e5386b96,
+            poolFees: [uint24(3000), uint24(3000)],
+            intermediateToken: _WETH,
+            indexPercentage: 3
+        }));
+
     }
 
     function buy(uint256 amount) external override nonReentrant checkSettlement {
