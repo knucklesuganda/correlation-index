@@ -1,23 +1,3 @@
-// // SPDX-License-Identifier: MIT
-// pragma solidity 0.7.6;
-// 
-// import "@chainlink/contracts/src/v0.7/interfaces/AggregatorV3Interface.sol";
-// import "@uniswap/v3
-// import "@openzeppelin/contracts/math/SafeMath.sol";
-// 
-// 
-// contract PriceOracle {
-//     using SafeMath for uint256;
-// 
-//     function getPrice(address priceAggregatorAddress) external view returns (uint) {
-//         AggregatorV3Interface aggregator = AggregatorV3Interface(priceAggregatorAddress);
-//         (, int price,,,) = aggregator.latestRoundData();
-//         return uint256(price).mul(10000000000);
-//     }
-// 
-// }
-
-
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
 
@@ -53,7 +33,7 @@ contract PriceOracle {
 
     function getPrice(
         address secondToken, uint24[2] memory poolFees, address intermediateToken
-    ) external view returns (uint) {
+    ) public view returns (uint) {
 
         if(intermediateToken == address(0)){
             int24 tick = getLatestTick(baseToken, secondToken, poolFees[0]);

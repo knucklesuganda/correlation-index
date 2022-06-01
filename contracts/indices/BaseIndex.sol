@@ -39,6 +39,7 @@ contract BaseIndex is Product {
     uint public tokensToBuy = 0;
     uint private tokensSold = 0;
     uint private buyAmountRequired = 0;
+    bool private isEmergency = false;
 
     function name() external pure override returns (string memory) { return "Index"; }
     function symbol() external pure override returns (string memory) { return "VID"; }
@@ -86,8 +87,9 @@ contract BaseIndex is Product {
         WETH = _WETH; // 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
         priceOracle = new PriceOracle(_dexFactoryAddress, _buyTokenAddress, _WETH);
 
-        productFee = 2;
+        productFee = 4;
         productFeeTotal = 100;
+
         indexToken = new IndexToken(
             address(this),
             _indexTokenName,
@@ -168,7 +170,7 @@ contract BaseIndex is Product {
             indexPercentage: 5
         }));
         tokens.push(TokenInfo({ // 12) LOOKS
-            tokenAddress: 0xf4d2888d29d722226fafa5d9b24f9164c092421e,
+            tokenAddress: 0xf4d2888d29D722226FafA5d9B24F9164c092421E,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: _WETH,
             indexPercentage: 2
@@ -198,6 +200,14 @@ contract BaseIndex is Product {
             indexPercentage: 3
         }));
 
+    }
+
+    function activateEmergency() external onlyOwner{ isEmergency = true; }
+
+    function retrieveEmergencyDebt(uint amount) external nonReentrant checkSettlement{
+        require(isEmergency, "Emergency is not active");
+        TransferHelper.safeTransfer(buyTokenAddress, msg.sender, amount * getPrice());
+        buyDebtManager.changeDebt(msg.sender, amount, false);
     }
 
     function buy(uint256 amount) external override nonReentrant checkSettlement {
@@ -385,7 +395,7 @@ contract BaseIndex is Product {
             indexTotalPrice = indexTotalPrice.add(getTokenPrice(token).mul(token.indexPercentage).div(100));
         }
 
-        return indexTotalPrice;
+        return indexTotalPrice.div(100);
     }
 
 }
