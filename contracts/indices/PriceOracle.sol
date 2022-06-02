@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.6;
+pragma abicoder v2;
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import '@uniswap/v3-core/contracts/libraries/TickMath.sol';
@@ -29,31 +30,15 @@ contract PriceOracle {
         return tick;
     }
 
-    function getL(address firstToken, address secondToken, uint24 fee) public view returns(uint, uint){
-        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));
-        (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
-
-        uint priceQuarter = sqrtPriceX96.div(4);
-        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(priceQuarter));
-        uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(priceQuarter));
-
-        (uint amount0, uint amount1) = LiquidityAmounts.getAmountsForLiquidity(
-            sqrtPriceX96,
-            sqrtRatioAX96,
-            sqrtRatioBX96,
-            pool.liquidity()
-        );
-        return (amount0, amount1);
-    }
-
     function getPoolTokensAmount(
         address firstToken, address secondToken, uint24 fee
     ) private view returns(uint, uint, address, address){
         IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));
         (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
 
-        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(sqrtPriceX96));
-        uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(sqrtPriceX96));
+        uint160 halfRatioX96 = uint160(sqrtPriceX96.div(2));
+        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(halfRatioX96));
+        uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(halfRatioX96));
 
         (uint amount0, uint amount1) = LiquidityAmounts.getAmountsForLiquidity(
             sqrtPriceX96,
@@ -65,10 +50,7 @@ contract PriceOracle {
 
     }
 
-    function getMinimalPoolLiquidity(address firstToken, address secondToken, uint24 fee) public view returns(uint){
-        // first = WETH
-        // second = SUSHI
-
+    function getMinimalPoolLiquidity(address firstToken, address secondToken, uint24 fee) private view returns(uint){
         (
             uint amount0,
             uint amount1,
@@ -98,17 +80,13 @@ contract PriceOracle {
     function getLiquidity(
         address firstToken, address secondToken, uint24[2] memory tokenFees, address intermediateToken
     ) external view returns(uint){
-        // firstToken = DAI
-        // secondToken = SUSHI
-        // intermediateToken = WETH
-
         if(intermediateToken == address(0)){
             return getMinimalPoolLiquidity(firstToken, secondToken, tokenFees[0]);
         }else{
-            uint firstPoolLiquidity = getMinimalPoolLiquidity(firstToken, intermediateToken, tokenFees[0]);     // DAI
-            uint secondPoolLiquidity = getMinimalPoolLiquidity(intermediateToken, secondToken, tokenFees[1]);   // WETH
+            uint firstPoolLiquidity = getMinimalPoolLiquidity(firstToken, intermediateToken, tokenFees[0]);
+            uint secondPoolLiquidity = getMinimalPoolLiquidity(intermediateToken, secondToken, tokenFees[1]);
 
-            uint price = getPrice(firstToken, intermediateToken, tokenFees, address(0));    // DAI
+            uint price = getPrice(firstToken, intermediateToken, tokenFees, address(0));
             secondPoolLiquidity = secondPoolLiquidity.mul(price).div(1 ether);
 
             if(firstPoolLiquidity > secondPoolLiquidity){

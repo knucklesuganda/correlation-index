@@ -73,7 +73,7 @@ contract BaseIndex is Product {
         return totalValue;
     }
 
-    function getAvailableLiquidity() public view returns(uint, uint){
+    function getAvailableLiquidity() public view returns(uint){
         uint minLiquidity;
         uint minPool;
 
@@ -93,7 +93,7 @@ contract BaseIndex is Product {
             }
         }
 
-        return (minLiquidity, minPool);
+        return minLiquidity.mul(1 ether).div(getPrice());
     }
 
     constructor(
@@ -227,6 +227,9 @@ contract BaseIndex is Product {
     function buy(uint256 amount) external override nonReentrant checkSettlement {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount > 0 && productFee > 0, "Not enough tokens sent");
+        require(getAvailableLiquidity() >= amount, "Not enough liquidity");
+
+        // 0x0d41e7f0c7911c67d217fddfdf485023b2d0a2ca127ab90a027871d146e8e103
 
         uint256 indexPrice = getPrice();
         uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
@@ -243,6 +246,7 @@ contract BaseIndex is Product {
     function sell(uint amount) external override nonReentrant checkSettlement{
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount > 0 && productFee > 0, "You must sell more tokens");
+        require(getAvailableLiquidity() >= amount, "Not enough liquidity. Try selling on the exchanges");
 
         uint indexPrice = getPrice();
 
@@ -409,7 +413,7 @@ contract BaseIndex is Product {
             indexTotalPrice = indexTotalPrice.add(getTokenPrice(token).mul(token.indexPercentage).div(100));
         }
 
-        return indexTotalPrice.div(100);
+        return indexTotalPrice;
     }
 
 }
