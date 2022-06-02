@@ -29,7 +29,7 @@ contract PriceOracle {
         return tick;
     }
 
-    function getMinimalPoolLiquidity(address firstToken, address secondToken, uint24 fee) public view returns(uint){
+    function getL(address firstToken, address secondToken, uint24 fee) public view returns(uint, uint){
         IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));
         (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
 
@@ -43,27 +43,80 @@ contract PriceOracle {
             sqrtRatioBX96,
             pool.liquidity()
         );
+        return (amount0, amount1);
+    }
 
-        uint price = getPrice(firstToken, secondToken, [fee, 0], address(0));
-        uint amount1InAmount0 = amount1.mul(price).div(1 ether);
+    function getPoolTokensAmount(
+        address firstToken, address secondToken, uint24 fee
+    ) private view returns(uint, uint, address, address){
+        IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));
+        (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
 
-        if(amount0 > amount1InAmount0){
-            return amount1InAmount0;
+        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(sqrtPriceX96));
+        uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(sqrtPriceX96));
+
+        (uint amount0, uint amount1) = LiquidityAmounts.getAmountsForLiquidity(
+            sqrtPriceX96,
+            sqrtRatioAX96,
+            sqrtRatioBX96,
+            pool.liquidity()
+        );
+        return (amount0, amount1, pool.token0(), pool.token1());
+
+    }
+
+    function getMinimalPoolLiquidity(address firstToken, address secondToken, uint24 fee) public view returns(uint){
+        // first = WETH
+        // second = SUSHI
+
+        (
+            uint amount0,
+            uint amount1,
+            address token0,
+            address token1
+        ) = getPoolTokensAmount(firstToken, secondToken, fee);
+        uint adjustedAmount;
+        uint anotherAmount;
+
+        if(token0 == firstToken){
+            uint firstTokenPrice = getPrice(token0, token1, [fee, 0], address(0));
+            adjustedAmount = amount1.mul(firstTokenPrice).div(1 ether);
+            anotherAmount = amount0;
         }else{
-            return amount0;
+            uint firstTokenPrice = getPrice(token1, token0, [fee, 0], address(0));
+            adjustedAmount = amount0.mul(firstTokenPrice).div(1 ether);
+            anotherAmount = amount1;
+        }
+
+        if(anotherAmount > adjustedAmount){
+            return adjustedAmount;
+        }else{
+            return anotherAmount;
         }
     }
 
     function getLiquidity(
         address firstToken, address secondToken, uint24[2] memory tokenFees, address intermediateToken
     ) external view returns(uint){
+        // firstToken = DAI
+        // secondToken = SUSHI
+        // intermediateToken = WETH
+
         if(intermediateToken == address(0)){
             return getMinimalPoolLiquidity(firstToken, secondToken, tokenFees[0]);
         }else{
-            uint firstPoolLiquidity = getMinimalPoolLiquidity(firstToken, intermediateToken, tokenFees[0]);
-            uint secondPoolLiquidity = getMinimalPoolLiquidity(intermediateToken, secondToken, tokenFees[1]);
+            uint firstPoolLiquidity = getMinimalPoolLiquidity(firstToken, intermediateToken, tokenFees[0]);     // DAI
+            uint secondPoolLiquidity = getMinimalPoolLiquidity(intermediateToken, secondToken, tokenFees[1]);   // WETH
 
-            return firstPoolLiquidity > secondPoolLiquidity ? secondPoolLiquidity : firstPoolLiquidity;
+            uint price = getPrice(firstToken, intermediateToken, tokenFees, address(0));    // DAI
+            secondPoolLiquidity = secondPoolLiquidity.mul(price).div(1 ether);
+
+            if(firstPoolLiquidity > secondPoolLiquidity){
+                return secondPoolLiquidity;
+            }else{
+                return firstPoolLiquidity;
+            }
+
         }
 
     }

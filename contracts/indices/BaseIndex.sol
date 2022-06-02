@@ -73,8 +73,9 @@ contract BaseIndex is Product {
         return totalValue;
     }
 
-    function getAvailableLiquidity() public view returns(uint){
+    function getAvailableLiquidity() public view returns(uint, uint){
         uint minLiquidity;
+        uint minPool;
 
         for(uint i = 0; i < tokens.length; i++){
 
@@ -88,10 +89,11 @@ contract BaseIndex is Product {
 
             if(poolLiquidity < minLiquidity || minLiquidity == 0){
                 minLiquidity = poolLiquidity;
+                minPool = i;
             }
         }
 
-        return minLiquidity;
+        return (minLiquidity, minPool);
     }
 
     constructor(
