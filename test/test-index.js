@@ -15,7 +15,15 @@ contract('BaseIndex', (accounts) => {
     let FUNDS_VALUE;
 
     beforeEach(async () => {
-        index = await BaseIndex.new();
+        index = await BaseIndex.new(
+            '0xE592427A0AEce92De3Edee1F18E0157C05861564',
+            '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+            '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 
+            '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            'Void Index Token',
+            'VID',
+            { from: indexOwner },
+        );
         buyToken = await IERC20.at(await index.buyTokenAddress());
         indexToken = await IERC20.at(await index.indexToken());
 
@@ -23,48 +31,36 @@ contract('BaseIndex', (accounts) => {
         await buyToken.approve(await index.address, FUNDS_VALUE, { from: account });
     });
 
-    // it("should return index owner", async () => {
-    //     const owner = await testIndex.owner();
-    //     assert.equal(owner, indexOwner);
-    // });
+    it("should return index owner", async (accounts) => {
+        const owner = await index.owner({ from: accounts[0], gasLimit: 100000 });
+        assert.equal(owner, indexOwner);
+    });
 
-    // it("must add funds according to the price", async () => {
-    // 
-    //     await testIndex.buy(FUNDS_VALUE, { from: account });
-    //     const price = await testIndex.getPrice();
-    // 
-    //     console.log(FUNDS_VALUE.div(price).toString());
-    // 
-    //     assert.equal(
-    //         await indexToken.balanceOf(account),
-    //         FUNDS_VALUE.div(price)
-    //     );
-    // 
-    // });
-    // 
-    // it("must add debt to the user", async () => {
-    // 
-    //     await testIndex.buy(FUNDS_VALUE, { from: account });
-    //     const balance = await indexToken.balanceOf(account);
-    // 
-    //     indexToken.approve(testIndex.address, balance, { from: account });
-    //     await testIndex.sell(balance, { from: account });
-    // 
-    //     assert.isAbove(
-    //         await testIndex.usersDebt(account),
-    //         0
-    //     );
-    // 
-    // });
+    const buyTokens = async () => {
+        await buyToken.approve(index.address, FUNDS_VALUE, { from: account });
 
-    it("must buy tokens", async () => {
-        const tokens = FUNDS_VALUE.div(await index.getPrice());
-        await index.buy(tokens, { from: account });
+        const price = await index.getPrice();
+        const tokensBought = FUNDS_VALUE.div(price);
 
-        const feeData = await index.getProductFee();
-        const productFee = (feeData[1].toNumber() * feeData[0].toNumber()) / 100;
+        await index.buy(tokensBought, { from: account });
+        const feeData = await index.getFee();
 
-        assert.equal(await index.getUserDebt(account, true), tokens.sub(tokens.div(100).mul(productFee)));
+        const fee = (100 / feeData[1].toNumber()) * feeData[0].toNumber();
+        return [tokensBought, fee];
+    };
+    
+    it("must add funds according to the price", async () => {
+        const [tokensBought, fee] = await buyTokens();
+
+        assert.equal(
+            await index.getUserDebt(account, true),
+            tokensBought.sub(tokensBought.div(100).mul(fee))
+        );
+
+    });
+
+    it("must settle the tokens", async () => {
+        await buyTokens();
 
         const components = await index.getComponents();
         await index.beginSettlement({ from: indexOwner });
@@ -76,47 +72,46 @@ contract('BaseIndex', (accounts) => {
         await index.endSettlement({ from: indexOwner });
     });
 
+    it("should return the price of the index", async () => {
+        const price = await index.getPrice();
+        console.log("Index price:", price.toString());
+    });
+
     // it("should increase the balance of the index owner by fee", async () => {
     //     const balanceBefore = await buyToken.balanceOf(indexOwner);
-    //     await testIndex.buy(FUNDS_VALUE, { from: account });
+    //     await index.buy(FUNDS_VALUE, { from: account });
     //     const balanceAfter = await buyToken.balanceOf(indexOwner);
     // 
     //     console.log("Balance before: ", balanceBefore.toString(), " Balance after:", balanceAfter.toString());
-    //     const fee = FUNDS_VALUE.div(100).mul(await testIndex.productFee());
+    //     const fee = FUNDS_VALUE.div(100).mul(await index.productFee());
     //     assert.equal(balanceAfter.sub(balanceBefore).toString(), fee.toString());
     // });
-    // 
-    // it("should return the price of the index", async () => {
-    //     const price = await testIndex.getPrice();
-    //     console.log("Index price:", price.toString());
-    // });
-    // 
     // it("should be able to add funds to the index", async () => {
-    //     console.log(await testIndex.buy(FUNDS_VALUE, { from: account }));
+    //     console.log(await index.buy(FUNDS_VALUE, { from: account }));
     //     console.log("Account index token balance:", (await indexToken.balanceOf(account)).toString());
     // });
     // 
     // it("should withdraw funds from the index", async () => {
-    //     console.log(await testIndex.buy(FUNDS_VALUE, { from: account }));
+    //     console.log(await index.buy(FUNDS_VALUE, { from: account }));
     //     const tokenFunds = await indexToken.balanceOf(account);
     // 
-    //     await indexToken.approve(await testIndex.address, tokenFunds, { from: account });
+    //     await indexToken.approve(await index.address, tokenFunds, { from: account });
     // 
     //     /////////////////////////////////////////////////////////////////////////
     //     console.log(
     //         'ETH:', (await (
     //             await IERC20.at('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2')
-    //         ).balanceOf(await testIndex.address)).toString(),
+    //         ).balanceOf(await index.address)).toString(),
     // 
     //         '\n',
     // 
     //         'BTC:', (await (
     //             await IERC20.at('0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599')
-    //         ).balanceOf(await testIndex.address)).toString()
+    //         ).balanceOf(await index.address)).toString()
     //     );
     //     /////////////////////////////////////////////////////////////////////////
     // 
-    //     await testIndex.sell(tokenFunds, { from: account });
+    //     await index.sell(tokenFunds, { from: account });
     //     console.log("Account DAI balance:", (await buyToken.balanceOf(account)).toString());
     // });
 
