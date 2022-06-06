@@ -41,10 +41,7 @@ contract PriceOracle {
         uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(halfRatioX96));
 
         (uint amount0, uint amount1) = LiquidityAmounts.getAmountsForLiquidity(
-            sqrtPriceX96,
-            sqrtRatioAX96,
-            sqrtRatioBX96,
-            pool.liquidity()
+            sqrtPriceX96, sqrtRatioAX96, sqrtRatioBX96, pool.liquidity()
         );
         return (amount0, amount1, pool.token0(), pool.token1());
 

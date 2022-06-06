@@ -39,6 +39,8 @@ contract BaseIndex is Product {
     uint public tokensToBuy = 0;
     uint private tokensSold = 0;
     uint private buyAmountRequired = 0;
+    uint public immutable maxTokens;
+    uint public availableTokens;
 
     function name() external pure override returns (string memory) { return "Index"; }
     function symbol() external pure override returns (string memory) { return "VID"; }
@@ -101,6 +103,9 @@ contract BaseIndex is Product {
         address _dexFactoryAddress,
         address _WETH,
         address _buyTokenAddress,
+        uint _maxTokens,
+        uint8 _initialFee,
+        uint _initialFeeTotal,
         string memory _indexTokenName,
         string memory _indexTokenSymbol
     ) {
@@ -109,8 +114,10 @@ contract BaseIndex is Product {
         WETH = _WETH; // 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
         priceOracle = new PriceOracle(_dexFactoryAddress);
 
-        productFee = 4;
-        productFeeTotal = 100;
+        productFee = _initialFee;
+        productFeeTotal = _initialFeeTotal;
+        maxTokens = _maxTokens;
+        availableTokens = _maxTokens;
 
         indexToken = new IndexToken(
             address(this),
@@ -227,9 +234,9 @@ contract BaseIndex is Product {
     function buy(uint256 amount) external override nonReentrant checkSettlement {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount > 0 && productFee > 0, "Not enough tokens sent");
-        require(getAvailableLiquidity() >= amount, "Not enough liquidity");
+        require(getAvailableLiquidity() >= amount && realAmount <= availableTokens, "Not enough liquidity");
 
-        // 0x0d41e7f0c7911c67d217fddfdf485023b2d0a2ca127ab90a027871d146e8e103
+        availableTokens = availableTokens.sub(realAmount);
 
         uint256 indexPrice = getPrice();
         uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);

@@ -40,7 +40,7 @@ contract Observer is Ownable{
 
     }
 
-    function checkProductExists(address productAddress) public view returns (bool) {
+    function checkProductExists(address productAddress) external view returns (bool) {
         for (uint256 index = 0; index < products.length; index++) {
             if (products[index].productAddress == productAddress) {
                 return true;
