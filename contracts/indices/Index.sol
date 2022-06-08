@@ -92,7 +92,8 @@ contract Index is Product {
             }
         }
 
-        return minLiquidity.mul(1 ether).div(getPrice());
+        minLiquidity = minLiquidity.mul(1 ether).div(getPrice());
+        return minLiquidity;
     }
 
     constructor() {
@@ -375,13 +376,10 @@ contract Index is Product {
         uint indexTotalPrice = 0;
 
         for (uint i = 0; i < tokens.length; i++) {
-            TokenInfo memory token = tokens[i];
-            indexTotalPrice = indexTotalPrice.add(
-                getTokenPrice(token).mul(token.indexPercentage).div(100)
-            );
+            indexTotalPrice = indexTotalPrice.add(getTokenPrice(tokens[i]).mul(tokens[i].indexPercentage));
         }
 
-        return indexTotalPrice;
+        return indexTotalPrice.div(100);
     }
 
 }

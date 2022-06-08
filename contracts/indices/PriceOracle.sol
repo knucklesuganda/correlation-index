@@ -40,7 +40,6 @@ contract PriceOracle {
             sqrtPriceX96, sqrtRatioAX96, sqrtRatioBX96, pool.liquidity()
         );
         return (amount0, amount1, pool.token0(), pool.token1());
-
     }
 
     function getMinimalPoolLiquidity(address firstToken, address secondToken, uint24 fee) private view returns(uint){
