@@ -18,11 +18,7 @@ contract PriceOracle {
     using SafeMath for uint256;
     using SafeMath for uint160;
 
-    IUniswapV3Factory private factory;
-
-    constructor(address _factoryAddress){
-        factory = IUniswapV3Factory(_factoryAddress);
-    }
+    IUniswapV3Factory private factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
 
     function getLatestTick(address firstToken, address secondToken, uint24 fee) private view returns(int24){
         IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));

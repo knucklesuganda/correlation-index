@@ -43,17 +43,12 @@ contract IndexToken is Token {
     mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
 
-    string public name;
-    uint8 public decimals;
-    string public symbol;
+    string public constant name = "Void Index Token";
+    uint8 public constant decimals = 18;
+    string public constant symbol = "VID";
     address public indexAddress;
 
-    constructor(address _indexAddress, string memory _tokenName, uint8 _decimalUnits, string  memory _tokenSymbol) {
-        indexAddress = _indexAddress;
-        name = _tokenName;
-        decimals = _decimalUnits;
-        symbol = _tokenSymbol;
-    }
+    constructor(address _indexAddress) { indexAddress = _indexAddress; }
 
     function transfer(address _to, uint256 _value) public override returns (bool success) {
 
@@ -71,7 +66,10 @@ contract IndexToken is Token {
 
     function transferFrom(address _from, address _to, uint256 _value) public override returns (bool success) {
         uint256 allowance_ = allowed[_from][msg.sender];
-        require(balances[_from] >= _value && allowance_ >= _value, "token balance or allowance is lower than amount requested");
+        require(
+            balances[_from] >= _value && allowance_ >= _value, 
+            "token balance or allowance is lower than amount requested"
+        );
         balances[_to] += _value;
         balances[_from] -= _value;
         if (allowance_ < MAX_UINT256) {

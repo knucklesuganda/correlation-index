@@ -20,7 +20,7 @@ contract('BaseIndex', (accounts) => {
             '0x1F98431c8aD98523631AE4a59f267346ea31F984',
             '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 
             '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            100,
+            '1001000000000000000000',
             5,
             100,
             'Void Index Token',
