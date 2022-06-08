@@ -24,7 +24,7 @@ contract Index is Product {
         address intermediateToken;
     }
 
-    TokenInfo[17] private tokens;
+    TokenInfo[10] private tokens;
     IndexToken public immutable indexToken;
 
     address private immutable WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
@@ -39,12 +39,12 @@ contract Index is Product {
     uint public tokensToBuy = 0;
     uint private tokensSold = 0;
     uint private buyAmountRequired = 0;
-    uint public constant maxTokens = 100000000000000000000;
-    uint public availableTokens = 100000000000000000000;
+    uint public constant maxTokens = 200000000000000000000;
+    uint public availableTokens = 200000000000000000000;
 
     function name() external pure override returns (string memory) { return "Index"; }
     function symbol() external pure override returns (string memory) { return "VID"; }
-    function getComponents() external view returns (TokenInfo[17] memory) { return tokens; }
+    function getComponents() external view returns (TokenInfo[10] memory) { return tokens; }
 
     function shortDescription() external pure override returns (string memory) {
         return "Void Index - fully decentralized index";
@@ -102,104 +102,104 @@ contract Index is Product {
             tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: address(0),
-            indexPercentage: 15
+            indexPercentage: 25
         });
         tokens[1] = TokenInfo({ // 1) LINK
             tokenAddress: 0x514910771AF9Ca656af840dff83E8264EcF986CA,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 2
+            indexPercentage: 15
         });
-        tokens[2] = TokenInfo({ // 2) WBNB
-            tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
-            poolFees: [uint24(3000), uint24(3000)],
-            intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 10
-        });
-        tokens[3] = TokenInfo({ // 3) UNI
+        tokens[2] = TokenInfo({ // 3) UNI
             tokenAddress: 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 10
+            indexPercentage: 20
         });
-        tokens[4] = TokenInfo({ // 4) 1INCH
+        tokens[3] = TokenInfo({ // 4) 1INCH
             tokenAddress: 0x111111111117dC0aa78b770fA6A738034120C302,
             poolFees: [uint24(3000), 10000],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             indexPercentage: 10
         });
-        tokens[5] = TokenInfo({ // 5) SNX
+        tokens[4] = TokenInfo({ // 5) SNX
             tokenAddress: 0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F,
             poolFees: [uint24(3000), 10000],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             indexPercentage: 5
         });
-        tokens[6] = TokenInfo({ // 6) YFI
-            tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
-            poolFees: [uint24(3000), uint24(3000)],
-            intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 2
-        });
-        tokens[7] = TokenInfo({ // 7) COMP
+        tokens[5] = TokenInfo({ // 7) COMP
             tokenAddress: 0xc00e94Cb662C3520282E6f5717214004A7f26888,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             indexPercentage: 5
         });
-        tokens[8] = TokenInfo({ // 8) MKR
+        tokens[6] = TokenInfo({ // 8) MKR
             tokenAddress: 0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 1
+            indexPercentage: 3
         });
-        tokens[9] = TokenInfo({ // 9) SUSHI
-            tokenAddress: 0x6B3595068778DD592e39A122f4f5a5cF09C90fE2,
-            poolFees: [uint24(3000), uint24(3000)],
-            intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 8
-        });
-        tokens[10] = TokenInfo({ // 10) APE
+        tokens[7] = TokenInfo({ // 10) APE
             tokenAddress: 0x4d224452801ACEd8B2F0aebE155379bb5D594381,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             indexPercentage: 7
         });
-        tokens[11] = TokenInfo({ // 11) CRV
-            tokenAddress: 0xD533a949740bb3306d119CC777fa900bA034cd52,
-            poolFees: [uint24(3000), 10000],
-            intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 5
-        });
-        tokens[12] = TokenInfo({ // 12) LOOKS
-            tokenAddress: 0xf4d2888d29D722226FafA5d9B24F9164c092421E,
-            poolFees: [uint24(3000), uint24(3000)],
-            intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 2
-        });
-        tokens[13] = TokenInfo({ // 13) AAVE
+        tokens[8] = TokenInfo({ // 13) AAVE
             tokenAddress: 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             indexPercentage: 5
         });
-        tokens[14] = TokenInfo({ // 14) MATIC
+        tokens[9] = TokenInfo({ // 14) MATIC
             tokenAddress: 0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0,
             poolFees: [uint24(3000), uint24(3000)],
             intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             indexPercentage: 5
         });
-        tokens[15] = TokenInfo({ // 14) FTX
-            tokenAddress: 0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9,
-            poolFees: [uint24(3000), uint24(3000)],
-            intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 5
-        });
-        tokens[16] = TokenInfo({ // 15) GNOSIS
-            tokenAddress: 0x6810e776880C02933D47DB1b9fc05908e5386b96,
-            poolFees: [uint24(3000), uint24(3000)],
-            intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            indexPercentage: 3
-        });
+        // tokens[2] = TokenInfo({ // 2) WBNB
+        //     tokenAddress: 0x418D75f65a02b3D53B2418FB8E1fe493759c7605,
+        //     poolFees: [uint24(3000), uint24(3000)],
+        //     intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+        //     indexPercentage: 10
+        // });
+        // tokens[6] = TokenInfo({ // 6) YFI
+        //     tokenAddress: 0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e,
+        //     poolFees: [uint24(3000), uint24(3000)],
+        //     intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+        //     indexPercentage: 2
+        // });
+        // tokens[9] = TokenInfo({ // 9) SUSHI
+        //     tokenAddress: 0x6B3595068778DD592e39A122f4f5a5cF09C90fE2,
+        //     poolFees: [uint24(3000), uint24(3000)],
+        //     intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+        //     indexPercentage: 8
+        // });
+        // tokens[11] = TokenInfo({ // 11) CRV
+        //     tokenAddress: 0xD533a949740bb3306d119CC777fa900bA034cd52,
+        //     poolFees: [uint24(3000), 10000],
+        //     intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+        //     indexPercentage: 5
+        // });
+        // tokens[12] = TokenInfo({ // 12) LOOKS
+        //     tokenAddress: 0xf4d2888d29D722226FafA5d9B24F9164c092421E,
+        //     poolFees: [uint24(3000), uint24(3000)],
+        //     intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+        //     indexPercentage: 2
+        // });
+        // tokens[15] = TokenInfo({ // 14) FTX
+        //     tokenAddress: 0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9,
+        //     poolFees: [uint24(3000), uint24(3000)],
+        //     intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+        //     indexPercentage: 5
+        // });
+        // tokens[16] = TokenInfo({ // 15) GNOSIS
+        //     tokenAddress: 0x6810e776880C02933D47DB1b9fc05908e5386b96,
+        //     poolFees: [uint24(3000), uint24(3000)],
+        //     intermediateToken: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
+        //     indexPercentage: 3
+        // });
     }
 
     function buy(uint256 amount) external override nonReentrant checkSettlement {
@@ -277,24 +277,16 @@ contract Index is Product {
         isSettlement = false;
     }
 
-    function getTokensDrawdown(uint amount) private view returns(uint){
-        return amount.mul(productFee).mul(10).div(productFeeTotal);
-    }
-
-    function manageTokensSell(TokenInfo memory token, uint amount, uint tokenPrice) private {
-        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
-
-        uint tokenPercentage = amount.mul(getPrice()).mul(token.indexPercentage).div(100);
-        uint amountIn = tokenPercentage.div(tokenPrice);
+    function manageTokensSell(TokenInfo memory token, ISwapRouter dexRouter, uint amount, uint tokenPrice) private {
+        uint amountIn = amount.mul(getPrice()).mul(token.indexPercentage).div(100).div(tokenPrice);
 
         uint usdAmountIn = amountIn.mul(tokenPrice).div(1 ether);
-        uint amountOutMinimum = usdAmountIn.sub(getTokensDrawdown(usdAmountIn));
+        uint amountOutMinimum = usdAmountIn.sub(usdAmountIn.mul(productFee).mul(10).div(productFeeTotal));
 
-        uint amountOut;
         TransferHelper.safeApprove(token.tokenAddress, dexRouterAddress, amountIn);
 
         if(token.intermediateToken == address(0)){
-            amountOut = dexRouter.exactInputSingle(
+            tokensSold = tokensSold.add(dexRouter.exactInputSingle(
                 ISwapRouter.ExactInputSingleParams({
                     tokenIn: token.tokenAddress,
                     tokenOut: buyTokenAddress,
@@ -305,9 +297,9 @@ contract Index is Product {
                     amountOutMinimum: amountOutMinimum,
                     sqrtPriceLimitX96: 0
                 })
-            );
+            ));
         }else{
-            amountOut = dexRouter.exactInput(
+            tokensSold = tokensSold.add(dexRouter.exactInput(
                 ISwapRouter.ExactInputParams({
                     path: abi.encodePacked(
                         token.tokenAddress,
@@ -321,20 +313,16 @@ contract Index is Product {
                     amountIn: amountIn,
                     amountOutMinimum: amountOutMinimum
                 })
-            );
+            ));
         }
-
-        tokensSold = tokensSold.add(amountOut);
     }
 
-    function manageTokensBuy(TokenInfo memory token, uint amount, uint tokenPrice) private {
-        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
+    function manageTokensBuy(TokenInfo memory token, ISwapRouter dexRouter, uint amount, uint tokenPrice) private {
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
-        uint amountInMaximum = amount.add(getTokensDrawdown(amount));
-        uint amountInRequired;
+        uint amountInMaximum = amount.add(amount.mul(productFee).mul(10).div(productFeeTotal));
 
         if(token.intermediateToken == address(0)){
-            amountInRequired = dexRouter.exactOutputSingle(
+            buyAmountRequired = buyAmountRequired.add(dexRouter.exactOutputSingle(
                 ISwapRouter.ExactOutputSingleParams({
                     tokenIn: buyTokenAddress,
                     tokenOut: token.tokenAddress,
@@ -345,9 +333,9 @@ contract Index is Product {
                     amountInMaximum: amountInMaximum,
                     sqrtPriceLimitX96: 0
                 })
-            );
+            ));
         }else{
-            amountInRequired = dexRouter.exactOutput(
+            buyAmountRequired = buyAmountRequired.add(dexRouter.exactOutput(
                 ISwapRouter.ExactOutputParams({
                     path: abi.encodePacked(
                         token.tokenAddress,
@@ -361,10 +349,8 @@ contract Index is Product {
                     amountOut: amountOut,
                     amountInMaximum: amountInMaximum
                 })
-            );
+            ));
         }
-
-        buyAmountRequired = buyAmountRequired.add(amountInRequired);
     }
 
     function manageTokens() external onlyOwner {
@@ -374,13 +360,14 @@ contract Index is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
         uint tokenPrice = getTokenPrice(token);
+        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
         if(tokensToBuyAmount > 0){
-            manageTokensBuy(token, tokensToBuyAmount, tokenPrice);
+            manageTokensBuy(token, dexRouter, tokensToBuyAmount, tokenPrice);
         }
 
         if(tokensToSell > 0){
-            manageTokensSell(token, tokensToSell, tokenPrice);
+            manageTokensSell(token, dexRouter, tokensToSell, tokenPrice);
         }
     }
 
@@ -389,7 +376,9 @@ contract Index is Product {
 
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory token = tokens[i];
-            indexTotalPrice = indexTotalPrice.add(getTokenPrice(token).mul(token.indexPercentage).div(100));
+            indexTotalPrice = indexTotalPrice.add(
+                getTokenPrice(token).mul(token.indexPercentage).div(100)
+            );
         }
 
         return indexTotalPrice;
