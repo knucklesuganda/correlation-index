@@ -50,7 +50,7 @@ contract Index is Product {
     }
 
     function longDescription() external pure override returns (string memory) {
-        return "Void Index - fully decentralized index. It features 17 ERC20 tokens, and allows you to buy or sell them at once. You receive VID tokens as a proof of funds ownership";
+        return "Void Index - fully decentralized index. It features 10 ERC20 tokens, and allows you to buy or sell them at once. You receive VID tokens as a proof of funds ownership";
     }
 
     function getTokenPrice(TokenInfo memory token) public view returns (uint256) {
@@ -362,13 +362,8 @@ contract Index is Product {
         uint tokenPrice = getTokenPrice(token);
         ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
 
-        if(tokensToBuyAmount > 0){
-            manageTokensBuy(token, dexRouter, tokensToBuyAmount, tokenPrice);
-        }
-
-        if(tokensToSell > 0){
-            manageTokensSell(token, dexRouter, tokensToSell, tokenPrice);
-        }
+        if(tokensToBuyAmount > 0){ manageTokensBuy(token, dexRouter, tokensToBuyAmount, tokenPrice); }
+        if(tokensToSell > 0){ manageTokensSell(token, dexRouter, tokensToSell, tokenPrice); }
     }
 
     function getPrice() public view override returns (uint) {
