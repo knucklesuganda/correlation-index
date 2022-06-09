@@ -7,10 +7,6 @@ import "./BaseProduct.sol";
 
 
 contract Observer is Ownable{
-
-    event ProductAdded(address product, string productType);
-    event ProductDeleted(address product);
-
     struct ProductInfo{
         address productAddress;
         string productType;
@@ -20,7 +16,6 @@ contract Observer is Ownable{
 
     function addProduct(address productAddress, string memory productType) external onlyOwner {
         products.push(ProductInfo(productAddress, productType));
-        emit ProductAdded(productAddress, productType);
     }
 
     function removeProduct(address productAddress) external onlyOwner{
@@ -33,7 +28,6 @@ contract Observer is Ownable{
                 }
 
                 products.pop();
-                emit ProductDeleted(productAddress);
                 break;
             }
         }

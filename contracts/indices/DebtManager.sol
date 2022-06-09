@@ -38,8 +38,8 @@ contract UserDebtData{
 
 
 contract DebtManager{
-
     using SafeMath for uint256;
+
     uint private totalAvailableDebt;
     UserDebtData private debtData = new UserDebtData();
 
