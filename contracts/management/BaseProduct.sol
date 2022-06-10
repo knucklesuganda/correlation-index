@@ -39,7 +39,7 @@ abstract contract Product is Ownable, ReentrancyGuard {
     function getPrice() virtual public view returns(uint);
 
     function calculateFee(uint amount) public view returns(uint, uint){
-        uint productFeeAmount = amount.div(productFeeTotal).mul(productFee);
+        uint productFeeAmount = amount.mul(productFee).div(productFeeTotal);
         return (productFeeAmount, amount.sub(productFeeAmount));
     }
 

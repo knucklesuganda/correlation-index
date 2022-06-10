@@ -39,8 +39,8 @@ contract Index is Product {
     uint private tokensSold = 0;
     uint private buyAmountRequired = 0;
     bool private allTokensManaged = false;
-    uint public constant maxTokens = 100000000000000000000;
-    uint public availableTokens = 100000000000000000000;
+    uint public constant maxTokens = 1500000000000000000000;
+    uint public availableTokens = 1500000000000000000000;
 
     function name() external pure override returns (string memory) { return "Index"; }
     function symbol() external pure override returns (string memory) { return "VID"; }
@@ -382,7 +382,7 @@ contract Index is Product {
             indexTotalPrice = indexTotalPrice.add(getTokenPrice(tokens[i]).mul(tokens[i].indexPercentage));
         }
 
-        return indexTotalPrice.div(100);
+        return indexTotalPrice.div(1000);
     }
 
 }
