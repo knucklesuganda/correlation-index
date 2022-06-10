@@ -41,9 +41,16 @@ contract('Index', (accounts) => {
         const feeData = await index.getFee();
 
         const fee = (100 / feeData[1].toNumber()) * feeData[0].toNumber();
+        console.log("Fee:", fee);
+
+        const value = FUNDS_VALUE.sub(
+            FUNDS_VALUE.sub(
+                FUNDS_VALUE.div(new BN('100', 10)).mul(new BN(fee, 10))
+            )
+        ).toString();
+
         assert.equal(
-            tokensBought.sub(tokensBought.div(new BN('100', 10)).mul(fee)),
-            await buyToken.getBalance(indexOwner),
+            (await buyToken.balanceOf(indexOwner)).toString(),
             "Fees were not sent to the index owner",
         );
         return [tokensBought, fee];

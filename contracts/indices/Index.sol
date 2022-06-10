@@ -38,8 +38,9 @@ contract Index is Product {
     uint public tokensToBuy = 0;
     uint private tokensSold = 0;
     uint private buyAmountRequired = 0;
-    uint public constant maxTokens = 200000000000000000000;
-    uint public availableTokens = 200000000000000000000;
+    bool private allTokensManaged = false;
+    uint public constant maxTokens = 100000000000000000000;
+    uint public availableTokens = 100000000000000000000;
 
     function name() external pure override returns (string memory) { return "Index"; }
     function symbol() external pure override returns (string memory) { return "VID"; }
@@ -66,11 +67,12 @@ contract Index is Product {
 
         for (uint i = 0; i < tokens.length; i++) {
             TokenInfo memory tokenInfo = tokens[i];
-            uint tokenUsdBalance = IERC20(tokenInfo.tokenAddress).balanceOf(address(this)).mul(getTokenPrice(tokenInfo));
-            totalValue = totalValue.add(tokenUsdBalance.div(1 ether));
+            totalValue = totalValue.add(
+                IERC20(tokenInfo.tokenAddress).balanceOf(address(this)).mul(getTokenPrice(tokenInfo))
+            );
         }
 
-        return totalValue;
+        return totalValue.div(1 ether);
     }
 
     function getAvailableLiquidity() public view returns(uint){
@@ -263,14 +265,16 @@ contract Index is Product {
     }
 
     function endSettlement() override external onlyOwner {
+        require(allTokensManaged, "Not all tokens were managed");
         buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(getPrice()), true);
         sellDebtManager.changeTotalDebt(tokensSold, true);
 
-        if (buyAmountRequired < tokensToBuy && buyAmountRequired != 0) {
+        if (buyAmountRequired < tokensToBuy && allTokensManaged) {
             TransferHelper.safeTransfer(buyTokenAddress, owner(), tokensToBuy.sub(buyAmountRequired));
         }
 
         tokensToBuy = 0;
+        allTokensManaged = false;
         buyAmountRequired = 0;
         tokensToSell = 0;
         tokensSold = 0;
@@ -354,8 +358,13 @@ contract Index is Product {
     }
 
     function manageTokens() external onlyOwner {
+        require(!allTokensManaged, "Tokens already managed");
+
         lastManagedToken += 1;
-        if(lastManagedToken > tokens.length - 1){ lastManagedToken = 0; }
+        if(lastManagedToken > tokens.length - 1){
+            lastManagedToken = 0;
+            allTokensManaged = true;
+        }
 
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
