@@ -46,19 +46,19 @@ contract IndexToken is Token {
     string public constant name = "Void Index Token";
     uint8 public constant decimals = 18;
     string public constant symbol = "VID";
+    uint public immutable totalSupply;
     address public indexAddress;
 
-    constructor(address _indexAddress) { indexAddress = _indexAddress; }
+    constructor(address _indexAddress, uint _totalSupply) {
+        indexAddress = _indexAddress;
+        totalSupply = _totalSupply;
+        balances[_indexAddress] = _totalSupply;
+    }
 
     function transfer(address _to, uint256 _value) public override returns (bool success) {
-
-        if(msg.sender == indexAddress){
-            balances[_to] += _value;
-        }else{
-            require(balances[msg.sender] >= _value, "token balance is lower than the value requested");
-            balances[msg.sender] -= _value;
-            balances[_to] += _value;
-        }
+        require(balances[msg.sender] >= _value, "token balance is lower than the value requested");
+        balances[msg.sender] -= _value;
+        balances[_to] += _value;
 
         emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
         return true;

@@ -39,7 +39,6 @@ contract Index is Product {
     uint private tokensSold = 0;
     uint private buyAmountRequired = 0;
     bool private allTokensManaged = false;
-    uint public constant maxTokens = 1500000000000000000000;
     uint public availableTokens = 1500000000000000000000;
 
     function name() external pure override returns (string memory) { return "Index"; }
@@ -98,7 +97,7 @@ contract Index is Product {
     }
 
     constructor() {
-        indexToken = new IndexToken(address(this));
+        indexToken = new IndexToken(address(this), availableTokens);
 
         tokens[0] = TokenInfo({ // 0) WETH
             tokenAddress: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
@@ -207,7 +206,14 @@ contract Index is Product {
     function buy(uint256 amount) external override nonReentrant checkSettlement {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount > 0 && productFee > 0, "Not enough tokens sent");
-        require(getAvailableLiquidity() >= amount && realAmount <= availableTokens, "Not enough liquidity");
+
+        uint availableLiquidity = getAvailableLiquidity();
+        require(
+            availableLiquidity >= amount &&
+            realAmount <= availableTokens &&
+            tokensToBuy.add(tokensToSell) < availableLiquidity,
+            "Not enough liquidity"
+        );
 
         availableTokens = availableTokens.sub(realAmount);
 
@@ -226,7 +232,13 @@ contract Index is Product {
     function sell(uint amount) external override nonReentrant checkSettlement{
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         require(realAmount > 0 && productFee > 0, "You must sell more tokens");
-        require(getAvailableLiquidity() >= amount, "Not enough liquidity");
+
+        uint availableLiquidity = getAvailableLiquidity();
+        require(
+            availableLiquidity >= amount &&
+            tokensToBuy.add(tokensToSell) < availableLiquidity,
+            "Not enough liquidity"
+        );
 
         uint indexPrice = getPrice();
 
@@ -358,7 +370,7 @@ contract Index is Product {
     }
 
     function manageTokens() external onlyOwner {
-        require(!allTokensManaged, "Tokens already managed");
+        require(!allTokensManaged, "Tokens are already managed or another management transaction is active");
 
         lastManagedToken += 1;
         if(lastManagedToken > tokens.length - 1){

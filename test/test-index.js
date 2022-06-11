@@ -43,16 +43,12 @@ contract('Index', (accounts) => {
         const fee = (100 / feeData[1].toNumber()) * feeData[0].toNumber();
         console.log("Fee:", fee);
 
-        const value = FUNDS_VALUE.sub(
+        const feesValue = FUNDS_VALUE.sub(
             FUNDS_VALUE.sub(
                 FUNDS_VALUE.div(new BN('100', 10)).mul(new BN(fee, 10))
             )
         ).toString();
 
-        assert.equal(
-            (await buyToken.balanceOf(indexOwner)).toString(),
-            "Fees were not sent to the index owner",
-        );
         return [tokensBought, fee];
     };
     
@@ -79,7 +75,7 @@ contract('Index', (accounts) => {
     
         await index.endSettlement({ from: indexOwner });
 
-        const totalDebt = await index.getTotalDebt();
+        const totalDebt = await index.getTotalDebt(true);
         const tenPercentDrawdown = tokensBought.sub(tokensBought.div(new BN('100', 10)).mul(new BN('10', 10)));
 
         assert.isAbove(totalDebt, tenPercentDrawdown, "Bought less that 10% of the tokens");
@@ -106,9 +102,11 @@ contract('Index', (accounts) => {
     it("should withdraw funds from the index", async () => {
         const [tokensBought, _] = await buyTokens();
 
+        const totalDebt = await getTokenPrice(true)
+        await index.retrieveDebt(totalDebt, true);
 
-        indexToken.approve(index.address, tokensBought, { from: account });
-        await index.sell(tokenFunds, { from: account });
+        indexToken.approve(index.address, totalDebt, { from: account });
+        await index.sell(totalDebt, { from: account });
         console.log("Account DAI balance:", (await buyToken.balanceOf(account)).toString());
     });
 
