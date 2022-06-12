@@ -39,6 +39,7 @@ contract Index is Product {
     uint private tokensSold = 0;
     uint private buyAmountRequired = 0;
     bool private allTokensManaged = false;
+    bool public cancellationActive = false;
     uint public availableTokens = 1500000000000000000000;
 
     function name() external pure override returns (string memory) { return "Index"; }
@@ -227,6 +228,26 @@ contract Index is Product {
         TransferHelper.safeTransferFrom(buyTokenAddress, address(this), owner(), productFee.mul(indexPrice).div(2 ether));
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
+    }
+
+    function changeCancellation() external onlyOwner{ cancellationActive = !cancellationActive; }
+
+    function cancelDebt(uint amount) external nonReentrant {
+        require(cancellationActive, "Cancellation is not active");
+
+        (uint productFee, uint256 realAmount) = calculateFee(amount);
+        require(realAmount > 0 && productFee > 0, "Not enough tokens sent");
+
+        availableTokens = availableTokens.add(realAmount);
+
+        uint256 indexPrice = getPrice();
+        uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
+
+        tokensToBuy = tokensToBuy.sub(buyTokenAmount);
+        buyDebtManager.changeDebt(msg.sender, realAmount, false);
+
+        TransferHelper.safeTransfer(buyTokenAddress, msg.sender, amount.mul(indexPrice).div(1 ether));
+        TransferHelper.safeTransfer(buyTokenAddress, owner(), productFee.mul(indexPrice).div(2 ether));
     }
 
     function sell(uint amount) external override nonReentrant checkSettlement{
