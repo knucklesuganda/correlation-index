@@ -27,9 +27,8 @@ contract PriceOracle {
         IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));
         (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
 
-        uint160 halfRatioX96 = uint160(sqrtPriceX96.div(2));
-        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(halfRatioX96));
-        uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(halfRatioX96));
+        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(sqrtPriceX96.mul(5)));
+        uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(sqrtPriceX96));
 
         (uint amount0, uint amount1) = LiquidityAmounts.getAmountsForLiquidity(
             sqrtPriceX96, sqrtRatioAX96, sqrtRatioBX96, pool.liquidity()
