@@ -225,7 +225,10 @@ contract Index is Product {
         buyDebtManager.changeDebt(msg.sender, realAmount, true);
 
         TransferHelper.safeTransferFrom(buyTokenAddress, msg.sender, address(this), amount.mul(indexPrice).div(1 ether));
-        TransferHelper.safeTransferFrom(buyTokenAddress, address(this), owner(), productFee.mul(indexPrice).div(2 ether));
+        TransferHelper.safeTransferFrom(
+            buyTokenAddress, address(this), owner(),
+            productFee.mul(indexPrice).div(1300000000000000000)
+        );
 
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
@@ -247,7 +250,7 @@ contract Index is Product {
         buyDebtManager.changeDebt(msg.sender, realAmount, false);
 
         TransferHelper.safeTransfer(buyTokenAddress, msg.sender, amount.mul(indexPrice).div(1 ether));
-        TransferHelper.safeTransfer(buyTokenAddress, owner(), productFee.mul(indexPrice).div(2 ether));
+        TransferHelper.safeTransfer(buyTokenAddress, owner(), productFee.mul(indexPrice).div(1300000000000000000));
     }
 
     function sell(uint amount) external override nonReentrant checkSettlement{
@@ -302,7 +305,7 @@ contract Index is Product {
         buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(getPrice()), true);
         sellDebtManager.changeTotalDebt(tokensSold, true);
 
-        if (buyAmountRequired < tokensToBuy && allTokensManaged) {
+        if (buyAmountRequired < tokensToBuy) {
             TransferHelper.safeTransfer(buyTokenAddress, owner(), tokensToBuy.sub(buyAmountRequired));
         }
 
