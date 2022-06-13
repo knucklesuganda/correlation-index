@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 abstract contract Product is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
-    address public constant buyTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     uint8 internal productFee = 5;
     uint internal productFeeTotal = 100;
     bool internal isSettlement;
