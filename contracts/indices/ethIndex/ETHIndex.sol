@@ -296,7 +296,7 @@ contract ETHIndex is Product {
     function beginSettlement() override external onlyOwner{
         isSettlement = true;
 
-        uint totalBuyTokens = tokensToBuy.add(tokensToBuy.mul(productFee).div(productFeeTotal));
+        uint totalBuyTokens = address(this).balance;
         WETH(buyTokenAddress).deposit{ value: totalBuyTokens }();
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, totalBuyTokens);
     }
@@ -310,7 +310,9 @@ contract ETHIndex is Product {
             TransferHelper.safeTransferETH(owner(), tokensToBuy.sub(buyAmountRequired));
         }
 
-        WETH(buyTokenAddress).withdraw(tokensSold);
+        if(tokensSold > 0){
+            WETH(buyTokenAddress).withdraw(tokensSold);
+        }
 
         tokensToBuy = 0;
         allTokensManaged = false;
@@ -361,7 +363,7 @@ contract ETHIndex is Product {
             )
         );
 
-        positionManager.refundETH();
+        // positionManager.refundETH();
     }
 
     function manageTokens() external onlyOwner {
