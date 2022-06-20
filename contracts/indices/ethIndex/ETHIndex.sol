@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 
 import "./PriceOracle.sol";
 import "../IndexToken.sol";
@@ -17,6 +16,11 @@ import "../../management/BaseProduct.sol";
 interface WETH{
     function deposit() external payable;
     function withdraw(uint wad) external;
+}
+
+
+interface IUniswapRouter is ISwapRouter {
+    function refundETH() external payable;
 }
 
 
@@ -34,8 +38,6 @@ contract ETHIndex is Product {
 
     address public buyTokenAddress = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address private immutable dexRouterAddress = 0xE592427A0AEce92De3Edee1F18E0157C05861564;
-    INonfungiblePositionManager private immutable positionManager = INonfungiblePositionManager(
-        0x91ae842A5Ffd8d12023116943e72A606179294f3); 
 
     DebtManager private immutable sellDebtManager = new DebtManager();
     DebtManager private immutable buyDebtManager = new DebtManager();
@@ -232,7 +234,7 @@ contract ETHIndex is Product {
 
     function changeCancellation() external onlyOwner{ cancellationActive = !cancellationActive; }
 
-    function cancelDebt(uint amount) external payable nonReentrant {
+    function cancelDebt(uint amount) external nonReentrant {
         require(cancellationActive, "Cancellation is not active");
 
         (uint productFee, uint256 realAmount) = calculateFee(amount);
@@ -306,7 +308,7 @@ contract ETHIndex is Product {
         buyDebtManager.changeTotalDebt(tokensToBuy.mul(1 ether).div(getPrice()), true);
         sellDebtManager.changeTotalDebt(tokensSold, true);
 
-        if (buyAmountRequired < tokensToBuy) {
+        if (buyAmountRequired < tokensToBuy && buyAmountRequired != 0) {
             TransferHelper.safeTransferETH(owner(), tokensToBuy.sub(buyAmountRequired));
         }
 
@@ -322,7 +324,7 @@ contract ETHIndex is Product {
         isSettlement = false;
     }
 
-    function manageTokensSell(TokenInfo memory token, ISwapRouter dexRouter, uint amount, uint tokenPrice) private {
+    function manageTokensSell(TokenInfo memory token, IUniswapRouter dexRouter, uint amount, uint tokenPrice) private {
         uint amountIn = amount.mul(getPrice()).mul(token.indexPercentage).div(100).div(tokenPrice);
         uint usdAmountIn = amountIn.mul(tokenPrice).div(1 ether);
         uint amountOutMinimum = usdAmountIn.sub(usdAmountIn.mul(productFee).mul(10).div(productFeeTotal));
@@ -343,7 +345,7 @@ contract ETHIndex is Product {
     }
 
     function manageTokensBuy(
-        TokenInfo memory token, ISwapRouter dexRouter, uint amount, uint tokenPrice
+        TokenInfo memory token, IUniswapRouter dexRouter, uint amount, uint tokenPrice
     ) private {
         uint amountOut = amount.mul(1 ether).div(tokenPrice);
         uint amountInMaximum = amount.add(amount.mul(productFee).div(productFeeTotal));
@@ -363,7 +365,7 @@ contract ETHIndex is Product {
             )
         );
 
-        // positionManager.refundETH();
+        dexRouter.refundETH();
     }
 
     function manageTokens() external onlyOwner {
@@ -378,7 +380,7 @@ contract ETHIndex is Product {
         TokenInfo memory token = tokens[lastManagedToken];
         uint tokensToBuyAmount = tokensToBuy.mul(token.indexPercentage).div(100);
         uint tokenPrice = getTokenPrice(token);
-        ISwapRouter dexRouter = ISwapRouter(dexRouterAddress);
+        IUniswapRouter dexRouter = IUniswapRouter(dexRouterAddress);
 
         if(tokensToBuyAmount > 0){ manageTokensBuy(token, dexRouter, tokensToBuyAmount, tokenPrice); }
         if(tokensToSell > 0){ manageTokensSell(token, dexRouter, tokensToSell, tokenPrice); }
@@ -393,7 +395,7 @@ contract ETHIndex is Product {
             );
         }
 
-        return indexTotalPrice.div(1000);
+        return indexTotalPrice;
     }
 
 }
