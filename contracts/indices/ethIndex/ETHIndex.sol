@@ -13,14 +13,33 @@ import "../DebtManager.sol";
 import "../../management/BaseProduct.sol";
 
 
-interface WETH{
-    function deposit() external payable;
-    function withdraw(uint wad) external;
-}
-
-
 interface IUniswapRouter is ISwapRouter {
     function refundETH() external payable;
+}
+
+contract WETH9 {
+    string public name = "Wrapped Ether";
+    string public symbol = "WETH";
+    uint8  public decimals = 18;
+
+    event Deposit(address indexed dst, uint wad);
+    event Withdrawal(address indexed src, uint wad);
+
+    mapping (address => uint)                       public  balanceOf;
+    mapping (address => mapping (address => uint))  public  allowance;
+
+    function deposit() public payable {
+        balanceOf[msg.sender] += msg.value;
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdraw(uint wad) public {
+        require(balanceOf[msg.sender] >= wad);
+        balanceOf[msg.sender] -= wad;
+        msg.sender.transfer(wad);
+        emit Withdrawal(msg.sender, wad);
+    }
+
 }
 
 
@@ -50,7 +69,7 @@ contract ETHIndex is Product {
     uint private buyAmountRequired = 0;
     bool private allTokensManaged = false;
     bool public cancellationActive = false;
-    uint public availableTokens = 1500000000000000000000;
+    uint public availableTokens = 5000000000000000000000;
 
     function name() external pure override returns (string memory) { return "Index ETH"; }
     function symbol() external pure override returns (string memory) { return "VID(ETH)"; }
@@ -61,7 +80,7 @@ contract ETHIndex is Product {
     }
 
     function longDescription() external pure override returns (string memory) {
-        return "Void Index(ETH) - fully decentralized index with ETH as the base token. It features 10 ERC20 tokens, and allows you to buy or sell them at once. You receive VID tokens as a proof of funds ownership";
+        return "Void Index(ETH) - fully decentralized index with ETH as the base token. It features 10 ERC20 tokens, and allows you to buy or sell them at once. You receive VID(ETH) tokens as a proof of funds ownership";
     }
 
     function getTokenPrice(TokenInfo memory token) public view returns (uint256) {
@@ -69,7 +88,7 @@ contract ETHIndex is Product {
     }
 
     function image() external pure override returns (string memory) {
-        return "https://voidmanagementstorage.blob.core.windows.net/assets/logo_index.png";
+        return "https://voidmanagementstorage.blob.core.windows.net/assets/eth_index.png";
     }
 
     function getTotalLockedValue() external view override returns (uint256) {
@@ -98,8 +117,7 @@ contract ETHIndex is Product {
             }
         }
 
-        minLiquidity = minLiquidity.mul(1 ether).div(getPrice());
-        return minLiquidity;
+        return minLiquidity.mul(1 ether).div(getPrice());
     }
 
     constructor() {
@@ -199,6 +217,9 @@ contract ETHIndex is Product {
         // });
     }
 
+    receive() external payable {}
+    fallback() external payable {}
+
     function buy(uint _) external pure override{
         revert("Use buyETH function to buy tokens");
     }
@@ -206,29 +227,24 @@ contract ETHIndex is Product {
     function buyETH(uint amount) external payable nonReentrant checkSettlement {
         (uint productFee, uint256 realAmount) = calculateFee(amount);
         uint256 indexPrice = getPrice();
+        uint availableLiquidity = getAvailableLiquidity();
+        uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
 
         require(
             realAmount > 0 &&
             productFee > 0 &&
-            amount.mul(indexPrice).div(1 ether) <= msg.value,
-            "Not enough tokens sent"
-        );
-
-        uint availableLiquidity = getAvailableLiquidity();
-        require(
+            amount.mul(indexPrice).div(1 ether) <= msg.value &&
             availableLiquidity >= amount &&
             realAmount <= availableTokens &&
-            tokensToBuy.add(tokensToSell) < availableLiquidity,
-            "Not enough liquidity"
+            tokensToBuy.add(tokensToSell.mul(indexPrice)).add(buyTokenAmount) < availableLiquidity,
+            "Not enough tokens sent or not enough liquidity"
         );
 
         availableTokens = availableTokens.sub(realAmount);
-        uint buyTokenAmount = realAmount.mul(indexPrice).div(1 ether);
-
         tokensToBuy = tokensToBuy.add(buyTokenAmount);
         buyDebtManager.changeDebt(msg.sender, realAmount, true);
 
-        TransferHelper.safeTransferETH(owner(), productFee.mul(indexPrice).div(1300000000000000000));
+        TransferHelper.safeTransferETH(owner(), productFee.mul(indexPrice).div(2 ether));
         emit ProductBought(msg.sender, buyTokenAmount, realAmount);
     }
 
@@ -249,7 +265,6 @@ contract ETHIndex is Product {
         buyDebtManager.changeDebt(msg.sender, realAmount, false);
 
         TransferHelper.safeTransferETH(msg.sender, amount.mul(indexPrice).div(1 ether));
-        TransferHelper.safeTransferETH(owner(), productFee.mul(indexPrice).div(1300000000000000000));
     }
 
     function sell(uint amount) external override nonReentrant checkSettlement{
@@ -280,6 +295,7 @@ contract ETHIndex is Product {
         if(isBuyDebt){
             TransferHelper.safeTransfer(address(indexToken), msg.sender, amount);
         } else {
+            WETH9(payable(buyTokenAddress)).withdraw(amount);
             TransferHelper.safeTransferETH(msg.sender, amount);
         }
 
@@ -298,8 +314,8 @@ contract ETHIndex is Product {
     function beginSettlement() override external onlyOwner{
         isSettlement = true;
 
-        uint totalBuyTokens = address(this).balance;
-        WETH(buyTokenAddress).deposit{ value: totalBuyTokens }();
+        uint totalBuyTokens = tokensToBuy.add(tokensToBuy.mul(productFee).div(productFeeTotal).div(2));
+        WETH9(payable(buyTokenAddress)).deposit{ value: totalBuyTokens }();
         TransferHelper.safeApprove(buyTokenAddress, dexRouterAddress, totalBuyTokens);
     }
 
@@ -310,10 +326,6 @@ contract ETHIndex is Product {
 
         if (buyAmountRequired < tokensToBuy && buyAmountRequired != 0) {
             TransferHelper.safeTransferETH(owner(), tokensToBuy.sub(buyAmountRequired));
-        }
-
-        if(tokensSold > 0){
-            WETH(buyTokenAddress).withdraw(tokensSold);
         }
 
         tokensToBuy = 0;
@@ -390,12 +402,10 @@ contract ETHIndex is Product {
         uint indexTotalPrice = 0;
 
         for (uint i = 0; i < tokens.length; i++) {
-            indexTotalPrice = indexTotalPrice.add(
-                getTokenPrice(tokens[i]).mul(tokens[i].indexPercentage)
-            );
+            indexTotalPrice = indexTotalPrice.add(getTokenPrice(tokens[i]).mul(tokens[i].indexPercentage));
         }
 
-        return indexTotalPrice;
+        return indexTotalPrice.div(1000);   // total / 100 / 10
     }
 
 }

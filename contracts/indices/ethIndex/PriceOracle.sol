@@ -27,7 +27,7 @@ contract PriceOracle {
         IUniswapV3Pool pool = IUniswapV3Pool(factory.getPool(firstToken, secondToken, fee));
         (uint160 sqrtPriceX96,,,,,,) = pool.slot0();
 
-        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(sqrtPriceX96.mul(10000)));
+        uint160 sqrtRatioBX96 = uint160(sqrtPriceX96.add(sqrtPriceX96));
         uint160 sqrtRatioAX96 = uint160(sqrtPriceX96.sub(sqrtPriceX96));
 
         (uint amount0, uint amount1) = LiquidityAmounts.getAmountsForLiquidity(
@@ -65,8 +65,9 @@ contract PriceOracle {
     }
 
     function getPrice(address firstToken, address secondToken, uint24 poolFee) public view returns (uint) {
-        int24 tick = getLatestTick(firstToken, secondToken, poolFee);
-        return OracleLibrary.getQuoteAtTick(tick, 1 ether, secondToken, firstToken);
+        return OracleLibrary.getQuoteAtTick(
+            getLatestTick(firstToken, secondToken, poolFee), 1 ether, secondToken, firstToken
+        );
     }
 
 }
